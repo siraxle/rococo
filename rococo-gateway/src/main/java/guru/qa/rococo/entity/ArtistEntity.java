@@ -1,10 +1,13 @@
 package guru.qa.rococo.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.UUID;
 
 @Entity
 @Table(name = "artist")
+@Data
 public class ArtistEntity {
 
     @Id
