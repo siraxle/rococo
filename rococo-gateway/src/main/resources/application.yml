@@ -11,8 +11,12 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: 'http://localhost:9000'
-  datasource:
-    url: 'jdbc:mysql://localhost:3306/rococo-gateway?serverTimezone=UTC&createDatabaseIfNotExist=true'
+#  datasource:
+#    url: 'jdbc:mysql://localhost:3306/rococo-gateway?serverTimezone=UTC&createDatabaseIfNotExist=true'
+    datasource:
+      url: jdbc:mysql://rococo-mysql:3306/rococo-gateway?serverTimezone=UTC&createDatabaseIfNotExist=true
+      username: root
+      password: secret
     hikari:
       connection-timeout: 20000
       minimum-idle: 10
