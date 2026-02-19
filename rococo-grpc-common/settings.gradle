@@ -1,5 +1,5 @@
-rootProject.name = 'rococo'
+rootProject.name = 'rococo-master'
+include 'rococo-grpc-common'
 include 'rococo-gateway'
 include 'rococo-auth'
-include 'rococo-grpc-common'
 include 'rococo-artist'
