@@ -11,12 +11,16 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: 'http://localhost:9000'
-#  datasource:
-#    url: 'jdbc:mysql://localhost:3306/rococo-gateway?serverTimezone=UTC&createDatabaseIfNotExist=true'
-    datasource:
-      url: jdbc:mysql://rococo-mysql:3306/rococo-gateway?serverTimezone=UTC&createDatabaseIfNotExist=true
-      username: root
-      password: secret
+  grpc:
+    client:
+      artist-service:
+        address: 'static://localhost:8091'
+        negotiation-type: plaintext
+  datasource:
+    url: jdbc:mysql://localhost:3306/rococo-gateway?createDatabaseIfNotExist=true
+    username: root
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       connection-timeout: 20000
       minimum-idle: 10
@@ -24,8 +28,6 @@ spring:
       idle-timeout: 10000
       max-lifetime: 1000
       auto-commit: true
-    username: root
-    password: secret
   flyway:
     enabled: true
     baseline-on-migrate: true

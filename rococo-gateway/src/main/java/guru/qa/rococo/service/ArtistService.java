@@ -1,39 +1,60 @@
 package guru.qa.rococo.service;
 
-import guru.qa.rococo.entity.ArtistEntity;
-import guru.qa.rococo.repository.ArtistRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import guru.qa.rococo.grpc.ArtistGrpcClient;
+import guru.qa.rococo.model.Artist;
 import org.springframework.stereotype.Service;
+import rococo.grpc.artist.ArtistIdRequest;
+import rococo.grpc.artist.ArtistResponse;
+import rococo.grpc.artist.ArtistListResponse;
+
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ArtistService {
 
-    private final ArtistRepository artistRepository;
+    private final ArtistGrpcClient artistGrpcClient;
 
-    @Autowired
-    public ArtistService(ArtistRepository artistRepository) {
-        this.artistRepository = artistRepository;
+    public ArtistService(ArtistGrpcClient artistGrpcClient) {
+        this.artistGrpcClient = artistGrpcClient;
     }
 
-    public List<ArtistEntity> getAllArtists() {
-        return artistRepository.findAll();
+    public Artist getArtistById(UUID id) {
+        ArtistResponse response = artistGrpcClient.getArtist(id.toString());
+        return mapToArtist(response);
     }
 
-    public ArtistEntity getArtistById(UUID id) {
-        return artistRepository.findById(id).orElse(null);
+    public Artist createArtist(String name, String biography, String photo) {
+        ArtistResponse response = artistGrpcClient.createArtist(name, biography, photo);
+        return mapToArtist(response);
     }
 
-    public ArtistEntity createArtist(ArtistEntity artist) {
-        return artistRepository.save(artist);
+    public Artist updateArtist(UUID id, String name, String biography, String photo) {
+        ArtistResponse response = artistGrpcClient.updateArtist(id.toString(), name, biography, photo);
+        return mapToArtist(response);
     }
 
-    public ArtistEntity updateArtist(ArtistEntity artist) {
-        return artistRepository.save(artist);
+    public List<Artist> getAllArtists() {
+        ArtistListResponse response = artistGrpcClient.getAllArtists();
+        return response.getArtistsList().stream()
+                .map(this::mapToArtist)
+                .collect(Collectors.toList());
     }
 
-    public void deleteArtist(UUID id) {
-        artistRepository.deleteById(id);
+    public void deleteArtist(String id) {
+        ArtistIdRequest request = ArtistIdRequest.newBuilder()
+                .setId(id)
+                .build();
+        throw new UnsupportedOperationException("Delete method not implemented in proto");
+    }
+
+    private Artist mapToArtist(ArtistResponse response) {
+        return new Artist(
+                UUID.fromString(response.getId()),
+                response.getName(),
+                response.getBiography(),
+                response.getPhoto()
+        );
     }
 }

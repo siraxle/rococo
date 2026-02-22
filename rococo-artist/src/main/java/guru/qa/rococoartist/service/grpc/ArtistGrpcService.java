@@ -1,6 +1,5 @@
 package guru.qa.rococoartist.service.grpc;
 
-import com.google.protobuf.Empty;
 import org.springframework.grpc.server.service.GrpcService;
 import rococo.grpc.artist.*;
 import guru.qa.rococoartist.model.ArtistEntity;
@@ -103,6 +102,28 @@ public class ArtistGrpcService extends ArtistServiceGrpc.ArtistServiceImplBase {
             responseObserver.onError(
                     Status.INTERNAL
                             .withDescription("Error fetching artists: " + e.getMessage())
+                            .asRuntimeException()
+            );
+        }
+    }
+
+    @Override
+    public void deleteArtist(ArtistIdRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            UUID id = UUID.fromString(request.getId());
+            artistService.deleteArtist(id);
+            responseObserver.onNext(Empty.newBuilder().build());
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(
+                    Status.INVALID_ARGUMENT
+                            .withDescription("Invalid UUID format: " + request.getId())
+                            .asRuntimeException()
+            );
+        } catch (Exception e) {
+            responseObserver.onError(
+                    Status.NOT_FOUND
+                            .withDescription("Artist not found with id: " + request.getId())
                             .asRuntimeException()
             );
         }
