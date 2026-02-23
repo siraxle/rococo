@@ -9,7 +9,7 @@ service ArtistService {
   rpc GetArtist (ArtistIdRequest) returns (ArtistResponse);
   rpc CreateArtist (CreateArtistRequest) returns (ArtistResponse);
   rpc UpdateArtist (UpdateArtistRequest) returns (ArtistResponse);
-  rpc GetAllArtists (Empty) returns (ArtistListResponse);
+  rpc GetAllArtists (GetAllArtistsRequest) returns (ArtistListResponse);
   rpc DeleteArtist (ArtistIdRequest) returns (Empty);
 }
 
@@ -39,6 +39,14 @@ message ArtistResponse {
 
 message ArtistListResponse {
   repeated ArtistResponse artists = 1;
+  int32 totalPages = 2;
+  int32 totalElements = 3;
+  int32 currentPage = 4;
+}
+
+message GetAllArtistsRequest {
+  int32 page = 1;
+  int32 size = 2;
 }
 
 message Empty {}

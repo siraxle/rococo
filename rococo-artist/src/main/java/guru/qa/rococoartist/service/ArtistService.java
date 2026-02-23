@@ -4,9 +4,15 @@ import guru.qa.rococoartist.model.ArtistEntity;
 import guru.qa.rococoartist.repository.ArtistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import rococo.grpc.artist.ArtistListResponse;
+import rococo.grpc.artist.ArtistResponse;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ArtistService {
@@ -48,8 +54,29 @@ public class ArtistService {
         return artistRepository.save(artist);
     }
 
-    public List<ArtistEntity> getAllArtists() {
-        return artistRepository.findAll();
+    public ArtistListResponse getAllArtists(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ArtistEntity> artistPage = artistRepository.findAll(pageable);
+
+        List<ArtistResponse> artistResponses = artistPage.getContent().stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+
+        return ArtistListResponse.newBuilder()
+                .addAllArtists(artistResponses)
+                .setTotalPages(artistPage.getTotalPages())
+                .setTotalElements((int) artistPage.getTotalElements())
+                .setCurrentPage(artistPage.getNumber())
+                .build();
+    }
+
+    private ArtistResponse mapToResponse(ArtistEntity entity) {
+        return ArtistResponse.newBuilder()
+                .setId(entity.getId().toString())
+                .setName(entity.getName())
+                .setBiography(entity.getBiography() != null ? entity.getBiography() : "")
+                .setPhoto(entity.getPhoto() != null ? entity.getPhoto() : "")
+                .build();
     }
 
     public void deleteArtist(UUID id) {

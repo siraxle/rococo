@@ -30,15 +30,16 @@ public class SecurityConfigLocal {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(customizer ->
                         customizer
-                                .requestMatchers(HttpMethod.GET,
-                                        "/api/session",
-                                        "/api/artist/**",
-                                        "/api/museum/**",
-                                        "/api/painting/**",
-                                        "/api/country/**"
-                                ).permitAll()
+                                // Разрешаем ВСЕ GET запросы без аутентификации
+                                .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                                // Для тестирования разрешаем POST, PATCH, DELETE
+                                .requestMatchers(HttpMethod.POST, "/api/**").permitAll()
+                                .requestMatchers(HttpMethod.PATCH, "/api/**").permitAll()
+                                .requestMatchers(HttpMethod.DELETE, "/api/**").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated()
                 )
+                // Опционально: можно отключить JWT для локального профиля
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
@@ -47,9 +48,10 @@ public class SecurityConfigLocal {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of(frontUri));
+        config.setAllowedOrigins(List.of(frontUri, "http://localhost:3000", "http://127.0.0.1:3000"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
+        config.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

@@ -7,8 +7,6 @@ import guru.qa.rococoartist.service.ArtistService;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
-
-import java.util.List;
 import java.util.UUID;
 
 @GrpcService
@@ -89,15 +87,19 @@ public class ArtistGrpcService extends ArtistServiceGrpc.ArtistServiceImplBase {
     }
 
     @Override
-    public void getAllArtists(rococo.grpc.artist.Empty request, StreamObserver<ArtistListResponse> responseObserver) {
+    public void getAllArtists(GetAllArtistsRequest request, StreamObserver<ArtistListResponse> responseObserver) {
         try {
-            List<ArtistEntity> artists = artistService.getAllArtists();
-            ArtistListResponse.Builder listBuilder = ArtistListResponse.newBuilder();
-            for (ArtistEntity artist : artists) {
-                listBuilder.addArtists(mapToProtoArtist(artist));
-            }
-            responseObserver.onNext(listBuilder.build());
+            int page = request.getPage();
+            int size = request.getSize();
+
+            if (page < 0) page = 0;
+            if (size <= 0) size = 10;
+            if (size > 100) size = 100;
+
+            ArtistListResponse response = artistService.getAllArtists(page, size);
+            responseObserver.onNext(response);
             responseObserver.onCompleted();
+
         } catch (Exception e) {
             responseObserver.onError(
                     Status.INTERNAL

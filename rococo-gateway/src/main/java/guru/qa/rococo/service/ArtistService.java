@@ -36,7 +36,11 @@ public class ArtistService {
     }
 
     public List<Artist> getAllArtists() {
-        ArtistListResponse response = artistGrpcClient.getAllArtists();
+        return getAllArtists(0, 10);
+    }
+
+    public List<Artist> getAllArtists(int page, int size) {
+        ArtistListResponse response = artistGrpcClient.getAllArtists(page, size);
         return response.getArtistsList().stream()
                 .map(this::mapToArtist)
                 .collect(Collectors.toList());
