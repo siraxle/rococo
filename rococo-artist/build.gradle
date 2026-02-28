@@ -25,6 +25,9 @@ dependencyManagement {
 }
 
 dependencies {
+    // Проектные зависимости
+    implementation project(':rococo-grpc-common')
+
     // Spring Boot Starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -34,8 +37,7 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
     implementation 'org.flywaydb:flyway-core:10.17.1'
     implementation 'org.flywaydb:flyway-mysql:10.17.1'
-
-
+    testRuntimeOnly 'com.h2database:h2'
     // gRPC
     implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
     implementation 'io.grpc:grpc-services'
@@ -49,7 +51,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // Protobuf
+    // Protobuf (версия берется из BOM)
     implementation "com.google.protobuf:protobuf-java-util:${dependencyManagement.importedProperties['protobuf-java.version']}"
 }
 
@@ -75,7 +77,11 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-//test {
-//    useJUnitPlatform()
-//    enabled = false
-//}
+// Убедитесь, что proto файлы генерируются до компиляции
+tasks.named('compileJava').configure {
+    dependsOn tasks.named('generateProto')
+}
+
+tasks.register('prepareKotlinBuildScriptModel') {
+    description = "Dummy task to satisfy IntelliJ IDEA sync"
+}

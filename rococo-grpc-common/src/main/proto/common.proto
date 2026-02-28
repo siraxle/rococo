@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package rococo.common;
+
+option java_multiple_files = true;
+option java_package = "rococo.grpc.common";
+option java_outer_classname = "RococoCommonProto";
+
+enum SortDirection {
+  SORT_DIRECTION_UNSPECIFIED = 0;
+  ASC = 1;
+  DESC = 2;
+}
+
+enum EntityStatus {
+  ENTITY_STATUS_UNSPECIFIED = 0;
+  ACTIVE = 1;
+  DELETED = 2;
+  HIDDEN = 3;
+}
