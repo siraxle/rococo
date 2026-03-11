@@ -13,7 +13,7 @@ public class MuseumEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, length = 36)
+    @Column(name = "id", nullable = false)
     private UUID id;
 
     @Column(name = "title", nullable = false)

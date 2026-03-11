@@ -9,11 +9,16 @@ spring:
   security:
     enabled: false
 
-  grpc:
-    client:
-      artist-service:
-        address: 'localhost:8091'
-        negotiation-type: plaintext
+#  grpc:
+#    client:
+#      artist-service:
+#        address: '127.0.0.1:8091'
+#        negotiation-type: plaintext
+#      museum-service:
+#        address: '127.0.0.1:8092'
+#        negotiation-type: plaintext
+#        enable-keep-alive: true
+#        keep-alive-without-calls: true
 
   datasource:
     url: jdbc:mysql://localhost:3306/rococo-gateway?createDatabaseIfNotExist=true
@@ -30,9 +35,15 @@ spring:
     schemas: rococo-gateway
     locations: classpath:db/migration/rococo-gateway
 
+#logging:
+#  level:
+#    root: INFO
+
 logging:
   level:
-    root: INFO
+    guru.qa.rococo: DEBUG
+    io.grpc: DEBUG
+    net.devh.boot.grpc: DEBUG
 
 rococo-front:
   base-uri: 'http://localhost:3000'

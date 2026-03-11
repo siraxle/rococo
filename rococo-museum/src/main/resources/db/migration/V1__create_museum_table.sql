@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS museum
 (
-    id          CHAR(36) PRIMARY KEY,
+    id          binary(16)      unique not null default (UUID_TO_BIN(UUID(), true)),
     title       VARCHAR(255) NOT NULL,
     description TEXT,
     city        VARCHAR(255) NOT NULL,

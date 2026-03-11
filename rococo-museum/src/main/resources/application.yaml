@@ -48,3 +48,12 @@ logging:
 
 server:
   port: 8093
+
+grpc:
+  client:
+    artist-service:
+      address: '127.0.0.1:8091'
+      negotiation-type: plaintext
+    museum-service:
+      address: '127.0.0.1:8092'
+      negotiation-type: plaintext
