@@ -1,48 +1,89 @@
 package guru.qa.rococo.service;
 
-import guru.qa.rococo.entity.PaintingEntity;
-import guru.qa.rococo.repository.PaintingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
+import guru.qa.rococo.grpc.PaintingGrpcClient;
+import guru.qa.rococo.model.Painting;
 import org.springframework.stereotype.Service;
+import rococo.grpc.painting.PaintingListResponse;
+import rococo.grpc.painting.PaintingResponse;
+
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class PaintingService {
 
-    private final PaintingRepository paintingRepository;
+    private final PaintingGrpcClient paintingGrpcClient;
 
-    @Autowired
-    public PaintingService(PaintingRepository paintingRepository) {
-        this.paintingRepository = paintingRepository;
+    public PaintingService(PaintingGrpcClient paintingGrpcClient) {
+        this.paintingGrpcClient = paintingGrpcClient;
     }
 
-    public List<PaintingEntity> getAllPaintings() {
-        return paintingRepository.findAll();
+    public Painting getPaintingById(UUID id) {
+        PaintingResponse response = paintingGrpcClient.getPainting(id.toString());
+        return mapToPainting(response);
     }
 
-    public PaintingEntity getPaintingById(UUID id) {
-        return paintingRepository.findById(id).orElse(null);
+    public Painting createPainting(String title, String description, UUID artistId, UUID museumId, String photo) {
+        PaintingResponse response = paintingGrpcClient.createPainting(
+                title,
+                description,
+                artistId != null ? artistId.toString() : null,
+                museumId != null ? museumId.toString() : null,
+                photo
+        );
+        return mapToPainting(response);
     }
 
-    public PaintingEntity createPainting(PaintingEntity painting) {
-        return paintingRepository.save(painting);
-    }
-
-    public PaintingEntity updatePainting(PaintingEntity painting) {
-        return paintingRepository.save(painting);
+    public Painting updatePainting(UUID id, String title, String description, UUID artistId, UUID museumId, String photo) {
+        PaintingResponse response = paintingGrpcClient.updatePainting(
+                id.toString(),
+                title,
+                description,
+                artistId != null ? artistId.toString() : null,
+                museumId != null ? museumId.toString() : null,
+                photo
+        );
+        return mapToPainting(response);
     }
 
     public void deletePainting(UUID id) {
-        paintingRepository.deleteById(id);
+        paintingGrpcClient.deletePainting(id.toString());
     }
 
-    public List<PaintingEntity> getPaintingsByArtistId(UUID artistId) {
-        return paintingRepository.findAllByArtistId(artistId, Pageable.unpaged()).getContent();
+    public List<Painting> getAllPaintings(int page, int size, String title, UUID artistId, UUID museumId) {
+        PaintingListResponse response = paintingGrpcClient.getAllPaintings(
+                page,
+                size,
+                title,
+                artistId != null ? artistId.toString() : null,
+                museumId != null ? museumId.toString() : null
+        );
+        return response.getPaintingsList().stream()
+                .map(this::mapToPainting)
+                .collect(Collectors.toList());
     }
 
-    public List<PaintingEntity> getPaintingsByMuseumId(UUID museumId) {
-        return paintingRepository.findAllByMuseumId(museumId, Pageable.unpaged()).getContent();
+    private Painting mapToPainting(PaintingResponse response) {
+        Painting.ArtistInfo artistInfo = new Painting.ArtistInfo(
+                UUID.fromString(response.getArtistId()),
+                null
+        );
+
+        Painting.MuseumInfo museumInfo = null;
+        if (response.hasMuseumId() && response.getMuseumId() != null && !response.getMuseumId().isEmpty()) {
+            museumInfo = new Painting.MuseumInfo(
+                    UUID.fromString(response.getMuseumId())
+            );
+        }
+
+        return new Painting(
+                UUID.fromString(response.getId()),
+                response.getTitle(),
+                response.getDescription(),
+                response.hasPhoto() ? response.getPhoto() : null,
+                artistInfo,
+                museumInfo
+        );
     }
 }

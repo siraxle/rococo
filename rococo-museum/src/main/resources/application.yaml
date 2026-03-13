@@ -47,7 +47,7 @@ logging:
     org.springframework.jdbc: INFO
 
 server:
-  port: 8093
+  port: 8094
 
 grpc:
   client:
@@ -57,3 +57,4 @@ grpc:
     museum-service:
       address: '127.0.0.1:8092'
       negotiation-type: plaintext
+

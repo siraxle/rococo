@@ -28,4 +28,15 @@ public class CountryService {
     public CountryEntity getCountryByName(String name) {
         return countryRepository.findByName(name).orElse(null);
     }
+
+    public CountryEntity getCountryByCity(String city) {
+        return switch (city.toLowerCase()) {
+            case "париж" -> countryRepository.findByName("Франция").orElse(null);
+            case "санкт-петербург", "москва" -> countryRepository.findByName("Россия").orElse(null);
+            case "флоренция", "рим" -> countryRepository.findByName("Италия").orElse(null);
+            case "берлин" -> countryRepository.findByName("Германия").orElse(null);
+            case "мадрид" -> countryRepository.findByName("Испания").orElse(null);
+            default -> null;
+        };
+    }
 }

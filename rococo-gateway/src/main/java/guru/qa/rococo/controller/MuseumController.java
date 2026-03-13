@@ -1,107 +1,117 @@
 package guru.qa.rococo.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import guru.qa.rococo.model.Museum;
 import guru.qa.rococo.service.MuseumService;
+import guru.qa.rococo.service.CountryService;
+import guru.qa.rococo.entity.CountryEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/museum")
 public class MuseumController {
 
     private final MuseumService museumService;
+    private final CountryService countryService;
+    private final ObjectMapper objectMapper;
 
-    public MuseumController(MuseumService museumService) {
+    @Autowired
+    public MuseumController(MuseumService museumService, CountryService countryService, ObjectMapper objectMapper) {
         this.museumService = museumService;
+        this.countryService = countryService;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping
-    public ResponseEntity<Page<Museum>> getAllMuseums(
+    public ResponseEntity<Page<Map<String, Object>>> getAllMuseums(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String city) {
 
-        if (page < 0) page = 0;
-        if (size <= 0) size = 10;
-        if (size > 100) size = 100;
-
         List<Museum> museums = museumService.getAllMuseums(page, size, title, city);
-        // TODO: когда музейный сервис начнёт возвращать totalElements, использовать реальные значения
-        Page<Museum> museumPage = new PageImpl<>(museums, PageRequest.of(page, size), museums.size());
+
+        // Преобразуем в формат, который ожидает фронт
+        List<Map<String, Object>> museumList = museums.stream()
+                .map(museum -> {
+                    Map<String, Object> museumMap = new HashMap<>();
+                    museumMap.put("id", museum.id().toString());
+                    museumMap.put("title", museum.title());
+                    museumMap.put("description", museum.description() != null ? museum.description() : "");
+                    museumMap.put("photo", museum.photo() != null ? museum.photo() : "");
+
+                    // Создаем geo объект
+                    Map<String, Object> geoMap = new HashMap<>();
+                    geoMap.put("city", museum.city());
+
+                    // Создаем country объект
+                    Map<String, Object> countryMap = new HashMap<>();
+                    countryMap.put("id", museum.country() != null ? museum.country().getId().toString() : UUID.randomUUID().toString());
+                    countryMap.put("name", museum.country() != null ? museum.country().getName() : "Франция");
+
+                    geoMap.put("country", countryMap);
+                    museumMap.put("geo", geoMap);
+
+                    return museumMap;
+                })
+                .collect(Collectors.toList());
+
+        Page<Map<String, Object>> museumPage = new PageImpl<>(
+                museumList,
+                PageRequest.of(page, size),
+                museums.size()
+        );
         return ResponseEntity.ok(museumPage);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Museum> getMuseum(@PathVariable UUID id) {
+    public ResponseEntity<?> getMuseum(@PathVariable UUID id) {
         Museum museum = museumService.getMuseumById(id);
-        return ResponseEntity.ok(museum);
-    }
 
-    @PostMapping
-    public ResponseEntity<Museum> createMuseum(@RequestBody Museum museum) {
-        Museum created = museumService.createMuseum(
-                museum.title(),
-                museum.description(),
-                museum.city(),
-                museum.address(),
-                museum.photo()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
+        ObjectNode node = objectMapper.createObjectNode();
+        node.put("id", museum.id().toString());
+        node.put("title", museum.title());
+        node.put("description", museum.description() != null ? museum.description() : "");
+        node.put("city", museum.city());
+        node.put("address", museum.address());
+        node.put("photo", museum.photo() != null ? museum.photo() : "");
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Museum> updateMuseum(@PathVariable UUID id, @RequestBody Museum museum) {
-        Museum updated = museumService.updateMuseum(
-                id,
-                museum.title(),
-                museum.description(),
-                museum.city(),
-                museum.address(),
-                museum.photo()
-        );
-        return ResponseEntity.ok(updated);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMuseum(@PathVariable UUID id) {
-        museumService.deleteMuseum(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/diagnostic/grpc")
-    public Map<String, Object> diagnosticGrpc() {
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("timestamp", new Date().toString());
-
-        // Проверка порта
-        try (Socket socket = new Socket()) {
-            socket.connect(new InetSocketAddress("127.0.0.1", 8092), 1000);
-            result.put("portCheck", "✅ Порт 8092 открыт");
-        } catch (Exception e) {
-            result.put("portCheck", "❌ Ошибка: " + e.getMessage());
+        // Определяем страну по городу
+        String countryName = getCountryByCity(museum.city());
+        if (countryName != null) {
+            ObjectNode countryNode = objectMapper.createObjectNode();
+            countryNode.put("id", UUID.nameUUIDFromBytes(countryName.getBytes()).toString());
+            countryNode.put("name", countryName);
+            node.set("country", countryNode);
         }
 
-        // Проверка gRPC вызова
-        try {
-            var response = museumService.getAllMuseums(0, 1, null, null);
-            result.put("grpcCallSuccess", true);
-            result.put("museumsCount", response.size());
-        } catch (Exception e) {
-            result.put("grpcCallSuccess", false);
-            result.put("error", e.getMessage());
-            result.put("errorType", e.getClass().getSimpleName());
-            result.put("stackTrace", e.getStackTrace()[0].toString());
-        }
+        return ResponseEntity.ok(node);
+    }
 
-        return result;
+    private String getCountryByCity(String city) {
+        if (city == null) return null;
+
+        return switch (city.toLowerCase()) {
+            case "париж" -> "Франция";
+            case "санкт-петербург", "москва" -> "Россия";
+            case "флоренция", "рим", "милан" -> "Италия";
+            case "берлин", "мюнхен" -> "Германия";
+            case "мадрид", "барселона" -> "Испания";
+            case "лондон" -> "Великобритания";
+            case "ньо-йорк", "вашингтон" -> "США";
+            default -> null;
+        };
     }
 }
