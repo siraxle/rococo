@@ -9,5 +9,4 @@ public class RococoPaintingApplication {
     public static void main(String[] args) {
         SpringApplication.run(RococoPaintingApplication.class, args);
     }
-
 }

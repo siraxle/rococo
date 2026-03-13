@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: rococo-painting
+
+  grpc:
+    server:
+      port: 8093
+      servlet:
+        enabled: false
+
+  datasource:
+    url: 'jdbc:mysql://localhost:3306/rococo-painting?createDatabaseIfNotExist=true'
+    username: root
+    password: secret
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 10
+      maximum-pool-size: 30
+      idle-timeout: 10000
+      max-lifetime: 60000
+      auto-commit: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+logging:
+  level:
+    guru.qa.rococopainting: DEBUG
+    org.springframework.grpc: INFO
+    org.springframework.jdbc: INFO
