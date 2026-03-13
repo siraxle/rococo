@@ -1,0 +1,61 @@
+syntax = "proto3";
+import "common.proto";
+package rococo.painting;
+
+option java_package = "rococo.grpc.painting";
+option java_multiple_files = true;
+
+import "google/protobuf/empty.proto";
+
+message Painting {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string artist_id = 4;
+  string museum_id = 5;
+  string photo = 6;
+}
+
+message PaintingIdRequest {
+  string id = 1;
+}
+
+message CreatePaintingRequest {
+  string title = 1;
+  string description = 2;
+  string artist_id = 3;
+  string museum_id = 4;
+  string photo = 5;
+}
+
+message UpdatePaintingRequest {
+  string id = 1;
+  string title = 2;
+  string description = 3;
+  string artist_id = 4;
+  string museum_id = 5;
+  string photo = 6;
+}
+
+message GetAllPaintingsRequest {
+  string title = 1;
+  string artist_id = 2;
+  string museum_id = 3;
+  int32 page = 4;
+  int32 size = 5;
+}
+
+message PaintingListResponse {
+  repeated Painting paintings = 1;
+  int32 total_pages = 2;
+  int32 total_elements = 3;
+  int32 current_page = 4;
+}
+
+service PaintingService {
+  rpc GetPainting(PaintingIdRequest) returns (Painting);
+  rpc CreatePainting(CreatePaintingRequest) returns (Painting);
+  rpc UpdatePainting(UpdatePaintingRequest) returns (Painting);
+  rpc GetAllPaintings(GetAllPaintingsRequest) returns (PaintingListResponse);
+  rpc DeletePainting(PaintingIdRequest) returns (google.protobuf.Empty);
+}
