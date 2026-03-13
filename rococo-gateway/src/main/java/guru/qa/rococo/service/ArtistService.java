@@ -61,4 +61,14 @@ public class ArtistService {
                 response.getPhoto()
         );
     }
+
+    public String getArtistName(UUID id) {
+        try {
+            Artist artist = getArtistById(id);
+            return artist != null ? artist.name() : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

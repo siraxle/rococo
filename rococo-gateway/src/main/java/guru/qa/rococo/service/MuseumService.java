@@ -1,5 +1,6 @@
 package guru.qa.rococo.service;
 
+import guru.qa.rococo.entity.CountryEntity;
 import guru.qa.rococo.grpc.MuseumGrpcClient;
 import guru.qa.rococo.model.Museum;
 import org.springframework.stereotype.Service;
@@ -46,13 +47,50 @@ public class MuseumService {
     }
 
     private Museum mapToMuseum(MuseumResponse response) {
+        CountryEntity country = determineCountryByCity(response.getCity());
+
         return new Museum(
                 UUID.fromString(response.getId()),
                 response.getTitle(),
                 response.getDescription(),
                 response.getCity(),
                 response.getAddress(),
-                response.getPhoto()
+                response.getPhoto(),
+                country
         );
+    }
+
+    private CountryEntity determineCountryByCity(String city) {
+        if (city == null) return null;
+
+        CountryEntity country = new CountryEntity();
+
+        switch (city.toLowerCase()) {
+            case "париж":
+                country.setName("Франция");
+                country.setId(UUID.nameUUIDFromBytes("Франция".getBytes()));
+                break;
+            case "санкт-петербург":
+            case "москва":
+                country.setName("Россия");
+                country.setId(UUID.nameUUIDFromBytes("Россия".getBytes()));
+                break;
+            case "флоренция":
+            case "рим":
+                country.setName("Италия");
+                country.setId(UUID.nameUUIDFromBytes("Италия".getBytes()));
+                break;
+            case "берлин":
+                country.setName("Германия");
+                country.setId(UUID.nameUUIDFromBytes("Германия".getBytes()));
+                break;
+            case "мадрид":
+                country.setName("Испания");
+                country.setId(UUID.nameUUIDFromBytes("Испания".getBytes()));
+                break;
+            default:
+                return null;
+        }
+        return country;
     }
 }

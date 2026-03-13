@@ -1,15 +1,15 @@
 spring:
   application:
-    name: rococo-museum
+    name: rococo-painting
 
   grpc:
     server:
-      port: 8092
+      port: 8093
       servlet:
         enabled: false
 
   datasource:
-    url: 'jdbc:mysql://localhost:3306/rococo-museum?createDatabaseIfNotExist=true'
+    url: 'jdbc:mysql://localhost:3306/rococo-painting?createDatabaseIfNotExist=true'
     username: root
     password: secret
     hikari:
@@ -22,7 +22,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     properties:
       hibernate:
         jdbc:
@@ -33,28 +33,14 @@ spring:
     open-in-view: false
 
   flyway:
-    enabled: false
+    enabled: true
     baseline-on-migrate: true
     baseline-version: 0
-    schemas: rococo-museum
     locations: classpath:db/migration
     validate-on-migrate: true
 
 logging:
   level:
-    guru.qa.rococomuseum: DEBUG
+    guru.qa.rococopainting: DEBUG
     org.springframework.grpc: INFO
     org.springframework.jdbc: INFO
-
-server:
-  port: 8094
-
-grpc:
-  client:
-    artist-service:
-      address: '127.0.0.1:8091'
-      negotiation-type: plaintext
-    museum-service:
-      address: '127.0.0.1:8092'
-      negotiation-type: plaintext
-

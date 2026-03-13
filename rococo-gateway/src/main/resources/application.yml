@@ -9,6 +9,16 @@ spring:
   security:
     enabled: false
 
+  web:
+    resources:
+      static-locations: classpath:/static/
+      add-mappings: true
+      cache:
+        period: 3600
+
+    mvc:
+      static-path-pattern: /**
+
 #  grpc:
 #    client:
 #      artist-service:
