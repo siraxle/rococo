@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package rococo.artist;
+
+option java_package = "rococo.grpc.artist";
+option java_multiple_files = true;
+
+service ArtistService {
+  rpc GetArtist (ArtistIdRequest) returns (ArtistResponse);
+  rpc CreateArtist (CreateArtistRequest) returns (ArtistResponse);
+  rpc UpdateArtist (UpdateArtistRequest) returns (ArtistResponse);
+  rpc GetAllArtists (GetAllArtistsRequest) returns (ArtistListResponse);
+  rpc DeleteArtist (ArtistIdRequest) returns (Empty);
+}
+
+message ArtistIdRequest {
+  string id = 1;
+}
+
+message CreateArtistRequest {
+  string name = 1;
+  string biography = 2;
+  string photo = 3;
+}
+
+message UpdateArtistRequest {
+  string id = 1;
+  string name = 2;
+  string biography = 3;
+  string photo = 4;
+}
+
+message ArtistResponse {
+  string id = 1;
+  string name = 2;
+  string biography = 3;
+  string photo = 4;
+}
+
+message ArtistListResponse {
+  repeated ArtistResponse artists = 1;
+  int32 totalPages = 2;
+  int32 totalElements = 3;
+  int32 currentPage = 4;
+}
+
+message GetAllArtistsRequest {
+  int32 page = 1;
+  int32 size = 2;
+}
+
+message Empty {}

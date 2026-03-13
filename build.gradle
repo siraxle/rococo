@@ -23,6 +23,8 @@ subprojects {
         lombokVersion = '1.18.42'
         mysqlDriverVersion = '8.0.33'
         flywayVersion = '11.14.1'
+        protobufVersion = '4.32.0'
+        grpcVersion = '1.75.0'
     }
 
     dependencyManagement {

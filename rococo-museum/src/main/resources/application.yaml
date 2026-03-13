@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: rococo-museum
+
+  grpc:
+    server:
+      port: 8092
+      servlet:
+        enabled: false
+
+  datasource:
+    url: 'jdbc:mysql://localhost:3306/rococo-museum?createDatabaseIfNotExist=true'
+    username: root
+    password: secret
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 10
+      maximum-pool-size: 30
+      idle-timeout: 10000
+      max-lifetime: 60000
+      auto-commit: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    open-in-view: false
+
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+    baseline-version: 0
+    schemas: rococo-museum
+    locations: classpath:db/migration
+    validate-on-migrate: true
+
+logging:
+  level:
+    guru.qa.rococomuseum: DEBUG
+    org.springframework.grpc: INFO
+    org.springframework.jdbc: INFO
+
+server:
+  port: 8093
+
+grpc:
+  client:
+    artist-service:
+      address: '127.0.0.1:8091'
+      negotiation-type: plaintext
+    museum-service:
+      address: '127.0.0.1:8092'
+      negotiation-type: plaintext
