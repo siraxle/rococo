@@ -42,8 +42,6 @@ public class MuseumController {
             @RequestParam(required = false) String city) {
 
         List<Museum> museums = museumService.getAllMuseums(page, size, title, city);
-
-        // Преобразуем в формат, который ожидает фронт
         List<Map<String, Object>> museumList = museums.stream()
                 .map(museum -> {
                     Map<String, Object> museumMap = new HashMap<>();
@@ -52,11 +50,9 @@ public class MuseumController {
                     museumMap.put("description", museum.description() != null ? museum.description() : "");
                     museumMap.put("photo", museum.photo() != null ? museum.photo() : "");
 
-                    // Создаем geo объект
                     Map<String, Object> geoMap = new HashMap<>();
                     geoMap.put("city", museum.city());
 
-                    // Создаем country объект
                     Map<String, Object> countryMap = new HashMap<>();
                     countryMap.put("id", museum.country() != null ? museum.country().getId().toString() : UUID.randomUUID().toString());
                     countryMap.put("name", museum.country() != null ? museum.country().getName() : "Франция");
@@ -77,41 +73,31 @@ public class MuseumController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getMuseum(@PathVariable UUID id) {
+    public ResponseEntity<Map<String, Object>> getMuseum(@PathVariable UUID id) {
         Museum museum = museumService.getMuseumById(id);
 
-        ObjectNode node = objectMapper.createObjectNode();
-        node.put("id", museum.id().toString());
-        node.put("title", museum.title());
-        node.put("description", museum.description() != null ? museum.description() : "");
-        node.put("city", museum.city());
-        node.put("address", museum.address());
-        node.put("photo", museum.photo() != null ? museum.photo() : "");
+        Map<String, Object> museumMap = new HashMap<>();
+        museumMap.put("id", museum.id().toString());
+        museumMap.put("title", museum.title());
+        museumMap.put("description", museum.description() != null ? museum.description() : "");
+        museumMap.put("photo", museum.photo() != null ? museum.photo() : "");
 
-        // Определяем страну по городу
-        String countryName = getCountryByCity(museum.city());
-        if (countryName != null) {
-            ObjectNode countryNode = objectMapper.createObjectNode();
-            countryNode.put("id", UUID.nameUUIDFromBytes(countryName.getBytes()).toString());
-            countryNode.put("name", countryName);
-            node.set("country", countryNode);
+        Map<String, Object> geoMap = new HashMap<>();
+        geoMap.put("city", museum.city());
+
+        Map<String, Object> countryMap = new HashMap<>();
+        if (museum.country() != null) {
+            countryMap.put("id", museum.country().getId().toString());
+            countryMap.put("name", museum.country().getName());
+        } else {
+            countryMap.put("id", UUID.randomUUID().toString());
+            countryMap.put("name", "Неизвестно");
         }
 
-        return ResponseEntity.ok(node);
+        geoMap.put("country", countryMap);
+        museumMap.put("geo", geoMap);
+
+        return ResponseEntity.ok(museumMap);
     }
 
-    private String getCountryByCity(String city) {
-        if (city == null) return null;
-
-        return switch (city.toLowerCase()) {
-            case "париж" -> "Франция";
-            case "санкт-петербург", "москва" -> "Россия";
-            case "флоренция", "рим", "милан" -> "Италия";
-            case "берлин", "мюнхен" -> "Германия";
-            case "мадрид", "барселона" -> "Испания";
-            case "лондон" -> "Великобритания";
-            case "ньо-йорк", "вашингтон" -> "США";
-            default -> null;
-        };
-    }
 }
