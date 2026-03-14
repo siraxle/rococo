@@ -24,9 +24,8 @@ public class UserEntity {
     @Column(name = "lastname", length = 255)
     private String lastname;
 
-    @Lob
-    @Column(name = "avatar", columnDefinition = "LONGBLOB")
-    private byte[] avatar;
+    @Column(name = "avatar", length = 500)  // Изменено с LONGBLOB на строку
+    private String avatar;  // Изменено с byte[] на String
 
     // getters and setters
 }
