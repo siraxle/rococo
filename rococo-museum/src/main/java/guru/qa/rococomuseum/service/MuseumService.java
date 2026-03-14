@@ -25,8 +25,8 @@ public class MuseumService {
     }
 
     @Transactional
-    public MuseumEntity createMuseum(String title, String description, String city, String address, String photo) {
-        // Проверка на дубликат (опционально)
+    public MuseumEntity createMuseum(String title, String description, String city,
+                                     String address, String photo, UUID countryId) {
         if (museumRepository.existsByTitleAndCity(title, city)) {
             throw new RuntimeException("Museum with title '" + title + "' in city '" + city + "' already exists");
         }
@@ -37,12 +37,14 @@ public class MuseumService {
         museum.setCity(city);
         museum.setAddress(address);
         museum.setPhoto(photo);
+        museum.setCountryId(countryId);
 
         return museumRepository.save(museum);
     }
 
     @Transactional
-    public MuseumEntity updateMuseum(UUID id, String title, String description, String city, String address, String photo) {
+    public MuseumEntity updateMuseum(UUID id, String title, String description, String city,
+                                     String address, String photo, UUID countryId) {
         MuseumEntity museum = getMuseumById(id);
 
         if (title != null && !title.isBlank()) {
@@ -59,6 +61,9 @@ public class MuseumService {
         }
         if (photo != null) {
             museum.setPhoto(photo);
+        }
+        if (countryId != null) {
+            museum.setCountryId(countryId);
         }
 
         return museumRepository.save(museum);

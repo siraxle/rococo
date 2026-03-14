@@ -1,0 +1,30 @@
+syntax = "proto3";
+import "common.proto";
+
+package rococo.grpc.geo;
+
+option java_multiple_files = true;
+option java_package = 'rococo.grpc.geo';
+
+service GeoService {
+  rpc GetCountry(GetCountryRequest) returns (CountryResponse) {}
+  rpc GetCountryById(GetCountryByIdRequest) returns (CountryResponse) {}
+  rpc GetAllCountries(Empty) returns (stream CountryResponse) {}
+}
+
+message GetCountryRequest {
+  string code = 1;
+  string name = 2;
+}
+
+message CountryResponse {
+  string id = 1;
+  string name = 2;
+  string code = 3;
+}
+
+message GetCountryByIdRequest {
+  string id = 1;
+}
+
+message Empty {}

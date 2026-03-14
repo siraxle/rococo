@@ -26,6 +26,7 @@ message CreateMuseumRequest {
   string city = 3;
   string address = 4;
   optional string photo = 5;
+  optional string country_id = 6;
 }
 
 message UpdateMuseumRequest {
@@ -35,6 +36,7 @@ message UpdateMuseumRequest {
   optional string city = 4;
   optional string address = 5;
   optional string photo = 6;
+  optional string country_id = 7;
 }
 
 message MuseumResponse {
@@ -44,6 +46,7 @@ message MuseumResponse {
   string city = 4;
   string address = 5;
   optional string photo = 6;
+  optional string country_id = 7;
 }
 
 message MuseumListResponse {

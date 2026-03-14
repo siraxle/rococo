@@ -15,20 +15,8 @@ spring:
       add-mappings: true
       cache:
         period: 3600
-
     mvc:
       static-path-pattern: /**
-
-#  grpc:
-#    client:
-#      artist-service:
-#        address: '127.0.0.1:8091'
-#        negotiation-type: plaintext
-#      museum-service:
-#        address: '127.0.0.1:8092'
-#        negotiation-type: plaintext
-#        enable-keep-alive: true
-#        keep-alive-without-calls: true
 
   datasource:
     url: jdbc:mysql://localhost:3306/rococo-gateway?createDatabaseIfNotExist=true
@@ -45,9 +33,20 @@ spring:
     schemas: rococo-gateway
     locations: classpath:db/migration/rococo-gateway
 
-#logging:
-#  level:
-#    root: INFO
+grpc:
+  client:
+    artist-service:
+      address: 'static://127.0.0.1:8091'
+      negotiation-type: plaintext
+    museum-service:
+      address: 'static://127.0.0.1:8092'
+      negotiation-type: plaintext
+    painting-service:
+      address: 'static://127.0.0.1:8093'
+      negotiation-type: plaintext
+    geo-service:
+      address: 'static://127.0.0.1:8095'
+      negotiation-type: plaintext
 
 logging:
   level:
