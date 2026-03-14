@@ -1,9 +1,10 @@
 package guru.qa.rococo.controller;
 
-import guru.qa.rococo.entity.CountryEntity;
+import guru.qa.rococo.model.Country;  // ИЗМЕНИТЬ ИМПОРТ
 import guru.qa.rococo.service.CountryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -19,17 +20,17 @@ public class CountryController {
     }
 
     @GetMapping
-    public List<CountryEntity> getAllCountries() {
+    public List<Country> getAllCountries() {  // ИЗМЕНИТЬ ТИП
         return countryService.getAllCountries();
     }
 
     @GetMapping("/{id}")
-    public CountryEntity getCountryById(@PathVariable UUID id) {
+    public Country getCountryById(@PathVariable String id) {  // ИЗМЕНИТЬ ТИП
         return countryService.getCountryById(id);
     }
 
     @GetMapping("/name/{name}")
-    public CountryEntity getCountryByName(@PathVariable String name) {
+    public Country getCountryByName(@PathVariable String name) {  // ИЗМЕНИТЬ ТИП
         return countryService.getCountryByName(name);
     }
 }

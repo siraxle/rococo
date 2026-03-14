@@ -56,7 +56,6 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-// Добавляем dummy задачу для IDEA
 tasks.register('prepareKotlinBuildScriptModel') {
     description = "Dummy task to satisfy IntelliJ IDEA sync"
 }

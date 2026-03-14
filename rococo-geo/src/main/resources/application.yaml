@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: rococo-geo
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/rococo-geo?createDatabaseIfNotExist=true
+    username: root
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  grpc:
+    server:
+      port: 8095
+      servlet:
+        enabled: false
+
+server:
+  port: 8097
+
+logging:
+  level:
+    guru.qa.rococo.geo: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.hibernate.SQL: DEBUG

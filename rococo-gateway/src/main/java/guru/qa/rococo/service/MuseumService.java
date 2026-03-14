@@ -1,11 +1,13 @@
 package guru.qa.rococo.service;
 
 import guru.qa.rococo.entity.CountryEntity;
+import guru.qa.rococo.grpc.GeoGrpcClient;
 import guru.qa.rococo.grpc.MuseumGrpcClient;
 import guru.qa.rococo.model.Museum;
 import org.springframework.stereotype.Service;
 import rococo.grpc.museum.MuseumListResponse;
 import rococo.grpc.museum.MuseumResponse;
+import rococo.grpc.geo.CountryResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -15,9 +17,11 @@ import java.util.stream.Collectors;
 public class MuseumService {
 
     private final MuseumGrpcClient museumGrpcClient;
+    private final GeoGrpcClient geoGrpcClient;
 
-    public MuseumService(MuseumGrpcClient museumGrpcClient) {
+    public MuseumService(MuseumGrpcClient museumGrpcClient, GeoGrpcClient geoGrpcClient) {
         this.museumGrpcClient = museumGrpcClient;
+        this.geoGrpcClient = geoGrpcClient;
     }
 
     public Museum getMuseumById(UUID id) {
@@ -47,7 +51,25 @@ public class MuseumService {
     }
 
     private Museum mapToMuseum(MuseumResponse response) {
-        CountryEntity country = determineCountryByCity(response.getCity());
+        CountryEntity country = null;
+
+        // Получаем страну из geo сервиса
+        try {
+            // Пробуем найти страну по названию города
+            // В идеале нужно хранить country_id в museum, но пока так
+            String city = response.getCity();
+            if (city != null && !city.isEmpty()) {
+                CountryResponse countryResponse = geoGrpcClient.getCountryByName(getCountryNameFromCity(city));
+                if (countryResponse != null) {
+                    country = new CountryEntity();
+                    country.setId(UUID.fromString(countryResponse.getId()));
+                    country.setName(countryResponse.getName());
+                }
+            }
+        } catch (Exception e) {
+            // Логируем ошибку, но не падаем
+            System.err.println("Failed to get country from geo service: " + e.getMessage());
+        }
 
         return new Museum(
                 UUID.fromString(response.getId()),
@@ -60,37 +82,20 @@ public class MuseumService {
         );
     }
 
-    private CountryEntity determineCountryByCity(String city) {
+    private String getCountryNameFromCity(String city) {
         if (city == null) return null;
 
-        CountryEntity country = new CountryEntity();
-
+        // Временный маппинг город -> страна
+        // Позже это будет заменено на хранение country_id в museum
         switch (city.toLowerCase()) {
-            case "париж":
-                country.setName("Франция");
-                country.setId(UUID.nameUUIDFromBytes("Франция".getBytes()));
-                break;
+            case "париж": return "Франция";
             case "санкт-петербург":
-            case "москва":
-                country.setName("Россия");
-                country.setId(UUID.nameUUIDFromBytes("Россия".getBytes()));
-                break;
+            case "москва": return "Россия";
             case "флоренция":
-            case "рим":
-                country.setName("Италия");
-                country.setId(UUID.nameUUIDFromBytes("Италия".getBytes()));
-                break;
-            case "берлин":
-                country.setName("Германия");
-                country.setId(UUID.nameUUIDFromBytes("Германия".getBytes()));
-                break;
-            case "мадрид":
-                country.setName("Испания");
-                country.setId(UUID.nameUUIDFromBytes("Испания".getBytes()));
-                break;
-            default:
-                return null;
+            case "рим": return "Италия";
+            case "берлин": return "Германия";
+            case "мадрид": return "Испания";
+            default: return null;
         }
-        return country;
     }
 }

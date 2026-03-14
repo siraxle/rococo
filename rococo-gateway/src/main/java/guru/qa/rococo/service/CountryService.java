@@ -1,42 +1,44 @@
 package guru.qa.rococo.service;
 
-import guru.qa.rococo.entity.CountryEntity;
-import guru.qa.rococo.repository.CountryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import guru.qa.rococo.grpc.GeoGrpcClient;
+import guru.qa.rococo.model.Country;
 import org.springframework.stereotype.Service;
+import rococo.grpc.geo.CountryResponse;
+
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CountryService {
 
-    private final CountryRepository countryRepository;
+    private final GeoGrpcClient geoGrpcClient;
 
-    @Autowired
-    public CountryService(CountryRepository countryRepository) {
-        this.countryRepository = countryRepository;
+    public CountryService(GeoGrpcClient geoGrpcClient) {
+        this.geoGrpcClient = geoGrpcClient;
     }
 
-    public List<CountryEntity> getAllCountries() {
-        return countryRepository.findAll();
+    public List<Country> getAllCountries() {
+        return geoGrpcClient.getAllCountries().stream()
+                .map(this::mapToCountry)
+                .collect(Collectors.toList());
     }
 
-    public CountryEntity getCountryById(UUID id) {
-        return countryRepository.findById(id).orElse(null);
+    public Country getCountryById(String id) {
+        CountryResponse response = geoGrpcClient.getCountryById(id);
+        return mapToCountry(response);
     }
 
-    public CountryEntity getCountryByName(String name) {
-        return countryRepository.findByName(name).orElse(null);
+    public Country getCountryByName(String name) {
+        CountryResponse response = geoGrpcClient.getCountryByName(name);
+        return mapToCountry(response);
     }
 
-    public CountryEntity getCountryByCity(String city) {
-        return switch (city.toLowerCase()) {
-            case "париж" -> countryRepository.findByName("Франция").orElse(null);
-            case "санкт-петербург", "москва" -> countryRepository.findByName("Россия").orElse(null);
-            case "флоренция", "рим" -> countryRepository.findByName("Италия").orElse(null);
-            case "берлин" -> countryRepository.findByName("Германия").orElse(null);
-            case "мадрид" -> countryRepository.findByName("Испания").orElse(null);
-            default -> null;
-        };
+    private Country mapToCountry(CountryResponse response) {
+        return new Country(
+                UUID.fromString(response.getId()),
+                response.getName(),
+                response.getCode()
+        );
     }
 }
