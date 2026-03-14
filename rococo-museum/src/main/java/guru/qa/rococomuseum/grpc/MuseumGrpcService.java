@@ -27,16 +27,7 @@ public class MuseumGrpcService extends MuseumServiceGrpc.MuseumServiceImplBase {
             UUID id = UUID.fromString(request.getId());
             MuseumEntity museum = museumService.getMuseumById(id);
 
-            MuseumResponse response = MuseumResponse.newBuilder()
-                    .setId(museum.getId().toString())
-                    .setTitle(museum.getTitle())
-                    .setDescription(museum.getDescription() != null ? museum.getDescription() : "")
-                    .setCity(museum.getCity())
-                    .setAddress(museum.getAddress())
-                    .setPhoto(museum.getPhoto() != null ? museum.getPhoto() : "")
-                    .build();
-
-            responseObserver.onNext(response);
+            responseObserver.onNext(mapToResponse(museum));
             responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
@@ -57,24 +48,21 @@ public class MuseumGrpcService extends MuseumServiceGrpc.MuseumServiceImplBase {
     @Override
     public void createMuseum(CreateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
         try {
+            UUID countryId = null;
+            if (request.hasCountryId() && !request.getCountryId().isEmpty()) {
+                countryId = UUID.fromString(request.getCountryId());
+            }
+
             MuseumEntity museum = museumService.createMuseum(
                     request.getTitle(),
                     request.getDescription(),
                     request.getCity(),
                     request.getAddress(),
-                    request.getPhoto()
+                    request.getPhoto(),
+                    countryId
             );
 
-            MuseumResponse response = MuseumResponse.newBuilder()
-                    .setId(museum.getId().toString())
-                    .setTitle(museum.getTitle())
-                    .setDescription(museum.getDescription() != null ? museum.getDescription() : "")
-                    .setCity(museum.getCity())
-                    .setAddress(museum.getAddress())
-                    .setPhoto(museum.getPhoto() != null ? museum.getPhoto() : "")
-                    .build();
-
-            responseObserver.onNext(response);
+            responseObserver.onNext(mapToResponse(museum));
             responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
@@ -96,25 +84,19 @@ public class MuseumGrpcService extends MuseumServiceGrpc.MuseumServiceImplBase {
     public void updateMuseum(UpdateMuseumRequest request, StreamObserver<MuseumResponse> responseObserver) {
         try {
             UUID id = UUID.fromString(request.getId());
+            UUID countryId = request.hasCountryId() ? UUID.fromString(request.getCountryId()) : null;
+
             MuseumEntity museum = museumService.updateMuseum(
                     id,
                     request.getTitle(),
                     request.getDescription(),
                     request.getCity(),
                     request.getAddress(),
-                    request.getPhoto()
+                    request.getPhoto(),
+                    countryId
             );
 
-            MuseumResponse response = MuseumResponse.newBuilder()
-                    .setId(museum.getId().toString())
-                    .setTitle(museum.getTitle())
-                    .setDescription(museum.getDescription() != null ? museum.getDescription() : "")
-                    .setCity(museum.getCity())
-                    .setAddress(museum.getAddress())
-                    .setPhoto(museum.getPhoto() != null ? museum.getPhoto() : "")
-                    .build();
-
-            responseObserver.onNext(response);
+            responseObserver.onNext(mapToResponse(museum));
             responseObserver.onCompleted();
 
         } catch (IllegalArgumentException e) {
@@ -199,6 +181,7 @@ public class MuseumGrpcService extends MuseumServiceGrpc.MuseumServiceImplBase {
                 .setCity(entity.getCity())
                 .setAddress(entity.getAddress())
                 .setPhoto(entity.getPhoto() != null ? entity.getPhoto() : "")
+                .setCountryId(entity.getCountryId() != null ? entity.getCountryId().toString() : "")
                 .build();
     }
 }

@@ -31,6 +31,9 @@ public class MuseumEntity {
     @Column(name = "photo", columnDefinition = "TEXT")
     private String photo;
 
+    @Column(name = "country_id", nullable = false)  // добавить
+    private UUID countryId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
@@ -96,6 +99,14 @@ public class MuseumEntity {
 
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    public UUID getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(UUID countryId) {
+        this.countryId = countryId;
     }
 
     public Date getCreatedAt() {

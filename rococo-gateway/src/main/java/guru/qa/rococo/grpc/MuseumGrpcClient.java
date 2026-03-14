@@ -41,18 +41,28 @@ public class MuseumGrpcClient {
         return museumStub.getMuseum(request);
     }
 
-    public MuseumResponse createMuseum(String title, String description, String city, String address, String photo) {
-        CreateMuseumRequest request = CreateMuseumRequest.newBuilder()
+    public MuseumResponse createMuseum(String title, String description, String city,
+                                       String address, String photo, String countryId) {
+        CreateMuseumRequest.Builder builder = CreateMuseumRequest.newBuilder()
                 .setTitle(title != null ? title : "")
-                .setDescription(description != null ? description : "")
                 .setCity(city != null ? city : "")
-                .setAddress(address != null ? address : "")
-                .setPhoto(photo != null ? photo : "")
-                .build();
-        return museumStub.createMuseum(request);
+                .setAddress(address != null ? address : "");
+
+        if (description != null) {
+            builder.setDescription(description);
+        }
+        if (photo != null) {
+            builder.setPhoto(photo);
+        }
+        if (countryId != null && !countryId.isBlank()) {
+            builder.setCountryId(countryId);
+        }
+
+        return museumStub.createMuseum(builder.build());
     }
 
-    public MuseumResponse updateMuseum(String id, String title, String description, String city, String address, String photo) {
+    public MuseumResponse updateMuseum(String id, String title, String description, String city,
+                                       String address, String photo, String countryId) {
         UpdateMuseumRequest.Builder builder = UpdateMuseumRequest.newBuilder()
                 .setId(id);
 
@@ -70,6 +80,9 @@ public class MuseumGrpcClient {
         }
         if (photo != null) {
             builder.setPhoto(photo);
+        }
+        if (countryId != null && !countryId.isBlank()) {
+            builder.setCountryId(countryId);
         }
 
         return museumStub.updateMuseum(builder.build());

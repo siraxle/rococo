@@ -5,11 +5,13 @@ import guru.qa.rococo.grpc.GeoGrpcClient;
 import guru.qa.rococo.grpc.MuseumGrpcClient;
 import guru.qa.rococo.model.Museum;
 import org.springframework.stereotype.Service;
+import rococo.grpc.geo.CountryResponse;
 import rococo.grpc.museum.MuseumListResponse;
 import rococo.grpc.museum.MuseumResponse;
-import rococo.grpc.geo.CountryResponse;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -29,13 +31,17 @@ public class MuseumService {
         return mapToMuseum(response);
     }
 
-    public Museum createMuseum(String title, String description, String city, String address, String photo) {
-        MuseumResponse response = museumGrpcClient.createMuseum(title, description, city, address, photo);
+    public Museum createMuseum(String title, String description, String city,
+                               String address, String photo, String countryId) {
+        MuseumResponse response = museumGrpcClient.createMuseum(
+                title, description, city, address, photo, countryId);
         return mapToMuseum(response);
     }
 
-    public Museum updateMuseum(UUID id, String title, String description, String city, String address, String photo) {
-        MuseumResponse response = museumGrpcClient.updateMuseum(id.toString(), title, description, city, address, photo);
+    public Museum updateMuseum(UUID id, String title, String description, String city,
+                               String address, String photo, String countryId) {
+        MuseumResponse response = museumGrpcClient.updateMuseum(
+                id.toString(), title, description, city, address, photo, countryId);
         return mapToMuseum(response);
     }
 
@@ -52,22 +58,28 @@ public class MuseumService {
 
     private Museum mapToMuseum(MuseumResponse response) {
         CountryEntity country = null;
+        Map<String, Object> geo = new HashMap<>();
 
         // Получаем страну из geo сервиса
         try {
-            // Пробуем найти страну по названию города
-            // В идеале нужно хранить country_id в museum, но пока так
-            String city = response.getCity();
-            if (city != null && !city.isEmpty()) {
-                CountryResponse countryResponse = geoGrpcClient.getCountryByName(getCountryNameFromCity(city));
+            String countryId = response.getCountryId();
+            if (countryId != null && !countryId.isEmpty()) {
+                CountryResponse countryResponse = geoGrpcClient.getCountryById(countryId);
                 if (countryResponse != null) {
                     country = new CountryEntity();
                     country.setId(UUID.fromString(countryResponse.getId()));
                     country.setName(countryResponse.getName());
+
+                    // Формируем geo объект для фронта
+                    Map<String, Object> countryMap = new HashMap<>();
+                    countryMap.put("id", countryResponse.getId());
+                    countryMap.put("name", countryResponse.getName());
+
+                    geo.put("city", response.getCity());
+                    geo.put("country", countryMap);
                 }
             }
         } catch (Exception e) {
-            // Логируем ошибку, но не падаем
             System.err.println("Failed to get country from geo service: " + e.getMessage());
         }
 
@@ -78,24 +90,8 @@ public class MuseumService {
                 response.getCity(),
                 response.getAddress(),
                 response.getPhoto(),
-                country
+                country,
+                geo.isEmpty() ? null : geo
         );
-    }
-
-    private String getCountryNameFromCity(String city) {
-        if (city == null) return null;
-
-        // Временный маппинг город -> страна
-        // Позже это будет заменено на хранение country_id в museum
-        switch (city.toLowerCase()) {
-            case "париж": return "Франция";
-            case "санкт-петербург":
-            case "москва": return "Россия";
-            case "флоренция":
-            case "рим": return "Италия";
-            case "берлин": return "Германия";
-            case "мадрид": return "Испания";
-            default: return null;
-        }
     }
 }
