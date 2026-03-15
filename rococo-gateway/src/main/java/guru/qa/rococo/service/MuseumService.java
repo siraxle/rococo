@@ -1,6 +1,5 @@
 package guru.qa.rococo.service;
 
-import guru.qa.rococo.entity.CountryEntity;
 import guru.qa.rococo.grpc.GeoGrpcClient;
 import guru.qa.rococo.grpc.MuseumGrpcClient;
 import guru.qa.rococo.model.Museum;
@@ -57,21 +56,14 @@ public class MuseumService {
     }
 
     private Museum mapToMuseum(MuseumResponse response) {
-        CountryEntity country = null;
         Map<String, Object> geo = new HashMap<>();
+        Map<String, Object> countryMap = new HashMap<>();
 
-        // Получаем страну из geo сервиса
         try {
             String countryId = response.getCountryId();
             if (countryId != null && !countryId.isEmpty()) {
                 CountryResponse countryResponse = geoGrpcClient.getCountryById(countryId);
                 if (countryResponse != null) {
-                    country = new CountryEntity();
-                    country.setId(UUID.fromString(countryResponse.getId()));
-                    country.setName(countryResponse.getName());
-
-                    // Формируем geo объект для фронта
-                    Map<String, Object> countryMap = new HashMap<>();
                     countryMap.put("id", countryResponse.getId());
                     countryMap.put("name", countryResponse.getName());
 
@@ -90,7 +82,6 @@ public class MuseumService {
                 response.getCity(),
                 response.getAddress(),
                 response.getPhoto(),
-                country,
                 geo.isEmpty() ? null : geo
         );
     }

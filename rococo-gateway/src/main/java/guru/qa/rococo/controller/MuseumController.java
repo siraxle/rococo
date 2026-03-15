@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/museum")
@@ -55,9 +55,15 @@ public class MuseumController {
     @PostMapping
     public ResponseEntity<Museum> createMuseum(@RequestBody Museum museum) {
         // Извлекаем countryId из geo объекта
-        String countryId = museum.country() != null && museum.country().getId() != null
-                ? museum.country().getId().toString()
-                : null;
+        String countryId = null;
+        Map<String, Object> geo = museum.geo();
+        if (geo != null && geo.containsKey("country")) {
+            Map<String, Object> country = (Map<String, Object>) geo.get("country");
+            if (country != null && country.containsKey("id")) {
+                Object id = country.get("id");
+                countryId = id != null ? id.toString() : null;
+            }
+        }
 
         Museum created = museumService.createMuseum(
                 museum.title(),
@@ -75,9 +81,16 @@ public class MuseumController {
             @PathVariable UUID id,
             @RequestBody Museum museum) {
 
-        String countryId = museum.country() != null && museum.country().getId() != null
-                ? museum.country().getId().toString()
-                : null;
+        // Извлекаем countryId из geo объекта
+        String countryId = null;
+        Map<String, Object> geo = museum.geo();
+        if (geo != null && geo.containsKey("country")) {
+            Map<String, Object> country = (Map<String, Object>) geo.get("country");
+            if (country != null && country.containsKey("id")) {
+                Object idObj = country.get("id");
+                countryId = idObj != null ? idObj.toString() : null;
+            }
+        }
 
         Museum updated = museumService.updateMuseum(
                 id,
