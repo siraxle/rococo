@@ -1,39 +1,50 @@
 package guru.qa.rococo.service;
 
-import guru.qa.rococo.entity.UserEntity;
-import guru.qa.rococo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import guru.qa.rococo.grpc.UserdataGrpcClient;
+import guru.qa.rococo.model.User;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import rococo.grpc.userdata.UserResponse;
+
 import java.util.UUID;
 
 @Service
 public class UserService {
 
-    private final UserRepository userRepository;
+    private final UserdataGrpcClient userdataGrpcClient;
 
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserService(UserdataGrpcClient userdataGrpcClient) {
+        this.userdataGrpcClient = userdataGrpcClient;
     }
 
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findAll();
+    public User getUserById(String id) {
+        UserResponse response = userdataGrpcClient.getUserById(id);
+        return mapToUser(response);
     }
 
-    public UserEntity getUserById(UUID id) {
-        return userRepository.findById(id).orElse(null);
+    public User getUserByUsername(String username) {
+        UserResponse response = userdataGrpcClient.getUserByUsername(username);
+        return mapToUser(response);
     }
 
-    public UserEntity createUser(UserEntity user) {
-        return userRepository.save(user);
+    public User createUser(String username, String firstname, String lastname, String avatar) {
+        System.out.println("Creating user with: " + username + ", " + firstname + ", " + lastname);
+        try {
+            UserResponse response = userdataGrpcClient.createUser(username, firstname, lastname, avatar);
+            System.out.println("gRPC response: " + response);
+            return mapToUser(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
-    public UserEntity updateUser(UserEntity user) {
-        return userRepository.save(user);
-    }
-
-    public void deleteUser(UUID id) {
-        userRepository.deleteById(id);
+    private User mapToUser(UserResponse response) {
+        return new User(
+                UUID.fromString(response.getId()),
+                response.getUsername(),
+                response.getFirstname(),
+                response.getLastname(),
+                response.getAvatar()
+        );
     }
 }

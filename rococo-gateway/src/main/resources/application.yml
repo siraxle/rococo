@@ -47,6 +47,9 @@ grpc:
     geo-service:
       address: 'static://127.0.0.1:8095'
       negotiation-type: plaintext
+    userdata-service:
+      address: 'static://127.0.0.1:8096'
+      negotiation-type: plaintext
 
 logging:
   level:
