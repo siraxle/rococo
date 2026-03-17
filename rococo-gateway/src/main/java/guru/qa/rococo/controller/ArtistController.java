@@ -92,10 +92,8 @@ public class ArtistController {
         result.put("service", "gateway");
         result.put("status", "UP");
 
-        // Проверка порта artist-service
         result.put("artistServicePortCheck", checkPort(8091));
 
-        // Информация о конфигурации
         Map<String, String> config = new HashMap<>();
         config.put("grpcAddress", "localhost:8091");
         config.put("negotiationType", "plaintext");
