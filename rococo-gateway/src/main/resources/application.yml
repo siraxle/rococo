@@ -7,8 +7,11 @@ spring:
   profiles:
     active: local
   security:
-    enabled: false
-
+    oauth2:
+      resourceserver:
+        jwt:
+#          issuer-uri: http://localhost:9000
+           jwk-set-uri: http://localhost:9000/oauth2/jwks
   web:
     resources:
       static-locations: classpath:/static/
@@ -17,21 +20,6 @@ spring:
         period: 3600
     mvc:
       static-path-pattern: /**
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/rococo-gateway?createDatabaseIfNotExist=true
-    username: root
-    password: secret
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    schemas: rococo-gateway
-    locations: classpath:db/migration/rococo-gateway
 
 grpc:
   client:
@@ -56,6 +44,7 @@ logging:
     guru.qa.rococo: DEBUG
     io.grpc: DEBUG
     net.devh.boot.grpc: DEBUG
+    org.springframework.security: DEBUG
 
 rococo-front:
   base-uri: 'http://localhost:3000'

@@ -86,3 +86,9 @@ rococo-front:
   base-uri: 'http://localhost:3000'
 rococo-auth:
   base-uri: 'http://localhost:9000'
+
+grpc:
+  client:
+    userdata-service:
+      address: 'static://127.0.0.1:8096'
+      negotiation-type: plaintext
