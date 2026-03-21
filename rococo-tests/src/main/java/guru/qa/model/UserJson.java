@@ -2,7 +2,7 @@ package guru.qa.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record User(
+public record UserJson(
         @JsonProperty("id") String id,
         @JsonProperty("username") String username,
         @JsonProperty("firstname") String firstname,

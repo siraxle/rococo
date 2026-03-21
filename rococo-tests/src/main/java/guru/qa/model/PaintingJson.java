@@ -2,7 +2,7 @@ package guru.qa.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record Painting(
+public record PaintingJson(
         @JsonProperty("id") String id,
         @JsonProperty("title") String title,
         @JsonProperty("description") String description,

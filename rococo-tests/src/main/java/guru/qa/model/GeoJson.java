@@ -2,7 +2,7 @@ package guru.qa.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record Geo(
+public record GeoJson(
         @JsonProperty("city") String city,
-        @JsonProperty("country") Country country
+        @JsonProperty("country") CountryJson country
 ) {}

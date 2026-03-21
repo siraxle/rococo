@@ -2,9 +2,8 @@ package guru.qa.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record Artist(
+public record CountryJson(
         @JsonProperty("id") String id,
         @JsonProperty("name") String name,
-        @JsonProperty("biography") String biography,
-        @JsonProperty("photo") String photo
+        @JsonProperty("code") String code
 ) {}
