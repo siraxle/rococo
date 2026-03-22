@@ -46,6 +46,10 @@ allure {
 }
 
 dependencies {
+    testImplementation project(':rococo-grpc-common')
+
+    implementation "org.springframework.security:spring-security-crypto:6.5.5"
+
     // Логи
     implementation "ch.qos.logback:logback-classic:${logbackVersion}"
     implementation "org.slf4j:slf4j-api:${slf4jVersion}"
@@ -100,7 +104,10 @@ dependencies {
     implementation "com.codeborne:selenide:${selenideVersion}"
 
     // Утилиты
-    implementation "com.github.javafaker:javafaker:${fakerVersion}"
+    implementation ("com.github.javafaker:javafaker:${fakerVersion}") {
+        exclude group: "org.yaml", module: "snakeyaml"
+    }
+    implementation "org.yaml:snakeyaml:2.4"
     implementation 'commons-io:commons-io:2.20.0'
     implementation "org.assertj:assertj-core:${assertjVersion}"
     implementation "org.jetbrains:annotations:24.1.0"

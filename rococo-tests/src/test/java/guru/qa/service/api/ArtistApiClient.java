@@ -18,7 +18,7 @@ public class ArtistApiClient extends RestClient {
         this.artistApi = create(ArtistApi.class);
     }
 
-    @Step("Create artist: {artist.name()}")
+    @Step("Create artist: {artist}")
     @Nonnull
     public ArtistJson createArtist(ArtistJson artist) {
         try {

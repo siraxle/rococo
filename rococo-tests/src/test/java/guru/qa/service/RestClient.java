@@ -1,5 +1,6 @@
 package guru.qa.service;
 
+import guru.qa.api.core.ThreadSafeCookieStore;
 import guru.qa.config.Config;
 import io.qameta.allure.okhttp3.AllureOkHttp3;
 import okhttp3.Interceptor;
@@ -14,6 +15,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.net.CookieManager;
+import java.net.CookiePolicy;
 
 import static org.apache.commons.lang3.ArrayUtils.isNotEmpty;
 
@@ -26,11 +28,31 @@ public abstract class RestClient {
     private final Retrofit retrofit;
 
     public RestClient(String baseUrl) {
-        this(baseUrl, false, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.HEADERS, null);
+        this(baseUrl, false, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.HEADERS, (Interceptor[]) null);
+    }
+
+    public RestClient(String baseUrl, HttpLoggingInterceptor.Level level) {
+        this(baseUrl, false, JacksonConverterFactory.create(), level, (Interceptor[]) null);
     }
 
     public RestClient(String baseUrl, boolean followRedirect) {
-        this(baseUrl, followRedirect, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.HEADERS, null);
+        this(baseUrl, followRedirect, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.HEADERS, (Interceptor[]) null);
+    }
+
+    public RestClient(String baseUrl, boolean followRedirect, Interceptor... interceptors) {
+        this(baseUrl, followRedirect, JacksonConverterFactory.create(), HttpLoggingInterceptor.Level.HEADERS, interceptors);
+    }
+
+    public RestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory) {
+        this(baseUrl, followRedirect, converterFactory, HttpLoggingInterceptor.Level.HEADERS, (Interceptor[]) null);
+    }
+
+    public RestClient(String baseUrl, Converter.Factory converterFactory) {
+        this(baseUrl, false, converterFactory, HttpLoggingInterceptor.Level.HEADERS, (Interceptor[]) null);
+    }
+
+    public RestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory, Interceptor... interceptors) {
+        this(baseUrl, followRedirect, converterFactory, HttpLoggingInterceptor.Level.HEADERS, interceptors);
     }
 
     public RestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory,
@@ -47,7 +69,12 @@ public abstract class RestClient {
         clientBuilder
                 .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(level))
                 .addNetworkInterceptor(new AllureOkHttp3())
-                .cookieJar(new JavaNetCookieJar(new CookieManager()));
+                .cookieJar(new JavaNetCookieJar(
+                        new CookieManager(
+                                ThreadSafeCookieStore.INSTANCE,
+                                CookiePolicy.ACCEPT_ALL
+                        )
+                ));
 
         this.client = clientBuilder.build();
         this.retrofit = new Retrofit.Builder()
@@ -72,9 +99,17 @@ public abstract class RestClient {
             super(baseUrl, followRedirect);
         }
 
-        public EmptyRestClient(String baseUrl, boolean followRedirect, Converter.Factory converterFactory,
+        public EmptyRestClient(String baseUrl, boolean followRedirect, Interceptor... interceptors) {
+            super(baseUrl, followRedirect, interceptors);
+        }
+
+        public EmptyRestClient(String baseUrl, Converter.Factory factory) {
+            super(baseUrl, factory);
+        }
+
+        public EmptyRestClient(String baseUrl, boolean followRedirect, Converter.Factory factory,
                                HttpLoggingInterceptor.Level level, @Nullable Interceptor... interceptors) {
-            super(baseUrl, followRedirect, converterFactory, level, interceptors);
+            super(baseUrl, followRedirect, factory, level, interceptors);
         }
     }
 }

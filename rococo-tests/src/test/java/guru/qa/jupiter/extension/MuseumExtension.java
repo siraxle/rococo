@@ -1,7 +1,9 @@
 package guru.qa.jupiter.extension;
 
 import guru.qa.jupiter.annotation.Museum;
-import guru.qa.model.*;
+import guru.qa.model.CountryJson;
+import guru.qa.model.GeoJson;
+import guru.qa.model.MuseumJson;
 import guru.qa.service.api.CountryApiClient;
 import guru.qa.service.api.MuseumApiClient;
 import guru.qa.utils.RandomDataUtils;
