@@ -17,7 +17,6 @@ public class ArtistIntegrationTest {
 
     private final ArtistApiClient artistApiClient = new ArtistApiClient();
 
-    @ApiLogin
     @User
     @Test
     void shouldCreateArtist(UserJson user) {
@@ -32,7 +31,6 @@ public class ArtistIntegrationTest {
         assertThat(createdArtist.biography()).isEqualTo(expectedBiography);
     }
 
-    @ApiLogin
     @User
     @Test
     void shouldGetArtistById(UserJson user) {
@@ -49,7 +47,6 @@ public class ArtistIntegrationTest {
         assertThat(fetchedArtist.biography()).isEqualTo(expectedBiography);
     }
 
-    @ApiLogin
     @User
     @Test
     void shouldDeleteArtist(UserJson user) {

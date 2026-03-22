@@ -38,10 +38,28 @@ public class PaintingExtension implements BeforeEachCallback, ParameterResolver 
                     MuseumJson museum = MuseumExtension.getMuseum()
                             .orElseThrow(() -> new IllegalStateException("Museum not found in context. Use @Museum annotation."));
 
-                    PaintingJson painting = new PaintingJson(null, title, description, null,
-                            artist.id(), museum.id());
+                    System.out.println("=== PaintingExtension Debug ===");
+                    System.out.println("Artist ID: " + artist.id());
+                    System.out.println("Museum ID: " + museum.id());
+                    System.out.println("Artist name: " + artist.name());
+                    System.out.println("Museum title: " + museum.title());
+                    System.out.println("Artist object: " + artist);
+                    System.out.println("Museum object: " + museum);
 
+                    if (artist.id() == null) {
+                        throw new IllegalStateException("Artist ID is null! Artist: " + artist);
+                    }
+                    if (museum.id() == null) {
+                        throw new IllegalStateException("Museum ID is null! Museum: " + museum);
+                    }
+
+                    PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artist.id(), null);  // name = null при отправке
+                    PaintingJson.MuseumInfo museumInfo = new PaintingJson.MuseumInfo(museum.id());
+                    PaintingJson painting = new PaintingJson(null, title, description, null, null, artistInfo, museumInfo);
+
+                    System.out.println("Painting to create: " + painting);
                     PaintingJson created = paintingApiClient.createPainting(painting);
+                    System.out.println("Created painting: " + created);
                     setPainting(created);
                 });
     }

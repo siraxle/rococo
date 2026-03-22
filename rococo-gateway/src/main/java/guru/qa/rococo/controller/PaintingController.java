@@ -98,9 +98,9 @@ public class PaintingController {
         Painting created = paintingService.createPainting(
                 painting.title(),
                 painting.description(),
-                painting.artistId(),  // используем вспомогательный метод
-                painting.museumId(),
-                painting.photo()      // используем вспомогательный метод
+                painting.artistId() != null ? painting.artistId().toString() : null,
+                painting.museumId() != null ? painting.museumId().toString() : null,
+                painting.photo()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(enrichPaintingWithArtistName(created));
     }

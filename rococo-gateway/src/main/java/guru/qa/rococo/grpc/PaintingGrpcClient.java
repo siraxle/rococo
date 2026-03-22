@@ -43,9 +43,13 @@ public class PaintingGrpcClient {
 
     public PaintingResponse createPainting(String title, String description, String artistId, String museumId, String photo) {
         CreatePaintingRequest.Builder builder = CreatePaintingRequest.newBuilder()
-                .setTitle(title != null ? title : "")
-                .setArtistId(artistId);
+                .setTitle(title != null ? title : "");
 
+        if (artistId != null && !artistId.isBlank()) {
+            builder.setArtistId(artistId);
+        } else {
+            throw new IllegalArgumentException("Artist ID is required");
+        }
         if (description != null) {
             builder.setDescription(description);
         }
@@ -55,7 +59,6 @@ public class PaintingGrpcClient {
         if (photo != null) {
             builder.setPhoto(photo);
         }
-
         return paintingStub.createPainting(builder.build());
     }
 

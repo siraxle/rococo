@@ -47,10 +47,7 @@ public class ArtistService {
     }
 
     public void deleteArtist(String id) {
-        ArtistIdRequest request = ArtistIdRequest.newBuilder()
-                .setId(id)
-                .build();
-        throw new UnsupportedOperationException("Delete method not implemented in proto");
+        artistGrpcClient.deleteArtist(id);
     }
 
     private Artist mapToArtist(ArtistResponse response) {

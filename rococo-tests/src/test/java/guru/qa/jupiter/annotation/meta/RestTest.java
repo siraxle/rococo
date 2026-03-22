@@ -15,7 +15,6 @@ import java.lang.annotation.Target;
         AllureJunit5.class,
         TestMethodContextExtension.class,
         UserExtension.class,
-        ApiLoginExtension.class,
         ArtistExtension.class,
         MuseumExtension.class,
         PaintingExtension.class

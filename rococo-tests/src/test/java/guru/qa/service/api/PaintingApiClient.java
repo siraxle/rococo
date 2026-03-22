@@ -18,7 +18,7 @@ public class PaintingApiClient extends RestClient {
         this.paintingApi = create(PaintingApi.class);
     }
 
-    @Step("Create painting: {painting.title()}")
+    @Step("Create painting: {painting}")
     @Nonnull
     public PaintingJson createPainting(PaintingJson painting) {
         try {

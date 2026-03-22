@@ -18,7 +18,7 @@ public class MuseumApiClient extends RestClient {
         this.museumApi = create(MuseumApi.class);
     }
 
-    @Step("Create museum: {museum.title()}")
+    @Step("Create museum: {museum}")
     @Nonnull
     public MuseumJson createMuseum(MuseumJson museum) {
         try {
