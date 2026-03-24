@@ -66,4 +66,32 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PatchMapping
+    public ResponseEntity<User> updateCurrentUser(
+            @RequestBody User user,
+            Principal principal) {
+
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            System.out.println("Updating user: username=" + principal.getName() +
+                    ", firstname=" + user.firstname() +
+                    ", lastname=" + user.lastname());
+
+            User updated = userService.updateUser(
+                    principal.getName(),
+                    user.firstname(),
+                    user.lastname(),
+                    user.avatar()
+            );
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

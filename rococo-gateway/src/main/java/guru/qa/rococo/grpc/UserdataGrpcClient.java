@@ -16,19 +16,19 @@ public class UserdataGrpcClient {
 
     @PostConstruct
     public void init() {
-        System.out.println("🔨 Initializing Userdata gRPC client...");
+        System.out.println("Initializing Userdata gRPC client...");
         channel = ManagedChannelBuilder
                 .forAddress("127.0.0.1", 8096)
                 .usePlaintext()
                 .build();
 
         userdataStub = UserdataServiceGrpc.newBlockingStub(channel);
-        System.out.println("✅ Userdata gRPC client initialized successfully");
+        System.out.println("Userdata gRPC client initialized successfully");
     }
 
     @PreDestroy
     public void shutdown() {
-        System.out.println("📕 Shutting down Userdata gRPC client...");
+        System.out.println("Shutting down Userdata gRPC client...");
         if (channel != null && !channel.isShutdown()) {
             channel.shutdown();
         }
@@ -57,4 +57,22 @@ public class UserdataGrpcClient {
                 .build();
         return userdataStub.createUser(request);
     }
+
+    public UserResponse updateUser(String id, String firstname, String lastname, String avatar) {
+        UpdateUserRequest.Builder builder = UpdateUserRequest.newBuilder()
+                .setId(id);
+
+        if (firstname != null && !firstname.isBlank()) {
+            builder.setFirstname(firstname);
+        }
+        if (lastname != null && !lastname.isBlank()) {
+            builder.setLastname(lastname);
+        }
+        if (avatar != null && !avatar.isBlank()) {
+            builder.setAvatar(avatar);
+        }
+
+        return userdataStub.updateUser(builder.build());
+    }
+
 }

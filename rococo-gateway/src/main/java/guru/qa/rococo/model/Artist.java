@@ -1,4 +1,3 @@
-// Artist.java
 package guru.qa.rococo.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

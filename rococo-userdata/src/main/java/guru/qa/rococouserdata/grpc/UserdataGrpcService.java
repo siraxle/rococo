@@ -2,16 +2,21 @@ package guru.qa.rococouserdata.grpc;
 
 import guru.qa.rococouserdata.model.UserEntity;
 import guru.qa.rococouserdata.repository.UserRepository;
+import guru.qa.rococouserdata.service.SmallPhoto;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.grpc.server.service.GrpcService;
 import rococo.grpc.userdata.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @GrpcService
 public class UserdataGrpcService extends UserdataServiceGrpc.UserdataServiceImplBase {
 
+    private static final Logger LOG = LoggerFactory.getLogger(UserdataGrpcService.class);
     private final UserRepository userRepository;
 
     public UserdataGrpcService(UserRepository userRepository) {
@@ -80,14 +85,38 @@ public class UserdataGrpcService extends UserdataServiceGrpc.UserdataServiceImpl
             user.setUsername(username);
             user.setFirstname(request.getFirstname());
             user.setLastname(request.getLastname());
-            user.setAvatar(request.getAvatar());
+
+            // Обработка avatar через SmallPhoto
+            String avatar = request.getAvatar();
+            if (avatar != null && !avatar.isBlank()) {
+                LOG.info("Creating user with avatar length: {}", avatar.length());
+                try {
+                    SmallPhoto smallPhoto = new SmallPhoto(300, 300, "jpg", avatar);
+                    byte[] avatarBytes = smallPhoto.bytes();
+                    if (avatarBytes != null) {
+                        String processedAvatar = new String(avatarBytes, StandardCharsets.UTF_8);
+                        LOG.info("Processed avatar length: {}", processedAvatar.length());
+                        user.setAvatar(processedAvatar);
+                    } else {
+                        LOG.warn("SmallPhoto.bytes() returned null, using original avatar");
+                        user.setAvatar(avatar);
+                    }
+                } catch (Exception e) {
+                    LOG.error("Failed to process avatar, using original", e);
+                    user.setAvatar(avatar);
+                }
+            } else {
+                user.setAvatar(avatar);
+            }
 
             UserEntity savedUser = userRepository.save(user);
+            LOG.info("User created with id: {}", savedUser.getId());
 
             responseObserver.onNext(mapToProtoUser(savedUser));
             responseObserver.onCompleted();
 
         } catch (Exception e) {
+            LOG.error("Failed to create user", e);
             responseObserver.onError(
                     Status.INTERNAL
                             .withDescription("Failed to create user: " + e.getMessage())
@@ -110,10 +139,31 @@ public class UserdataGrpcService extends UserdataServiceGrpc.UserdataServiceImpl
                 user.setLastname(request.getLastname());
             }
             if (request.hasAvatar()) {
-                user.setAvatar(request.getAvatar());
+                String avatar = request.getAvatar();
+                if (avatar != null && !avatar.isBlank()) {
+                    LOG.info("Updating user avatar, length: {}", avatar.length());
+                    try {
+                        SmallPhoto smallPhoto = new SmallPhoto(300, 300, "jpg", avatar);
+                        byte[] avatarBytes = smallPhoto.bytes();
+                        if (avatarBytes != null) {
+                            String processedAvatar = new String(avatarBytes, StandardCharsets.UTF_8);
+                            LOG.info("Processed avatar length: {}", processedAvatar.length());
+                            user.setAvatar(processedAvatar);
+                        } else {
+                            LOG.warn("SmallPhoto.bytes() returned null, using original avatar");
+                            user.setAvatar(avatar);
+                        }
+                    } catch (Exception e) {
+                        LOG.error("Failed to process avatar for update, using original", e);
+                        user.setAvatar(avatar);
+                    }
+                } else {
+                    user.setAvatar(avatar);
+                }
             }
 
             UserEntity updatedUser = userRepository.save(user);
+            LOG.info("User updated with id: {}", updatedUser.getId());
 
             responseObserver.onNext(mapToProtoUser(updatedUser));
             responseObserver.onCompleted();
@@ -125,6 +175,7 @@ public class UserdataGrpcService extends UserdataServiceGrpc.UserdataServiceImpl
                             .asRuntimeException()
             );
         } catch (Exception e) {
+            LOG.error("Failed to update user with id: {}", request.getId(), e);
             responseObserver.onError(
                     Status.NOT_FOUND
                             .withDescription("User not found with id: " + request.getId())

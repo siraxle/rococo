@@ -38,6 +38,12 @@ public class UserGatewayService {
         }
     }
 
+    public User updateUser(String username, String firstname, String lastname, String avatar) {
+        UserResponse existing = userdataGrpcClient.getUserByUsername(username);
+        UserResponse updated = userdataGrpcClient.updateUser(existing.getId(), firstname, lastname, avatar);
+        return mapToUser(updated);
+    }
+
     private User mapToUser(UserResponse response) {
         return new User(
                 UUID.fromString(response.getId()),
