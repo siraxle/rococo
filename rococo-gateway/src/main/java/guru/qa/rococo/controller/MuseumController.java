@@ -54,13 +54,24 @@ public class MuseumController {
 
     @PostMapping
     public ResponseEntity<Museum> createMuseum(@RequestBody Museum museum) {
+        String city = null;
+        if (museum.geo() != null) {
+            city = museum.geo().city();
+        }
+
+        String countryId = null;
+        if (museum.geo() != null && museum.geo().country() != null) {
+            countryId = museum.geo().country().id() != null ?
+                    museum.geo().country().id().toString() : null;
+        }
+
         Museum created = museumService.createMuseum(
                 museum.title(),
                 museum.description(),
-                museum.city(),
+                city,
                 museum.address(),
                 museum.photo(),
-                museum.countryId() != null ? museum.countryId().toString() : null
+                countryId
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -69,6 +80,11 @@ public class MuseumController {
     public ResponseEntity<Museum> updateMuseum(@RequestBody Museum museum) {
         if (museum.id() == null) {
             return ResponseEntity.badRequest().build();
+        }
+
+        String city = null;
+        if (museum.geo() != null) {
+            city = museum.geo().city();
         }
 
         String countryId = null;
@@ -81,7 +97,7 @@ public class MuseumController {
                 museum.id(),
                 museum.title(),
                 museum.description(),
-                museum.city(),
+                city,  // используем city из geo
                 museum.address(),
                 museum.photo(),
                 countryId

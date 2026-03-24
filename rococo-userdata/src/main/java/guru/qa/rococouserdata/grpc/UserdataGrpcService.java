@@ -86,7 +86,6 @@ public class UserdataGrpcService extends UserdataServiceGrpc.UserdataServiceImpl
             user.setFirstname(request.getFirstname());
             user.setLastname(request.getLastname());
 
-            // Обработка avatar через SmallPhoto
             String avatar = request.getAvatar();
             if (avatar != null && !avatar.isBlank()) {
                 LOG.info("Creating user with avatar length: {}", avatar.length());

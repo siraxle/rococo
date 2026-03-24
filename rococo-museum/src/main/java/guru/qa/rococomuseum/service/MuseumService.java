@@ -76,20 +76,32 @@ public class MuseumService {
                                      UUID countryId, String photo) {
         MuseumEntity museum = getMuseumById(id);
 
+        LOG.info("=== Updating museum ===");
+        LOG.info("Museum ID: {}", id);
+        LOG.info("Current city: {}", museum.getCity());
+        LOG.info("New city: {}", city);
+
         if (title != null && !title.isBlank()) {
             museum.setTitle(title);
+            LOG.info("Title updated to: {}", title);
         }
         if (description != null) {
             museum.setDescription(description);
+            LOG.info("Description updated");
         }
         if (city != null && !city.isBlank()) {
             museum.setCity(city);
+            LOG.info("City updated to: {}", city);
+        } else {
+            LOG.warn("City is null or blank, not updating");
         }
         if (address != null && !address.isBlank()) {
             museum.setAddress(address);
+            LOG.info("Address updated to: {}", address);
         }
         if (countryId != null) {
             museum.setCountryId(countryId);
+            LOG.info("CountryId updated to: {}", countryId);
         }
         if (photo != null) {
             String processedPhoto = null;
@@ -107,9 +119,14 @@ public class MuseumService {
                 }
             }
             museum.setPhoto(processedPhoto);
+            LOG.info("Photo updated");
         }
 
-        return museumRepository.save(museum);
+        MuseumEntity updated = museumRepository.save(museum);
+        LOG.info("After save - City: {}, Title: {}, Address: {}",
+                updated.getCity(), updated.getTitle(), updated.getAddress());
+
+        return updated;
     }
 
     @Transactional
