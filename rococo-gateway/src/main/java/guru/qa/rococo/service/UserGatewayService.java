@@ -8,11 +8,11 @@ import rococo.grpc.userdata.UserResponse;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class UserGatewayService {
 
     private final UserdataGrpcClient userdataGrpcClient;
 
-    public UserService(UserdataGrpcClient userdataGrpcClient) {
+    public UserGatewayService(UserdataGrpcClient userdataGrpcClient) {
         this.userdataGrpcClient = userdataGrpcClient;
     }
 

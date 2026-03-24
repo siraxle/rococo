@@ -1,7 +1,7 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.Museum;
-import guru.qa.rococo.service.MuseumService;
+import guru.qa.rococo.service.MuseumGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,10 +18,10 @@ import java.util.UUID;
 @RequestMapping("/api/museum")
 public class MuseumController {
 
-    private final MuseumService museumService;
+    private final MuseumGatewayService museumService;
 
     @Autowired
-    public MuseumController(MuseumService museumService) {
+    public MuseumController(MuseumGatewayService museumService) {
         this.museumService = museumService;
     }
 

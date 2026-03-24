@@ -15,12 +15,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class MuseumService {
+public class MuseumGatewayService {
 
     private final MuseumGrpcClient museumGrpcClient;
     private final GeoGrpcClient geoGrpcClient;
 
-    public MuseumService(MuseumGrpcClient museumGrpcClient, GeoGrpcClient geoGrpcClient) {
+    public MuseumGatewayService(MuseumGrpcClient museumGrpcClient, GeoGrpcClient geoGrpcClient) {
         this.museumGrpcClient = museumGrpcClient;
         this.geoGrpcClient = geoGrpcClient;
     }

@@ -1,8 +1,8 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.Painting;
-import guru.qa.rococo.service.PaintingService;
-import guru.qa.rococo.service.ArtistService;
+import guru.qa.rococo.service.PaintingGatewayService;
+import guru.qa.rococo.service.ArtistGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/painting")
 public class PaintingController {
 
-    private final PaintingService paintingService;
-    private final ArtistService artistService;
+    private final PaintingGatewayService paintingService;
+    private final ArtistGatewayService artistService;
 
     @Autowired
-    public PaintingController(PaintingService paintingService, ArtistService artistService) {
+    public PaintingController(PaintingGatewayService paintingService, ArtistGatewayService artistService) {
         this.paintingService = paintingService;
         this.artistService = artistService;
     }

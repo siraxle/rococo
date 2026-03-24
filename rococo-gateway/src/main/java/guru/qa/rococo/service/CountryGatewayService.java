@@ -10,11 +10,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class CountryService {
+public class CountryGatewayService {
 
     private final GeoGrpcClient geoGrpcClient;
 
-    public CountryService(GeoGrpcClient geoGrpcClient) {
+    public CountryGatewayService(GeoGrpcClient geoGrpcClient) {
         this.geoGrpcClient = geoGrpcClient;
     }
 

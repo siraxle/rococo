@@ -1,7 +1,7 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.Country;
-import guru.qa.rococo.service.CountryService;
+import guru.qa.rococo.service.CountryGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -14,10 +14,10 @@ import java.util.List;
 @RequestMapping("/api/country")
 public class CountryController {
 
-    private final CountryService countryService;
+    private final CountryGatewayService countryService;
 
     @Autowired
-    public CountryController(CountryService countryService) {
+    public CountryController(CountryGatewayService countryService) {
         this.countryService = countryService;
     }
 

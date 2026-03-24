@@ -11,11 +11,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class PaintingService {
+public class PaintingGatewayService {
 
     private final PaintingGrpcClient paintingGrpcClient;
 
-    public PaintingService(PaintingGrpcClient paintingGrpcClient) {
+    public PaintingGatewayService(PaintingGrpcClient paintingGrpcClient) {
         this.paintingGrpcClient = paintingGrpcClient;
     }
 

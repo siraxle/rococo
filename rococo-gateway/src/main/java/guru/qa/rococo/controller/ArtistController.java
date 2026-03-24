@@ -1,7 +1,7 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.Artist;
-import guru.qa.rococo.service.ArtistService;
+import guru.qa.rococo.service.ArtistGatewayService;
 import guru.qa.rococo.grpc.ArtistGrpcClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,11 +21,11 @@ import java.util.*;
 @RequestMapping("/api/artist")
 public class ArtistController {
 
-    private final ArtistService artistService;
+    private final ArtistGatewayService artistService;
     private final ArtistGrpcClient artistGrpcClient;
 
     @Autowired
-    public ArtistController(ArtistService artistService, ArtistGrpcClient artistGrpcClient) {
+    public ArtistController(ArtistGatewayService artistService, ArtistGrpcClient artistGrpcClient) {
         this.artistService = artistService;
         this.artistGrpcClient = artistGrpcClient;
     }

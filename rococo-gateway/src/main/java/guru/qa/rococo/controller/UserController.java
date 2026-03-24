@@ -1,7 +1,7 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.User;
-import guru.qa.rococo.service.UserService;
+import guru.qa.rococo.service.UserGatewayService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +12,9 @@ import java.security.Principal;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserService userService;
+    private final UserGatewayService userService;
 
-    public UserController(UserService userService) {
+    public UserController(UserGatewayService userService) {
         this.userService = userService;
     }
 
