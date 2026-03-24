@@ -58,8 +58,8 @@ public class MuseumGrpcService extends MuseumServiceGrpc.MuseumServiceImplBase {
                     request.getDescription(),
                     request.getCity(),
                     request.getAddress(),
-                    request.getPhoto(),
-                    countryId
+                    countryId,
+                    request.getPhoto()
             );
 
             responseObserver.onNext(mapToResponse(museum));
@@ -92,8 +92,8 @@ public class MuseumGrpcService extends MuseumServiceGrpc.MuseumServiceImplBase {
                     request.getDescription(),
                     request.getCity(),
                     request.getAddress(),
-                    request.getPhoto(),
-                    countryId
+                    countryId,
+                    request.getPhoto()
             );
 
             responseObserver.onNext(mapToResponse(museum));
