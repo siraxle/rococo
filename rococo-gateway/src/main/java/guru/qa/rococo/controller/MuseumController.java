@@ -65,19 +65,26 @@ public class MuseumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Museum> updateMuseum(
-            @PathVariable UUID id,
-            @RequestBody Museum museum) {
+    @PatchMapping
+    public ResponseEntity<Museum> updateMuseum(@RequestBody Museum museum) {
+        if (museum.id() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String countryId = null;
+        if (museum.geo() != null && museum.geo().country() != null) {
+            countryId = museum.geo().country().id() != null ?
+                    museum.geo().country().id().toString() : null;
+        }
 
         Museum updated = museumService.updateMuseum(
-                id,
+                museum.id(),
                 museum.title(),
                 museum.description(),
                 museum.city(),
                 museum.address(),
                 museum.photo(),
-                museum.countryId() != null ? museum.countryId().toString() : null
+                countryId
         );
         return ResponseEntity.ok(updated);
     }
