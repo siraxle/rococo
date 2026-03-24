@@ -31,4 +31,18 @@ public class MuseumIntegrationTest {
 
         assertThrows(RuntimeException.class, () -> museumApiClient.getMuseum(museum.id()));
     }
+
+    @Museum
+    @Test
+    void shouldGetMuseumById(MuseumJson museum) {
+        MuseumJson fetched = museumApiClient.getMuseum(museum.id());
+
+        assertThat(fetched.id()).isEqualTo(museum.id());
+        assertThat(fetched.title()).isEqualTo(museum.title());
+        assertThat(fetched.description()).isEqualTo(museum.description());
+        assertThat(fetched.city()).isEqualTo(museum.city());
+        assertThat(fetched.address()).isEqualTo(museum.address());
+        assertThat(fetched.geo()).isEqualTo(museum.geo());
+    }
+
 }

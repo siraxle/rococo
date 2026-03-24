@@ -3,6 +3,7 @@ package guru.qa.utils;
 import com.github.javafaker.Faker;
 
 import java.util.Locale;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomDataUtils {
 
@@ -51,4 +52,13 @@ public class RandomDataUtils {
     public static String randomLastName() {
         return FAKER.name().lastName();
     }
+
+    public static int randomInt(int min, int max) {
+        return ThreadLocalRandom.current().nextInt(min, max + 1);
+    }
+
+    public static String randomAvatar() {
+        return "avatar_" + System.currentTimeMillis() + ".jpg";
+    }
+
 }

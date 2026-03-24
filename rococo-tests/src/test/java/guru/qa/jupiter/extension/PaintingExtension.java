@@ -38,14 +38,6 @@ public class PaintingExtension implements BeforeEachCallback, ParameterResolver 
                     MuseumJson museum = MuseumExtension.getMuseum()
                             .orElseThrow(() -> new IllegalStateException("Museum not found in context. Use @Museum annotation."));
 
-                    System.out.println("=== PaintingExtension Debug ===");
-                    System.out.println("Artist ID: " + artist.id());
-                    System.out.println("Museum ID: " + museum.id());
-                    System.out.println("Artist name: " + artist.name());
-                    System.out.println("Museum title: " + museum.title());
-                    System.out.println("Artist object: " + artist);
-                    System.out.println("Museum object: " + museum);
-
                     if (artist.id() == null) {
                         throw new IllegalStateException("Artist ID is null! Artist: " + artist);
                     }

@@ -20,7 +20,6 @@ public record Painting(
             @JsonProperty("id") UUID id
     ) {}
 
-    // Вспомогательные методы для обратной совместимости с сервисом
     public UUID artistId() {
         return artist != null ? artist.id() : null;
     }

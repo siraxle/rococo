@@ -4,6 +4,7 @@ import guru.qa.config.Config;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import rococo.grpc.userdata.CreateUserRequest;
+import rococo.grpc.userdata.UpdateUserRequest;
 import rococo.grpc.userdata.UserResponse;
 import rococo.grpc.userdata.UserdataServiceGrpc;
 
@@ -29,5 +30,15 @@ public class UserdataGrpcClient {
                 .setAvatar("")
                 .build();
         return userdataStub.createUser(request);
+    }
+
+    public UserResponse updateUser(String userId, String firstname, String lastname, String avatar) {
+        UpdateUserRequest request = UpdateUserRequest.newBuilder()
+                .setId(userId)
+                .setFirstname(firstname != null ? firstname : "")
+                .setLastname(lastname != null ? lastname : "")
+                .setAvatar(avatar != null ? avatar : "")
+                .build();
+        return userdataStub.updateUser(request);
     }
 }

@@ -14,7 +14,6 @@ import org.junit.platform.commons.support.AnnotationSupport;
 import rococo.grpc.userdata.UserResponse;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
@@ -45,11 +44,27 @@ public class UserExtension implements BeforeEachCallback, ParameterResolver {
                         // Get user ID from gRPC response
                         String userId = grpcResponse.getId();
 
+                        // Generate random user data
+                        String firstname = RandomDataUtils.randomFirstName();
+                        String lastname = RandomDataUtils.randomLastName();
+                        String avatar = "avatar_" + System.currentTimeMillis() + ".jpg";
+
+                        // Update user with generated data via gRPC
+                        userdataGrpcClient.updateUser(userId, firstname, lastname, avatar);
+
                         // Small delay for synchronization
                         Thread.sleep(500);
 
-                        // Create UserJson with ID from gRPC response
-                        UserJson user = new UserJson(userId, username, null, null, null, new TestData(password));
+                        // Create UserJson with generated data
+                        UserJson user = new UserJson(
+                                userId,
+                                username,
+                                firstname,
+                                lastname,
+                                avatar,
+                                null,  // createdAt
+                                new TestData(password)
+                        );
                         setUser(user);
 
                     } catch (Exception e) {
