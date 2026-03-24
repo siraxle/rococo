@@ -53,6 +53,8 @@ dependencies {
 
     // Protobuf (версия берется из BOM)
     implementation "com.google.protobuf:protobuf-java-util:${dependencyManagement.importedProperties['protobuf-java.version']}"
+
+    implementation 'net.coobird:thumbnailator:0.4.20'
 }
 
 protobuf {
