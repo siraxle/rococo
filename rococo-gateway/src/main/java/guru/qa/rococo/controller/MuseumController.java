@@ -54,24 +54,13 @@ public class MuseumController {
 
     @PostMapping
     public ResponseEntity<Museum> createMuseum(@RequestBody Museum museum) {
-        // Извлекаем countryId из geo объекта
-        String countryId = null;
-        Map<String, Object> geo = museum.geo();
-        if (geo != null && geo.containsKey("country")) {
-            Map<String, Object> country = (Map<String, Object>) geo.get("country");
-            if (country != null && country.containsKey("id")) {
-                Object id = country.get("id");
-                countryId = id != null ? id.toString() : null;
-            }
-        }
-
         Museum created = museumService.createMuseum(
                 museum.title(),
                 museum.description(),
                 museum.city(),
                 museum.address(),
                 museum.photo(),
-                countryId
+                museum.countryId() != null ? museum.countryId().toString() : null
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
@@ -81,17 +70,6 @@ public class MuseumController {
             @PathVariable UUID id,
             @RequestBody Museum museum) {
 
-        // Извлекаем countryId из geo объекта
-        String countryId = null;
-        Map<String, Object> geo = museum.geo();
-        if (geo != null && geo.containsKey("country")) {
-            Map<String, Object> country = (Map<String, Object>) geo.get("country");
-            if (country != null && country.containsKey("id")) {
-                Object idObj = country.get("id");
-                countryId = idObj != null ? idObj.toString() : null;
-            }
-        }
-
         Museum updated = museumService.updateMuseum(
                 id,
                 museum.title(),
@@ -99,7 +77,7 @@ public class MuseumController {
                 museum.city(),
                 museum.address(),
                 museum.photo(),
-                countryId
+                museum.countryId() != null ? museum.countryId().toString() : null
         );
         return ResponseEntity.ok(updated);
     }

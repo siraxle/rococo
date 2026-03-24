@@ -56,19 +56,22 @@ public class MuseumGatewayService {
     }
 
     private Museum mapToMuseum(MuseumResponse response) {
-        Map<String, Object> geo = new HashMap<>();
-        Map<String, Object> countryMap = new HashMap<>();
+        Museum.GeoInfo geo = null;
 
         try {
             String countryId = response.getCountryId();
             if (countryId != null && !countryId.isEmpty()) {
                 CountryResponse countryResponse = geoGrpcClient.getCountryById(countryId);
                 if (countryResponse != null) {
-                    countryMap.put("id", countryResponse.getId());
-                    countryMap.put("name", countryResponse.getName());
-
-                    geo.put("city", response.getCity());
-                    geo.put("country", countryMap);
+                    Museum.CountryInfo countryInfo = new Museum.CountryInfo(
+                            UUID.fromString(countryResponse.getId()),
+                            countryResponse.getName(),
+                            countryResponse.getCode()
+                    );
+                    geo = new Museum.GeoInfo(
+                            response.getCity(),
+                            countryInfo
+                    );
                 }
             }
         } catch (Exception e) {
@@ -82,7 +85,7 @@ public class MuseumGatewayService {
                 response.getCity(),
                 response.getAddress(),
                 response.getPhoto(),
-                geo.isEmpty() ? null : geo
+                geo
         );
     }
 }
