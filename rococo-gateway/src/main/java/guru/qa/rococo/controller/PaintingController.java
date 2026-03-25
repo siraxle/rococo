@@ -72,12 +72,35 @@ public class PaintingController {
         return ResponseEntity.ok(enrichedPaintings);
     }
 
+//    @GetMapping("/author/{artistId}")
+//    public ResponseEntity<List<Painting>> getPaintingsByAuthor(
+//            @PathVariable UUID artistId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return getPaintingsByArtist(artistId, page, size);
+//    }
+
     @GetMapping("/author/{artistId}")
-    public ResponseEntity<List<Painting>> getPaintingsByAuthor(
+    public ResponseEntity<Page<Painting>> getPaintingsByAuthor(
             @PathVariable UUID artistId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return getPaintingsByArtist(artistId, page, size);
+
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        if (size > 100) size = 100;
+
+        List<Painting> paintings = paintingService.getAllPaintings(page, size, null, artistId, null);
+        List<Painting> enrichedPaintings = paintings.stream()
+                .map(this::enrichPaintingWithArtistName)
+                .collect(Collectors.toList());
+
+        Page<Painting> paintingPage = new PageImpl<>(
+                enrichedPaintings,
+                PageRequest.of(page, size),
+                enrichedPaintings.size()
+        );
+        return ResponseEntity.ok(paintingPage);
     }
 
     @GetMapping("/museum/{museumId}")
