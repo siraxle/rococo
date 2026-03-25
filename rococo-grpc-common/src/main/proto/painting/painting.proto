@@ -41,7 +41,7 @@ message PaintingResponse {
   string id = 1;
   string title = 2;
   string description = 3;
-  string artist_id = 4;
+  optional string artist_id = 4;
   optional string museum_id = 5;
   optional string photo = 6;
 }

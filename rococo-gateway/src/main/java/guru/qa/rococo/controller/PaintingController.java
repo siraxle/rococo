@@ -42,7 +42,6 @@ public class PaintingController {
 
         List<Painting> paintings = paintingService.getAllPaintings(page, size, title, artistId, museumId);
 
-        // Обогащаем данными о художнике
         List<Painting> enrichedPaintings = paintings.stream()
                 .map(this::enrichPaintingWithArtistName)
                 .collect(Collectors.toList());
@@ -105,20 +104,21 @@ public class PaintingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(enrichPaintingWithArtistName(created));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Painting> updatePainting(
-            @PathVariable UUID id,
-            @RequestBody Painting painting) {
+    @PatchMapping
+    public ResponseEntity<Painting> updatePainting(@RequestBody Painting painting) {
+        if (painting.id() == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         Painting updated = paintingService.updatePainting(
-                id,
+                painting.id(),
                 painting.title(),
                 painting.description(),
                 painting.artistId(),
                 painting.museumId(),
                 painting.photo()
         );
-        return ResponseEntity.ok(enrichPaintingWithArtistName(updated));
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
@@ -131,17 +131,13 @@ public class PaintingController {
         if (painting.artist() == null || painting.artist().id() == null) {
             return painting;
         }
-
-        // Получаем имя художника
         String artistName = artistService.getArtistName(painting.artist().id());
 
-        // Создаем новый объект ArtistInfo с именем
         Painting.ArtistInfo enrichedArtist = new Painting.ArtistInfo(
                 painting.artist().id(),
                 artistName
         );
 
-        // Возвращаем новую Painting с обогащенным artist
         return new Painting(
                 painting.id(),
                 painting.title(),

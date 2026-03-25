@@ -97,7 +97,7 @@ public class MuseumController {
                 museum.id(),
                 museum.title(),
                 museum.description(),
-                city,  // используем city из geo
+                city,
                 museum.address(),
                 museum.photo(),
                 countryId

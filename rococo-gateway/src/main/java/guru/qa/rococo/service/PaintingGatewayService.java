@@ -14,9 +14,12 @@ import java.util.stream.Collectors;
 public class PaintingGatewayService {
 
     private final PaintingGrpcClient paintingGrpcClient;
+    private final ArtistGatewayService artistService;
 
-    public PaintingGatewayService(PaintingGrpcClient paintingGrpcClient) {
+    public PaintingGatewayService(PaintingGrpcClient paintingGrpcClient,
+                                  ArtistGatewayService artistService) {
         this.paintingGrpcClient = paintingGrpcClient;
+        this.artistService = artistService;
     }
 
     public Painting getPaintingById(UUID id) {
@@ -65,9 +68,18 @@ public class PaintingGatewayService {
     }
 
     private Painting mapToPainting(PaintingResponse response) {
+        String artistName = null;
+        if (response.hasArtistId() && response.getArtistId() != null && !response.getArtistId().isEmpty()) {
+            try {
+                artistName = artistService.getArtistName(UUID.fromString(response.getArtistId()));
+            } catch (Exception e) {
+                System.err.println("Failed to get artist name: " + e.getMessage());
+            }
+        }
+
         Painting.ArtistInfo artistInfo = new Painting.ArtistInfo(
                 UUID.fromString(response.getArtistId()),
-                null
+                artistName
         );
 
         Painting.MuseumInfo museumInfo = null;
