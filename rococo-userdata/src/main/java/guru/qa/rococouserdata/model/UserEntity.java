@@ -29,7 +29,7 @@ public class UserEntity {
     @Column(name = "lastname", length = 100)
     private String lastname;
 
-    @Column(name = "avatar", columnDefinition = "TEXT")
+    @Column(name = "avatar", columnDefinition = "LONGTEXT")
     private String avatar;
 
     @Column(name = "created_at", nullable = false, updatable = false)

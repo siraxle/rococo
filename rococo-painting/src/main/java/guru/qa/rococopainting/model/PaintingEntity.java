@@ -26,7 +26,7 @@ public class PaintingEntity {
     @Column(name = "museum_id")
     private UUID museumId;
 
-    @Column(name = "photo", columnDefinition = "TEXT")
+    @Column(name = "photo", columnDefinition = "LONGTEXT")
     private String photo;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -48,7 +48,6 @@ public class PaintingEntity {
         updatedAt = new Date();
     }
 
-    // Геттеры и сеттеры
     public UUID getId() {
         return id;
     }

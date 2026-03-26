@@ -25,7 +25,7 @@ public class ArtistEntity {
     @Column(name = "biography", columnDefinition = "TEXT")
     private String biography;
 
-    @Column(name = "photo", length = 500)
+    @Column(name = "photo", columnDefinition = "LONGTEXT")
     private String photo;
 
     @Override

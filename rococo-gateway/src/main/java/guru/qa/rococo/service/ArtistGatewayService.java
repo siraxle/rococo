@@ -12,11 +12,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class ArtistService {
+public class ArtistGatewayService {
 
     private final ArtistGrpcClient artistGrpcClient;
 
-    public ArtistService(ArtistGrpcClient artistGrpcClient) {
+    public ArtistGatewayService(ArtistGrpcClient artistGrpcClient) {
         this.artistGrpcClient = artistGrpcClient;
     }
 

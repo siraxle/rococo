@@ -14,10 +14,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class ArtistService {
 
     private final ArtistRepository artistRepository;
+    private static final Logger LOG = LoggerFactory.getLogger(ArtistService.class);
 
     @Autowired
     public ArtistService(ArtistRepository artistRepository) {
@@ -30,10 +35,33 @@ public class ArtistService {
     }
 
     public ArtistEntity createArtist(String name, String biography, String photo) {
+        LOG.info("=== Creating artist ===");
+        LOG.info("Original photo length: {}", photo != null ? photo.length() : "null");
+
+        String processedPhoto = null;
+        if (photo != null && !photo.isBlank()) {
+            try {
+                SmallPhoto smallPhoto = new SmallPhoto(300, 300, "png", photo);
+                byte[] bytes = smallPhoto.bytes();
+                if (bytes != null) {
+                    processedPhoto = new String(bytes, StandardCharsets.UTF_8);
+                    LOG.info("Processed photo length: {}", processedPhoto.length());
+                } else {
+                    LOG.warn("SmallPhoto.bytes() returned null");
+                    processedPhoto = photo;
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to process photo", e);
+                processedPhoto = photo;
+            }
+        }
+
+        LOG.info("Final photo length: {}", processedPhoto != null ? processedPhoto.length() : "null");
+
         ArtistEntity artist = new ArtistEntity();
         artist.setName(name);
         artist.setBiography(biography);
-        artist.setPhoto(photo);
+        artist.setPhoto(processedPhoto);
 
         return artistRepository.save(artist);
     }
@@ -48,7 +76,21 @@ public class ArtistService {
             artist.setBiography(biography);
         }
         if (photo != null) {
-            artist.setPhoto(photo);
+            String processedPhoto = null;
+            if (!photo.isBlank()) {
+                try {
+                    SmallPhoto smallPhoto = new SmallPhoto(300, 300, "png", photo);
+                    byte[] bytes = smallPhoto.bytes();
+                    if (bytes != null) {
+                        processedPhoto = new String(bytes, StandardCharsets.UTF_8);
+                        LOG.info("Updated photo length: {}", processedPhoto.length());
+                    }
+                } catch (Exception e) {
+                    LOG.error("Failed to process photo for update", e);
+                    processedPhoto = photo;
+                }
+            }
+            artist.setPhoto(processedPhoto);
         }
 
         return artistRepository.save(artist);
