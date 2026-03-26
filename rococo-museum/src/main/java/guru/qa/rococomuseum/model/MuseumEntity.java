@@ -28,7 +28,7 @@ public class MuseumEntity {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "photo", columnDefinition = "TEXT")
+    @Column(name = "photo", columnDefinition = "LONGTEXT")
     private String photo;
 
     @Column(name = "country_id", nullable = false)  // добавить

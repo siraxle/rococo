@@ -8,11 +8,11 @@ import rococo.grpc.userdata.UserResponse;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class UserGatewayService {
 
     private final UserdataGrpcClient userdataGrpcClient;
 
-    public UserService(UserdataGrpcClient userdataGrpcClient) {
+    public UserGatewayService(UserdataGrpcClient userdataGrpcClient) {
         this.userdataGrpcClient = userdataGrpcClient;
     }
 
@@ -36,6 +36,12 @@ public class UserService {
             e.printStackTrace();
             throw e;
         }
+    }
+
+    public User updateUser(String username, String firstname, String lastname, String avatar) {
+        UserResponse existing = userdataGrpcClient.getUserByUsername(username);
+        UserResponse updated = userdataGrpcClient.updateUser(existing.getId(), firstname, lastname, avatar);
+        return mapToUser(updated);
     }
 
     private User mapToUser(UserResponse response) {

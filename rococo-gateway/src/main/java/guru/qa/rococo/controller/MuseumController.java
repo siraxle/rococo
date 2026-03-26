@@ -1,7 +1,7 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.Museum;
-import guru.qa.rococo.service.MuseumService;
+import guru.qa.rococo.service.MuseumGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,10 +18,10 @@ import java.util.UUID;
 @RequestMapping("/api/museum")
 public class MuseumController {
 
-    private final MuseumService museumService;
+    private final MuseumGatewayService museumService;
 
     @Autowired
-    public MuseumController(MuseumService museumService) {
+    public MuseumController(MuseumGatewayService museumService) {
         this.museumService = museumService;
     }
 
@@ -54,21 +54,21 @@ public class MuseumController {
 
     @PostMapping
     public ResponseEntity<Museum> createMuseum(@RequestBody Museum museum) {
-        // Извлекаем countryId из geo объекта
+        String city = null;
+        if (museum.geo() != null) {
+            city = museum.geo().city();
+        }
+
         String countryId = null;
-        Map<String, Object> geo = museum.geo();
-        if (geo != null && geo.containsKey("country")) {
-            Map<String, Object> country = (Map<String, Object>) geo.get("country");
-            if (country != null && country.containsKey("id")) {
-                Object id = country.get("id");
-                countryId = id != null ? id.toString() : null;
-            }
+        if (museum.geo() != null && museum.geo().country() != null) {
+            countryId = museum.geo().country().id() != null ?
+                    museum.geo().country().id().toString() : null;
         }
 
         Museum created = museumService.createMuseum(
                 museum.title(),
                 museum.description(),
-                museum.city(),
+                city,
                 museum.address(),
                 museum.photo(),
                 countryId
@@ -76,27 +76,28 @@ public class MuseumController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Museum> updateMuseum(
-            @PathVariable UUID id,
-            @RequestBody Museum museum) {
+    @PatchMapping
+    public ResponseEntity<Museum> updateMuseum(@RequestBody Museum museum) {
+        if (museum.id() == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
-        // Извлекаем countryId из geo объекта
+        String city = null;
+        if (museum.geo() != null) {
+            city = museum.geo().city();
+        }
+
         String countryId = null;
-        Map<String, Object> geo = museum.geo();
-        if (geo != null && geo.containsKey("country")) {
-            Map<String, Object> country = (Map<String, Object>) geo.get("country");
-            if (country != null && country.containsKey("id")) {
-                Object idObj = country.get("id");
-                countryId = idObj != null ? idObj.toString() : null;
-            }
+        if (museum.geo() != null && museum.geo().country() != null) {
+            countryId = museum.geo().country().id() != null ?
+                    museum.geo().country().id().toString() : null;
         }
 
         Museum updated = museumService.updateMuseum(
-                id,
+                museum.id(),
                 museum.title(),
                 museum.description(),
-                museum.city(),
+                city,
                 museum.address(),
                 museum.photo(),
                 countryId

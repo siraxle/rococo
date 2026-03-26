@@ -61,8 +61,8 @@ public class MuseumGrpcClient {
         return museumStub.createMuseum(builder.build());
     }
 
-    public MuseumResponse updateMuseum(String id, String title, String description, String city,
-                                       String address, String photo, String countryId) {
+    public MuseumResponse updateMuseum(String id, String title, String description,
+                                       String city, String address, String photo, String countryId) {
         UpdateMuseumRequest.Builder builder = UpdateMuseumRequest.newBuilder()
                 .setId(id);
 

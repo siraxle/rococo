@@ -19,5 +19,6 @@ public interface MuseumRepository extends JpaRepository<MuseumEntity, UUID> {
             @Param("city") String city,
             Pageable pageable);
 
-    boolean existsByTitleAndCity(String title, String city);
+    boolean existsByTitle(String title);
+
 }

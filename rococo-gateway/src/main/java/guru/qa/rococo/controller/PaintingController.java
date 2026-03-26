@@ -1,8 +1,8 @@
 package guru.qa.rococo.controller;
 
 import guru.qa.rococo.model.Painting;
-import guru.qa.rococo.service.PaintingService;
-import guru.qa.rococo.service.ArtistService;
+import guru.qa.rococo.service.PaintingGatewayService;
+import guru.qa.rococo.service.ArtistGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,11 +19,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/painting")
 public class PaintingController {
 
-    private final PaintingService paintingService;
-    private final ArtistService artistService;
+    private final PaintingGatewayService paintingService;
+    private final ArtistGatewayService artistService;
 
     @Autowired
-    public PaintingController(PaintingService paintingService, ArtistService artistService) {
+    public PaintingController(PaintingGatewayService paintingService, ArtistGatewayService artistService) {
         this.paintingService = paintingService;
         this.artistService = artistService;
     }
@@ -42,7 +42,6 @@ public class PaintingController {
 
         List<Painting> paintings = paintingService.getAllPaintings(page, size, title, artistId, museumId);
 
-        // Обогащаем данными о художнике
         List<Painting> enrichedPaintings = paintings.stream()
                 .map(this::enrichPaintingWithArtistName)
                 .collect(Collectors.toList());
@@ -73,12 +72,35 @@ public class PaintingController {
         return ResponseEntity.ok(enrichedPaintings);
     }
 
+//    @GetMapping("/author/{artistId}")
+//    public ResponseEntity<List<Painting>> getPaintingsByAuthor(
+//            @PathVariable UUID artistId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size) {
+//        return getPaintingsByArtist(artistId, page, size);
+//    }
+
     @GetMapping("/author/{artistId}")
-    public ResponseEntity<List<Painting>> getPaintingsByAuthor(
+    public ResponseEntity<Page<Painting>> getPaintingsByAuthor(
             @PathVariable UUID artistId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return getPaintingsByArtist(artistId, page, size);
+
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+        if (size > 100) size = 100;
+
+        List<Painting> paintings = paintingService.getAllPaintings(page, size, null, artistId, null);
+        List<Painting> enrichedPaintings = paintings.stream()
+                .map(this::enrichPaintingWithArtistName)
+                .collect(Collectors.toList());
+
+        Page<Painting> paintingPage = new PageImpl<>(
+                enrichedPaintings,
+                PageRequest.of(page, size),
+                enrichedPaintings.size()
+        );
+        return ResponseEntity.ok(paintingPage);
     }
 
     @GetMapping("/museum/{museumId}")
@@ -105,20 +127,21 @@ public class PaintingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(enrichPaintingWithArtistName(created));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<Painting> updatePainting(
-            @PathVariable UUID id,
-            @RequestBody Painting painting) {
+    @PatchMapping
+    public ResponseEntity<Painting> updatePainting(@RequestBody Painting painting) {
+        if (painting.id() == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
         Painting updated = paintingService.updatePainting(
-                id,
+                painting.id(),
                 painting.title(),
                 painting.description(),
                 painting.artistId(),
                 painting.museumId(),
                 painting.photo()
         );
-        return ResponseEntity.ok(enrichPaintingWithArtistName(updated));
+        return ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/{id}")
@@ -131,17 +154,13 @@ public class PaintingController {
         if (painting.artist() == null || painting.artist().id() == null) {
             return painting;
         }
-
-        // Получаем имя художника
         String artistName = artistService.getArtistName(painting.artist().id());
 
-        // Создаем новый объект ArtistInfo с именем
         Painting.ArtistInfo enrichedArtist = new Painting.ArtistInfo(
                 painting.artist().id(),
                 artistName
         );
 
-        // Возвращаем новую Painting с обогащенным artist
         return new Painting(
                 painting.id(),
                 painting.title(),
