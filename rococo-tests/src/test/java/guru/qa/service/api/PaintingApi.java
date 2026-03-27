@@ -12,6 +12,9 @@ public interface PaintingApi {
     @GET("/api/painting/{id}")
     Call<PaintingJson> getPainting(@Path("id") String id);
 
+    @PATCH("/api/painting")
+    Call<PaintingJson> updatePainting(@Body PaintingJson painting);
+
     @DELETE("/api/painting/{id}")
     Call<Void> deletePainting(@Path("id") String id);
 }

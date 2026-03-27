@@ -48,6 +48,22 @@ public class ArtistApiClient extends RestClient {
         }
     }
 
+    @Step("Update artist: {id}")
+    @Nonnull
+    public ArtistJson updateArtist(String id, String name, String biography, String photo) {
+        ArtistJson artist = new ArtistJson(id, name, biography, photo);
+        try {
+            Response<ArtistJson> response = artistApi.updateArtist(artist).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            } else {
+                throw new RuntimeException("Failed to update artist. Code: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update artist", e);
+        }
+    }
+
     @Step("Delete artist: {id}")
     public void deleteArtist(String id) {
         try {

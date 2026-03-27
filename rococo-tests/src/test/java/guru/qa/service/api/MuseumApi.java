@@ -12,6 +12,9 @@ public interface MuseumApi {
     @GET("/api/museum/{id}")
     Call<MuseumJson> getMuseum(@Path("id") String id);
 
+    @PATCH("/api/museum")
+    Call<MuseumJson> updateMuseum(@Body MuseumJson museum);
+
     @DELETE("/api/museum/{id}")
     Call<Void> deleteMuseum(@Path("id") String id);
 }

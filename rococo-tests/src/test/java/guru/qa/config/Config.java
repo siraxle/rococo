@@ -72,4 +72,6 @@ public interface Config {
     default @NotNull String jdbcPassword() {
         return "secret";
     }
+
+
 }

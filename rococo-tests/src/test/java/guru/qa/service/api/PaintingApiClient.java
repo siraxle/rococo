@@ -48,6 +48,21 @@ public class PaintingApiClient extends RestClient {
         }
     }
 
+    @Step("Update painting: {id}")
+    @Nonnull
+    public PaintingJson updatePainting(String id, PaintingJson painting) {
+        try {
+            Response<PaintingJson> response = paintingApi.updatePainting(painting).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            } else {
+                throw new RuntimeException("Failed to update painting. Code: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update painting", e);
+        }
+    }
+
     @Step("Delete painting: {id}")
     public void deletePainting(String id) {
         try {

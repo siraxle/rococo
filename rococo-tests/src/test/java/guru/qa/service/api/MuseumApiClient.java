@@ -48,6 +48,21 @@ public class MuseumApiClient extends RestClient {
         }
     }
 
+    @Step("Update museum: {id}")
+    @Nonnull
+    public MuseumJson updateMuseum(String id, MuseumJson museum) {
+        try {
+            Response<MuseumJson> response = museumApi.updateMuseum(museum).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            } else {
+                throw new RuntimeException("Failed to update museum. Code: " + response.code());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to update museum", e);
+        }
+    }
+
     @Step("Delete museum: {id}")
     public void deleteMuseum(String id) {
         try {
