@@ -2,6 +2,8 @@ package guru.qa.service.db;
 
 import guru.qa.config.Config;
 import guru.qa.model.PaintingJson;
+import guru.qa.service.PaintingClient;
+import io.qameta.allure.Step;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -9,7 +11,7 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PaintingDbClient {
+public class PaintingDbClient implements PaintingClient {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -23,7 +25,9 @@ public class PaintingDbClient {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void createPainting(PaintingJson painting) {
+    @Override
+    @Step("Create painting in database: {painting}")
+    public PaintingJson createPainting(PaintingJson painting) {
         String hexId = painting.id().replace("-", "").toUpperCase();
         String hexArtistId = painting.artistId().replace("-", "").toUpperCase();
         String hexMuseumId = painting.museumId().replace("-", "").toUpperCase();
@@ -33,16 +37,12 @@ public class PaintingDbClient {
 
         jdbcTemplate.update(sql, hexId, painting.title(), painting.description(),
                 painting.photo(), hexArtistId, hexMuseumId);
+        return painting;
     }
 
-    public boolean existsById(String id) {
-        String hexId = id.replace("-", "").toUpperCase();
-        String sql = "SELECT COUNT(*) FROM painting WHERE HEX(id) = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
-        return count != null && count > 0;
-    }
-
-    public PaintingJson getPaintingById(String id) {
+    @Override
+    @Step("Get painting from database by id: {id}")
+    public PaintingJson getPainting(String id) {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, title, description, photo, HEX(artist_id) as artist_id, HEX(museum_id) as museum_id " +
                 "FROM painting WHERE HEX(id) = ?";
@@ -59,13 +59,15 @@ public class PaintingDbClient {
                     rs.getString("title"),
                     rs.getString("description"),
                     rs.getString("photo"),
-                    null,  // content - нет в БД
+                    null,
                     artistInfo,
                     museumInfo
             );
         }, hexId);
     }
 
+    @Override
+    @Step("Get all paintings from database")
     public List<PaintingJson> getAllPaintings() {
         String sql = "SELECT HEX(id) as id, title, description, photo, HEX(artist_id) as artist_id, HEX(museum_id) as museum_id " +
                 "FROM painting";
@@ -82,19 +84,20 @@ public class PaintingDbClient {
                     rs.getString("title"),
                     rs.getString("description"),
                     rs.getString("photo"),
-                    null,  // content - нет в БД
+                    null,
                     artistInfo,
                     museumInfo
             );
         });
     }
 
-    public void updatePainting(String id, String title, String description, String photo) {
+    @Override
+    @Step("Update painting in database: id={id}, title={title}, description={description}, photo={photo}")
+    public PaintingJson updatePainting(String id, String title, String description, String photo) {
         String hexId = id.replace("-", "").toUpperCase();
         StringBuilder sql = new StringBuilder("UPDATE painting SET ");
         List<Object> params = new ArrayList<>();
 
-        // Динамически добавляем только те поля, которые не null
         if (title != null) {
             sql.append("title = ?, ");
             params.add(title);
@@ -112,18 +115,29 @@ public class PaintingDbClient {
             throw new IllegalArgumentException("No fields to update");
         }
 
-        // Удаляем последнюю запятую и пробел
         sql.setLength(sql.length() - 2);
         sql.append(" WHERE HEX(id) = ?");
         params.add(hexId);
 
         jdbcTemplate.update(sql.toString(), params.toArray());
+        return getPainting(id);
     }
 
-    public void deletePaintingById(String id) {
+    @Override
+    @Step("Delete painting from database by id: {id}")
+    public void deletePainting(String id) {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "DELETE FROM painting WHERE HEX(id) = ?";
         jdbcTemplate.update(sql, hexId);
+    }
+
+    @Override
+    @Step("Check if painting exists in database by id: {id}")
+    public boolean existsById(String id) {
+        String hexId = id.replace("-", "").toUpperCase();
+        String sql = "SELECT COUNT(*) FROM painting WHERE HEX(id) = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
+        return count != null && count > 0;
     }
 
     private String formatUuid(String hex) {

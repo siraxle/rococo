@@ -5,6 +5,7 @@ import guru.qa.api.core.CodeInterceptor;
 import guru.qa.api.core.ThreadSafeCookieStore;
 import guru.qa.config.Config;
 import guru.qa.jupiter.extension.ApiLoginExtension;
+import guru.qa.service.AuthClient;
 import guru.qa.service.RestClient;
 import guru.qa.utils.OauthUtils;
 import io.qameta.allure.Step;
@@ -15,7 +16,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class AuthApiClient extends RestClient {
+public class AuthApiClient extends RestClient implements AuthClient {
 
     private static final Config CFG = Config.getInstance();
     private static final String RESPONSE_TYPE = "code";
@@ -32,17 +33,49 @@ public class AuthApiClient extends RestClient {
         this.authApi = create(AuthApi.class);
     }
 
-    @Step("Register user: {username}")
-    @Nonnull
+    @Override
+    @Step("Create user via API: {username}")
+    public void createUser(String username, String password) {
+        try {
+            registerAndLogin(username, password);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create user: " + username, e);
+        }
+    }
+
+    @Override
+    @Step("Delete user via API (not supported)")
+    public void deleteUser(String username) {
+        throw new UnsupportedOperationException("Delete user via API not supported");
+    }
+
+    @Override
+    @Step("Check if user exists via API (not supported)")
+    public boolean userExists(String username) {
+        throw new UnsupportedOperationException("Check user exists via API not supported");
+    }
+
+    @Override
+    @Step("Get user password via API (not supported)")
+    public String getUserPassword(String username) {
+        throw new UnsupportedOperationException("Get user password via API not supported");
+    }
+
+    @Override
+    @Step("Get user authorities count via API (not supported)")
+    public int getUserAuthoritiesCount(String username) {
+        throw new UnsupportedOperationException("Get user authorities count via API not supported");
+    }
+
+    @Override
+    @Step("Register user via API: {username}")
     public void registerUser(String username, String password) throws IOException, InterruptedException {
-        // Get registration form (to obtain XSRF token)
         Response<ResponseBody> formResponse = authApi.requestRegisterForm().execute();
 
         if (!formResponse.isSuccessful()) {
             throw new IOException("Failed to get registration form. Code: " + formResponse.code());
         }
 
-        // Small delay to ensure cookies are set
         TimeUnit.MILLISECONDS.sleep(100);
 
         String xsrfToken = ThreadSafeCookieStore.INSTANCE.xsrfCookie();
@@ -50,7 +83,6 @@ public class AuthApiClient extends RestClient {
             throw new IOException("XSRF-TOKEN not found in cookies");
         }
 
-        // Register
         Response<Void> registerResponse = authApi.register(
                 username,
                 password,
@@ -63,13 +95,12 @@ public class AuthApiClient extends RestClient {
         }
     }
 
-    @Step("Login and get token for user: {username}")
-    @Nonnull
+    @Override
+    @Step("Login and get token via API: {username}")
     public String login(String username, String password) throws IOException {
         String codeVerifier = OauthUtils.generateCodeVerifier();
         String codeChallenge = OauthUtils.generateCodeChallenge(codeVerifier);
 
-        // Authorize
         authApi.authorize(
                 RESPONSE_TYPE,
                 CLIENT_ID,
@@ -79,14 +110,12 @@ public class AuthApiClient extends RestClient {
                 CODE_CHALLENGE_METHOD
         ).execute();
 
-        // Small delay
         try {
             TimeUnit.MILLISECONDS.sleep(100);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        // Login
         String xsrfToken = ThreadSafeCookieStore.INSTANCE.xsrfCookie();
         Response<Void> loginResponse = authApi.login(
                 username,
@@ -103,7 +132,6 @@ public class AuthApiClient extends RestClient {
             throw new IOException("Authorization code not found");
         }
 
-        // Get token
         Response<JsonNode> tokenResponse = authApi.token(
                 code,
                 REDIRECT_URI,
@@ -124,8 +152,8 @@ public class AuthApiClient extends RestClient {
         }
     }
 
-    @Step("Register and login user: {username}")
-    @Nonnull
+    @Override
+    @Step("Register and login user via API: {username}")
     public String registerAndLogin(String username, String password) throws IOException, InterruptedException {
         registerUser(username, password);
         waitForUserRegistration(username);
@@ -133,7 +161,6 @@ public class AuthApiClient extends RestClient {
     }
 
     private void waitForUserRegistration(String username) throws InterruptedException {
-        // Give some time for user to be created in auth database
         TimeUnit.SECONDS.sleep(1);
     }
 }

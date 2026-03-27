@@ -3,13 +3,15 @@ package guru.qa.service.api;
 import guru.qa.config.Config;
 import guru.qa.model.ArtistJson;
 import guru.qa.service.RestClient;
+import guru.qa.service.ArtistClient;
 import io.qameta.allure.Step;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.List;
 
-public class ArtistApiClient extends RestClient {
+public class ArtistApiClient extends RestClient implements ArtistClient {
 
     private final ArtistApi artistApi;
 
@@ -18,7 +20,8 @@ public class ArtistApiClient extends RestClient {
         this.artistApi = create(ArtistApi.class);
     }
 
-    @Step("Create artist: {artist}")
+    @Override
+    @Step("Create artist via API: {artist}")
     @Nonnull
     public ArtistJson createArtist(ArtistJson artist) {
         try {
@@ -33,7 +36,8 @@ public class ArtistApiClient extends RestClient {
         }
     }
 
-    @Step("Get artist by id: {id}")
+    @Override
+    @Step("Get artist by id via API: {id}")
     @Nonnull
     public ArtistJson getArtist(String id) {
         try {
@@ -48,7 +52,14 @@ public class ArtistApiClient extends RestClient {
         }
     }
 
-    @Step("Update artist: {id}")
+    @Override
+    @Step("Get all artists via API")
+    public List<ArtistJson> getAllArtists() {
+        throw new UnsupportedOperationException("Get all artists not supported in API");
+    }
+
+    @Override
+    @Step("Update artist via API: id={id}, name={name}, biography={biography}, photo={photo}")
     @Nonnull
     public ArtistJson updateArtist(String id, String name, String biography, String photo) {
         ArtistJson artist = new ArtistJson(id, name, biography, photo);
@@ -64,7 +75,8 @@ public class ArtistApiClient extends RestClient {
         }
     }
 
-    @Step("Delete artist: {id}")
+    @Override
+    @Step("Delete artist via API: {id}")
     public void deleteArtist(String id) {
         try {
             Response<Void> response = artistApi.deleteArtist(id).execute();
@@ -73,6 +85,17 @@ public class ArtistApiClient extends RestClient {
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete artist", e);
+        }
+    }
+
+    @Override
+    @Step("Check if artist exists via API: {id}")
+    public boolean existsById(String id) {
+        try {
+            getArtist(id);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

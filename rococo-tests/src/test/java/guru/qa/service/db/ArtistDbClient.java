@@ -2,13 +2,16 @@ package guru.qa.service.db;
 
 import guru.qa.config.Config;
 import guru.qa.model.ArtistJson;
+import guru.qa.service.ArtistClient;
+import io.qameta.allure.Step;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.List;
 
-public class ArtistDbClient {
+public class ArtistDbClient implements ArtistClient {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -22,14 +25,18 @@ public class ArtistDbClient {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public boolean existsById(String id) {
-        String hexId = id.replace("-", "").toUpperCase();
-        String sql = "SELECT COUNT(*) FROM artist WHERE HEX(id) = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
-        return count != null && count > 0;
+    @Override
+    @Step("Create artist in database: {artist}")
+    public ArtistJson createArtist(ArtistJson artist) {
+        String hexId = artist.id().replace("-", "").toUpperCase();
+        String sql = "INSERT INTO artist (id, name, biography, photo) VALUES (UNHEX(?), ?, ?, ?)";
+        jdbcTemplate.update(sql, hexId, artist.name(), artist.biography(), artist.photo());
+        return artist;
     }
 
-    public ArtistJson getArtistById(String id) {
+    @Override
+    @Step("Get artist from database by id: {id}")
+    public ArtistJson getArtist(String id) {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, name, biography, photo FROM artist WHERE HEX(id) = ?";
         return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new ArtistJson(
@@ -40,6 +47,8 @@ public class ArtistDbClient {
         ), hexId);
     }
 
+    @Override
+    @Step("Get all artists from database")
     public List<ArtistJson> getAllArtists() {
         String sql = "SELECT HEX(id) as id, name, biography, photo FROM artist";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new ArtistJson(
@@ -50,22 +59,53 @@ public class ArtistDbClient {
         ));
     }
 
-    public void updateArtist(String id, String name, String biography, String photo) {
+    @Override
+    @Step("Update artist in database: id={id}, name={name}, biography={biography}, photo={photo}")
+    public ArtistJson updateArtist(String id, String name, String biography, String photo) {
         String hexId = id.replace("-", "").toUpperCase();
-        String sql = "UPDATE artist SET name = ?, biography = ?, photo = ? WHERE HEX(id) = ?";
-        jdbcTemplate.update(sql, name, biography, photo, hexId);
+        StringBuilder sql = new StringBuilder("UPDATE artist SET ");
+        List<Object> params = new ArrayList<>();
+
+        if (name != null) {
+            sql.append("name = ?, ");
+            params.add(name);
+        }
+        if (biography != null) {
+            sql.append("biography = ?, ");
+            params.add(biography);
+        }
+        if (photo != null) {
+            sql.append("photo = ?, ");
+            params.add(photo);
+        }
+
+        if (params.isEmpty()) {
+            throw new IllegalArgumentException("No fields to update");
+        }
+
+        sql.setLength(sql.length() - 2);
+        sql.append(" WHERE HEX(id) = ?");
+        params.add(hexId);
+
+        jdbcTemplate.update(sql.toString(), params.toArray());
+        return getArtist(id);
     }
 
-    public void deleteArtistById(String id) {
+    @Override
+    @Step("Delete artist from database by id: {id}")
+    public void deleteArtist(String id) {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "DELETE FROM artist WHERE HEX(id) = ?";
         jdbcTemplate.update(sql, hexId);
     }
 
-    public void createArtist(ArtistJson artist) {
-        String hexId = artist.id().replace("-", "").toUpperCase();
-        String sql = "INSERT INTO artist (id, name, biography, photo) VALUES (UNHEX(?), ?, ?, ?)";
-        jdbcTemplate.update(sql, hexId, artist.name(), artist.biography(), artist.photo());
+    @Override
+    @Step("Check if artist exists in database by id: {id}")
+    public boolean existsById(String id) {
+        String hexId = id.replace("-", "").toUpperCase();
+        String sql = "SELECT COUNT(*) FROM artist WHERE HEX(id) = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
+        return count != null && count > 0;
     }
 
     private String formatUuid(String hex) {

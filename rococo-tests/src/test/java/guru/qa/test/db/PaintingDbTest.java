@@ -2,24 +2,28 @@ package guru.qa.test.db;
 
 import guru.qa.jupiter.annotation.meta.DbTest;
 import guru.qa.model.PaintingJson;
+import guru.qa.service.PaintingClient;
 import guru.qa.service.db.PaintingDbClient;
 import guru.qa.utils.RandomDataUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DbTest
+@DisplayName("Painting Database Tests")
 public class PaintingDbTest {
 
-    private final PaintingDbClient paintingDbClient = new PaintingDbClient();
+    private final PaintingClient paintingClient = new PaintingDbClient();
     private PaintingJson testPainting;
     private String testArtistId;
     private String testMuseumId;
 
     @BeforeEach
+    @DisplayName("Setup test painting data")
     void setUp() {
         testArtistId = RandomDataUtils.randomId();
         testMuseumId = RandomDataUtils.randomId();
@@ -34,22 +38,24 @@ public class PaintingDbTest {
 
         testPainting = new PaintingJson(id, title, description, photo, null, artistInfo, museumInfo);
 
-        paintingDbClient.createPainting(testPainting);
+        paintingClient.createPainting(testPainting);
     }
 
     @AfterEach
+    @DisplayName("Cleanup test painting data")
     void tearDown() {
         if (testPainting != null && testPainting.id() != null) {
-            paintingDbClient.deletePaintingById(testPainting.id());
+            paintingClient.deletePainting(testPainting.id());
         }
     }
 
     @Test
+    @DisplayName("Should create and save painting to database")
     void shouldCreateAndSavePaintingToDatabase() {
-        boolean exists = paintingDbClient.existsById(testPainting.id());
+        boolean exists = paintingClient.existsById(testPainting.id());
         assertThat(exists).isTrue();
 
-        PaintingJson dbPainting = paintingDbClient.getPaintingById(testPainting.id());
+        PaintingJson dbPainting = paintingClient.getPainting(testPainting.id());
         assertThat(dbPainting.id()).isEqualTo(testPainting.id());
         assertThat(dbPainting.title()).isEqualTo(testPainting.title());
         assertThat(dbPainting.description()).isEqualTo(testPainting.description());
@@ -59,8 +65,9 @@ public class PaintingDbTest {
     }
 
     @Test
+    @DisplayName("Should read painting from database")
     void shouldReadPaintingFromDatabase() {
-        PaintingJson dbPainting = paintingDbClient.getPaintingById(testPainting.id());
+        PaintingJson dbPainting = paintingClient.getPainting(testPainting.id());
         assertThat(dbPainting).isNotNull();
         assertThat(dbPainting.id()).isEqualTo(testPainting.id());
         assertThat(dbPainting.title()).isEqualTo(testPainting.title());
@@ -71,14 +78,21 @@ public class PaintingDbTest {
     }
 
     @Test
+    @DisplayName("Should update painting in database")
     void shouldUpdatePaintingInDatabase() {
         String newTitle = RandomDataUtils.randomPaintingTitle();
         String newDescription = RandomDataUtils.randomDescription();
         String newPhoto = "new_photo_" + System.currentTimeMillis() + ".jpg";
 
-        paintingDbClient.updatePainting(testPainting.id(), newTitle, newDescription, newPhoto);
+        PaintingJson updatedPainting = paintingClient.updatePainting(testPainting.id(), newTitle, newDescription, newPhoto);
 
-        PaintingJson dbPainting = paintingDbClient.getPaintingById(testPainting.id());
+        assertThat(updatedPainting.title()).isEqualTo(newTitle);
+        assertThat(updatedPainting.description()).isEqualTo(newDescription);
+        assertThat(updatedPainting.photo()).isEqualTo(newPhoto);
+        assertThat(updatedPainting.artistId()).isEqualTo(testPainting.artistId());
+        assertThat(updatedPainting.museumId()).isEqualTo(testPainting.museumId());
+
+        PaintingJson dbPainting = paintingClient.getPainting(testPainting.id());
         assertThat(dbPainting.title()).isEqualTo(newTitle);
         assertThat(dbPainting.description()).isEqualTo(newDescription);
         assertThat(dbPainting.photo()).isEqualTo(newPhoto);
@@ -87,43 +101,54 @@ public class PaintingDbTest {
     }
 
     @Test
+    @DisplayName("Should delete painting from database")
     void shouldDeletePaintingFromDatabase() {
-        paintingDbClient.deletePaintingById(testPainting.id());
+        paintingClient.deletePainting(testPainting.id());
 
-        boolean exists = paintingDbClient.existsById(testPainting.id());
+        boolean exists = paintingClient.existsById(testPainting.id());
         assertThat(exists).isFalse();
     }
 
     @Test
+    @DisplayName("Should get all paintings from database")
     void shouldGetAllPaintingsFromDatabase() {
-        var paintings = paintingDbClient.getAllPaintings();
+        var paintings = paintingClient.getAllPaintings();
         assertThat(paintings).isNotEmpty();
         assertThat(paintings).contains(testPainting);
     }
 
     @Test
+    @DisplayName("Should not find non-existent painting")
     void shouldNotFindNonExistentPainting() {
         String nonExistentId = RandomDataUtils.randomId();
-        boolean exists = paintingDbClient.existsById(nonExistentId);
+        boolean exists = paintingClient.existsById(nonExistentId);
         assertThat(exists).isFalse();
     }
 
     @Test
-    void shouldGetNullForNonExistentPainting() {
+    @DisplayName("Should throw exception for non-existent painting")
+    void shouldThrowExceptionForNonExistentPainting() {
         String nonExistentId = RandomDataUtils.randomId();
 
-        assertThatThrownBy(() -> paintingDbClient.getPaintingById(nonExistentId))
+        assertThatThrownBy(() -> paintingClient.getPainting(nonExistentId))
                 .isInstanceOf(org.springframework.dao.EmptyResultDataAccessException.class);
     }
 
     @Test
+    @DisplayName("Should update only specified fields")
     void shouldUpdateOnlySpecifiedFields() {
         String newTitle = RandomDataUtils.randomPaintingTitle();
         String newPhoto = "new_photo_" + System.currentTimeMillis() + ".jpg";
 
-        paintingDbClient.updatePainting(testPainting.id(), newTitle, null, newPhoto);
+        PaintingJson updatedPainting = paintingClient.updatePainting(testPainting.id(), newTitle, null, newPhoto);
 
-        PaintingJson dbPainting = paintingDbClient.getPaintingById(testPainting.id());
+        assertThat(updatedPainting.title()).isEqualTo(newTitle);
+        assertThat(updatedPainting.photo()).isEqualTo(newPhoto);
+        assertThat(updatedPainting.description()).isEqualTo(testPainting.description());
+        assertThat(updatedPainting.artistId()).isEqualTo(testPainting.artistId());
+        assertThat(updatedPainting.museumId()).isEqualTo(testPainting.museumId());
+
+        PaintingJson dbPainting = paintingClient.getPainting(testPainting.id());
         assertThat(dbPainting.title()).isEqualTo(newTitle);
         assertThat(dbPainting.photo()).isEqualTo(newPhoto);
         assertThat(dbPainting.description()).isEqualTo(testPainting.description());

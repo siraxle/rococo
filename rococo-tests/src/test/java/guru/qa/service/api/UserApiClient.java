@@ -3,13 +3,15 @@ package guru.qa.service.api;
 import guru.qa.config.Config;
 import guru.qa.model.UserJson;
 import guru.qa.service.RestClient;
+import guru.qa.service.UserClient;
 import io.qameta.allure.Step;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.List;
 
-public class UserApiClient extends RestClient {
+public class UserApiClient extends RestClient implements UserClient {
 
     private final UserApi userApi;
 
@@ -18,7 +20,8 @@ public class UserApiClient extends RestClient {
         this.userApi = create(UserApi.class);
     }
 
-    @Step("Create user: {user.username()}")
+    @Override
+    @Step("Create user via API: {user}")
     @Nonnull
     public UserJson createUser(UserJson user) {
         try {
@@ -33,7 +36,8 @@ public class UserApiClient extends RestClient {
         }
     }
 
-    @Step("Get user by id: {id}")
+    @Override
+    @Step("Get user via API by id: {id}")
     @Nonnull
     public UserJson getUserById(String id) {
         try {
@@ -48,7 +52,8 @@ public class UserApiClient extends RestClient {
         }
     }
 
-    @Step("Get user by username: {username}")
+    @Override
+    @Step("Get user via API by username: {username}")
     @Nonnull
     public UserJson getUserByUsername(String username) {
         try {
@@ -63,9 +68,17 @@ public class UserApiClient extends RestClient {
         }
     }
 
-    @Step("Update user: {id}")
+    @Override
+    @Step("Get all users via API (not supported)")
+    public List<UserJson> getAllUsers() {
+        throw new UnsupportedOperationException("Get all users via API not supported");
+    }
+
+    @Override
+    @Step("Update user via API: id={id}")
     @Nonnull
-    public UserJson updateUser(String id, UserJson user) {
+    public UserJson updateUser(String id, String firstname, String lastname, String avatar) {
+        UserJson user = new UserJson(id, null, firstname, lastname, avatar, null, null);
         try {
             Response<UserJson> response = userApi.updateUser(id, user).execute();
             if (response.isSuccessful() && response.body() != null) {
@@ -78,15 +91,31 @@ public class UserApiClient extends RestClient {
         }
     }
 
-    @Step("Delete user: {id}")
+    @Override
+    @Step("Delete user via API (not supported)")
     public void deleteUser(String id) {
+        throw new UnsupportedOperationException("Delete user via API not supported. Use gRPC instead.");
+    }
+
+    @Override
+    @Step("Check if user exists via API by id: {id}")
+    public boolean existsById(String id) {
         try {
-            Response<Void> response = userApi.deleteUser(id).execute();
-            if (!response.isSuccessful()) {
-                throw new RuntimeException("Failed to delete user. Code: " + response.code());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to delete user", e);
+            getUserById(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    @Step("Check if user exists via API by username: {username}")
+    public boolean existsByUsername(String username) {
+        try {
+            getUserByUsername(username);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }

@@ -3,6 +3,7 @@ package guru.qa.service.api;
 import guru.qa.config.Config;
 import guru.qa.model.CountryJson;
 import guru.qa.model.PageResponse;
+import guru.qa.service.CountryClient;
 import guru.qa.service.RestClient;
 import io.qameta.allure.Step;
 import retrofit2.Response;
@@ -11,7 +12,7 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.List;
 
-public class CountryApiClient extends RestClient {
+public class CountryApiClient extends RestClient implements CountryClient {
 
     private final CountryApi countryApi;
 
@@ -20,7 +21,8 @@ public class CountryApiClient extends RestClient {
         this.countryApi = create(CountryApi.class);
     }
 
-    @Step("Get all countries")
+    @Override
+    @Step("Get all countries via API")
     @Nonnull
     public List<CountryJson> getAllCountries() {
         try {
@@ -35,7 +37,8 @@ public class CountryApiClient extends RestClient {
         }
     }
 
-    @Step("Get country by id: {id}")
+    @Override
+    @Step("Get country via API by id: {id}")
     @Nonnull
     public CountryJson getCountry(String id) {
         try {
@@ -48,5 +51,58 @@ public class CountryApiClient extends RestClient {
         } catch (IOException e) {
             throw new RuntimeException("Failed to get country", e);
         }
+    }
+
+    @Override
+    @Step("Get country via API by code (not supported)")
+    public CountryJson getCountryByCode(String code) {
+        throw new UnsupportedOperationException("Get country by code via API not supported");
+    }
+
+    @Override
+    @Step("Check if country exists via API by id")
+    public boolean existsById(String id) {
+        try {
+            getCountry(id);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    @Step("Check if country exists via API by code (not supported)")
+    public boolean existsByCode(String code) {
+        throw new UnsupportedOperationException("Check country exists by code via API not supported");
+    }
+
+    @Override
+    @Step("Create country via API (not supported)")
+    public void createCountry(CountryJson country) {
+        throw new UnsupportedOperationException("Create country via API not supported");
+    }
+
+    @Override
+    @Step("Update country via API (not supported)")
+    public void updateCountry(String id, String name, String code) {
+        throw new UnsupportedOperationException("Update country via API not supported");
+    }
+
+    @Override
+    @Step("Delete country via API (not supported)")
+    public void deleteCountry(String id) {
+        throw new UnsupportedOperationException("Delete country via API not supported");
+    }
+
+    @Override
+    @Step("Delete country by code via API (not supported)")
+    public void deleteCountryByCode(String code) {
+        throw new UnsupportedOperationException("Delete country by code via API not supported");
+    }
+
+    @Override
+    @Step("Get countries count via API (not supported)")
+    public int getCountriesCount() {
+        throw new UnsupportedOperationException("Get countries count via API not supported");
     }
 }

@@ -3,6 +3,7 @@ package guru.qa.jupiter.extension;
 import guru.qa.jupiter.annotation.Artist;
 import guru.qa.model.ArtistJson;
 import guru.qa.service.api.ArtistApiClient;
+import guru.qa.service.db.ArtistDbClient;
 import guru.qa.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -19,7 +20,8 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ArtistExtension.class);
 
-    private final ArtistApiClient artistApiClient = new ArtistApiClient();
+    private final ArtistApiClient artistClient = new ArtistApiClient();
+//    private final ArtistDbClient artistClient = new ArtistDbClient();
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -33,7 +35,7 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
                             : artistAnno.biography();
 
                     ArtistJson artist = new ArtistJson(null, name, biography, null);
-                    ArtistJson created = artistApiClient.createArtist(artist);
+                    ArtistJson created = artistClient.createArtist(artist);
                     setArtist(created);
                 });
     }
@@ -42,7 +44,7 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
     public void afterEach(ExtensionContext context) {
         getArtist().ifPresent(artist -> {
             try {
-                artistApiClient.deleteArtist(artist.id());
+                artistClient.deleteArtist(artist.id());
             } catch (Exception e) {
                 System.err.println("Failed to delete artist: " + artist.id() + ", error: " + e.getMessage());
             }

@@ -2,14 +2,16 @@ package guru.qa.service.api;
 
 import guru.qa.config.Config;
 import guru.qa.model.MuseumJson;
+import guru.qa.service.MuseumClient;
 import guru.qa.service.RestClient;
 import io.qameta.allure.Step;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.util.List;
 
-public class MuseumApiClient extends RestClient {
+public class MuseumApiClient extends RestClient implements MuseumClient {
 
     private final MuseumApi museumApi;
 
@@ -18,7 +20,8 @@ public class MuseumApiClient extends RestClient {
         this.museumApi = create(MuseumApi.class);
     }
 
-    @Step("Create museum: {museum}")
+    @Override
+    @Step("Create museum via API: {museum}")
     @Nonnull
     public MuseumJson createMuseum(MuseumJson museum) {
         try {
@@ -33,7 +36,8 @@ public class MuseumApiClient extends RestClient {
         }
     }
 
-    @Step("Get museum by id: {id}")
+    @Override
+    @Step("Get museum via API by id: {id}")
     @Nonnull
     public MuseumJson getMuseum(String id) {
         try {
@@ -48,9 +52,18 @@ public class MuseumApiClient extends RestClient {
         }
     }
 
-    @Step("Update museum: {id}")
+    @Override
+    @Step("Get all museums via API (not supported)")
+    public List<MuseumJson> getAllMuseums() {
+        throw new UnsupportedOperationException("Get all museums via API not supported");
+    }
+
+    @Override
+    @Step("Update museum via API: id={id}")
     @Nonnull
-    public MuseumJson updateMuseum(String id, MuseumJson museum) {
+    public MuseumJson updateMuseum(String id, String title, String description,
+                                   String city, String address, String photo) {
+        MuseumJson museum = new MuseumJson(id, title, description, city, address, photo, null);
         try {
             Response<MuseumJson> response = museumApi.updateMuseum(museum).execute();
             if (response.isSuccessful() && response.body() != null) {
@@ -63,7 +76,8 @@ public class MuseumApiClient extends RestClient {
         }
     }
 
-    @Step("Delete museum: {id}")
+    @Override
+    @Step("Delete museum via API: {id}")
     public void deleteMuseum(String id) {
         try {
             Response<Void> response = museumApi.deleteMuseum(id).execute();
@@ -72,6 +86,17 @@ public class MuseumApiClient extends RestClient {
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to delete museum", e);
+        }
+    }
+
+    @Override
+    @Step("Check if museum exists via API: {id}")
+    public boolean existsById(String id) {
+        try {
+            getMuseum(id);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }
