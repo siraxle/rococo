@@ -4,6 +4,7 @@ import guru.qa.jupiter.annotation.Artist;
 import guru.qa.model.ArtistJson;
 import guru.qa.service.api.ArtistApiClient;
 import guru.qa.utils.RandomDataUtils;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
-public class ArtistExtension implements BeforeEachCallback, ParameterResolver {
+public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ArtistExtension.class);
 
@@ -35,6 +36,18 @@ public class ArtistExtension implements BeforeEachCallback, ParameterResolver {
                     ArtistJson created = artistApiClient.createArtist(artist);
                     setArtist(created);
                 });
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        getArtist().ifPresent(artist -> {
+            try {
+                artistApiClient.deleteArtist(artist.id());
+            } catch (Exception e) {
+                System.err.println("Failed to delete artist: " + artist.id() + ", error: " + e.getMessage());
+            }
+        });
+        context.getStore(NAMESPACE).remove(context.getUniqueId());
     }
 
     public static void setArtist(ArtistJson artist) {

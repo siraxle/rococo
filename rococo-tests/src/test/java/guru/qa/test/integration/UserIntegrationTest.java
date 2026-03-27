@@ -55,8 +55,8 @@ public class UserIntegrationTest {
                 newFirstname,
                 newLastname,
                 newAvatar,
-                null,  // createdAt
-                null   // testData
+                null,
+                null
         );
         UserJson updatedUser = userApiClient.updateUser(user.id(), userUpdate);
 
@@ -65,9 +65,9 @@ public class UserIntegrationTest {
         assertThat(updatedUser.avatar()).isEqualTo(newAvatar);
     }
 
-    @User
+
     @Test
-    void shouldReturn404ForNonExistentUser(UserJson user) {
+    void shouldReturn404ForNonExistentUser() {
         String nonExistentId = "00000000-0000-0000-0000-000000000000";
 
         assertThrows(RuntimeException.class, () -> {

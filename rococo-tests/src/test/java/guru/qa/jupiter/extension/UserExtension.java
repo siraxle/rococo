@@ -6,6 +6,7 @@ import guru.qa.model.UserJson;
 import guru.qa.service.db.AuthDbClient;
 import guru.qa.service.grpc.UserdataGrpcClient;
 import guru.qa.utils.RandomDataUtils;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
-public class UserExtension implements BeforeEachCallback, ParameterResolver {
+public class UserExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
     private static final String DEFAULT_PASSWORD = "123456";
@@ -71,6 +72,23 @@ public class UserExtension implements BeforeEachCallback, ParameterResolver {
                         throw new RuntimeException("Failed to create user: " + username, e);
                     }
                 });
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        getUser().ifPresent(user -> {
+            try {
+                // Delete user from userdata service
+                userdataGrpcClient.deleteUser(user.id());
+                // Delete user from auth DB
+                authDbClient.deleteUser(user.username());
+            } catch (Exception e) {
+                // Log but don't fail test if cleanup fails
+                System.err.println("Failed to delete user: " + user.username() + ", error: " + e.getMessage());
+            }
+        });
+        // Clear from context
+        context.getStore(NAMESPACE).remove(context.getUniqueId());
     }
 
     public static void setUser(UserJson user) {

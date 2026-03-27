@@ -6,6 +6,7 @@ import guru.qa.model.MuseumJson;
 import guru.qa.model.PaintingJson;
 import guru.qa.service.api.PaintingApiClient;
 import guru.qa.utils.RandomDataUtils;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -16,7 +17,7 @@ import java.util.Optional;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
-public class PaintingExtension implements BeforeEachCallback, ParameterResolver {
+public class PaintingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(PaintingExtension.class);
 
@@ -45,7 +46,7 @@ public class PaintingExtension implements BeforeEachCallback, ParameterResolver 
                         throw new IllegalStateException("Museum ID is null! Museum: " + museum);
                     }
 
-                    PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artist.id(), null);  // name = null при отправке
+                    PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artist.id(), null);
                     PaintingJson.MuseumInfo museumInfo = new PaintingJson.MuseumInfo(museum.id());
                     PaintingJson painting = new PaintingJson(null, title, description, null, null, artistInfo, museumInfo);
 
@@ -54,6 +55,18 @@ public class PaintingExtension implements BeforeEachCallback, ParameterResolver 
                     System.out.println("Created painting: " + created);
                     setPainting(created);
                 });
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        getPainting().ifPresent(painting -> {
+            try {
+                paintingApiClient.deletePainting(painting.id());
+            } catch (Exception e) {
+                System.err.println("Failed to delete painting: " + painting.id() + ", error: " + e.getMessage());
+            }
+        });
+        context.getStore(NAMESPACE).remove(context.getUniqueId());
     }
 
     public static void setPainting(PaintingJson painting) {

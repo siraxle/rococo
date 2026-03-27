@@ -7,6 +7,7 @@ import guru.qa.model.MuseumJson;
 import guru.qa.service.api.CountryApiClient;
 import guru.qa.service.api.MuseumApiClient;
 import guru.qa.utils.RandomDataUtils;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -17,7 +18,7 @@ import java.util.Optional;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
-public class MuseumExtension implements BeforeEachCallback, ParameterResolver {
+public class MuseumExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(MuseumExtension.class);
 
@@ -51,6 +52,19 @@ public class MuseumExtension implements BeforeEachCallback, ParameterResolver {
                     MuseumJson created = museumApiClient.createMuseum(museum);
                     setMuseum(created);
                 });
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        getMuseum().ifPresent(museum -> {
+            try {
+                museumApiClient.deleteMuseum(museum.id());
+            } catch (Exception e) {
+                // Log but don't fail test if cleanup fails
+                System.err.println("Failed to delete museum: " + museum.id() + ", error: " + e.getMessage());
+            }
+        });
+        context.getStore(NAMESPACE).remove(context.getUniqueId());
     }
 
     public static void setMuseum(MuseumJson museum) {

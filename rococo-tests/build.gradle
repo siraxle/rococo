@@ -46,7 +46,7 @@ allure {
 }
 
 dependencies {
-    testImplementation project(':rococo-grpc-common')
+    implementation project(':rococo-grpc-common')
 
     implementation "org.springframework.security:spring-security-crypto:6.5.5"
 

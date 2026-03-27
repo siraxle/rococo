@@ -11,6 +11,7 @@ service UserdataService {
   rpc CreateUser(CreateUserRequest) returns (UserResponse) {}
   rpc UpdateUser(UpdateUserRequest) returns (UserResponse) {}
   rpc GetUserByUsername(GetUserByUsernameRequest) returns (UserResponse) {}
+  rpc DeleteUser(DeleteUserRequest) returns (rococo.common.Empty) {}
 }
 
 message GetUserRequest {
@@ -33,6 +34,10 @@ message UpdateUserRequest {
   optional string firstname = 2;
   optional string lastname = 3;
   optional string avatar = 4;
+}
+
+message DeleteUserRequest {
+  string id = 1;
 }
 
 message UserResponse {

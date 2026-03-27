@@ -2,6 +2,7 @@ package guru.qa.service.api;
 
 import guru.qa.config.Config;
 import guru.qa.model.CountryJson;
+import guru.qa.model.PageResponse;
 import guru.qa.service.RestClient;
 import io.qameta.allure.Step;
 import retrofit2.Response;
@@ -23,9 +24,9 @@ public class CountryApiClient extends RestClient {
     @Nonnull
     public List<CountryJson> getAllCountries() {
         try {
-            Response<List<CountryJson>> response = countryApi.getAllCountries().execute();
+            Response<PageResponse<CountryJson>> response = countryApi.getAllCountries().execute();
             if (response.isSuccessful() && response.body() != null) {
-                return response.body();
+                return response.body().content();
             } else {
                 throw new RuntimeException("Failed to get countries. Code: " + response.code());
             }

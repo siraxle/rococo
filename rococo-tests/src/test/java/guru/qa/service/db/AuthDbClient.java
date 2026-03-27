@@ -79,17 +79,10 @@ public class AuthDbClient {
 
     public void deleteUser(String username) {
         try {
-            byte[] userId = jdbcTemplate.queryForObject(
-                    "SELECT id FROM `user` WHERE username = ?",
-                    (rs, rowNum) -> rs.getBytes("id"),
-                    username
-            );
-            if (userId != null) {
-                jdbcTemplate.update("DELETE FROM authority WHERE user_id = ?", userId);
-                jdbcTemplate.update("DELETE FROM `user` WHERE id = ?", userId);
-            }
+            String sql = "DELETE FROM users WHERE username = ?";
+            jdbcTemplate.update(sql, username);
         } catch (Exception e) {
-            // User may not exist, ignore
+            throw new RuntimeException("Failed to delete user: " + username, e);
         }
     }
 }

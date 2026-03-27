@@ -5,6 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import rococo.grpc.userdata.CreateUserRequest;
 import rococo.grpc.userdata.UpdateUserRequest;
+import rococo.grpc.userdata.DeleteUserRequest;
 import rococo.grpc.userdata.UserResponse;
 import rococo.grpc.userdata.UserdataServiceGrpc;
 
@@ -40,5 +41,12 @@ public class UserdataGrpcClient {
                 .setAvatar(avatar != null ? avatar : "")
                 .build();
         return userdataStub.updateUser(request);
+    }
+
+    public void deleteUser(String id) {
+        DeleteUserRequest request = DeleteUserRequest.newBuilder()
+                .setId(id)
+                .build();
+        userdataStub.deleteUser(request);
     }
 }

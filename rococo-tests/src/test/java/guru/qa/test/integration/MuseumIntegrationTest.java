@@ -15,7 +15,6 @@ public class MuseumIntegrationTest {
 
     private final MuseumApiClient museumApiClient = new MuseumApiClient();
 
-    @User
     @Museum
     @Test
     void shouldCreateMuseum(MuseumJson museum) {
@@ -23,7 +22,6 @@ public class MuseumIntegrationTest {
         assertThat(fetched).isEqualTo(museum);
     }
 
-    @User
     @Museum
     @Test
     void shouldDeleteMuseum(MuseumJson museum) {
