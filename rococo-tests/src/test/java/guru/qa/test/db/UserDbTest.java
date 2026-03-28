@@ -1,5 +1,6 @@
 package guru.qa.test.db;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.meta.DbTest;
 import guru.qa.model.UserJson;
 import guru.qa.service.UserClient;
@@ -9,20 +10,28 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DbTest
+@SpringJUnitConfig(classes = DatabaseConfig.class)
 @DisplayName("User Database Tests")
 public class UserDbTest {
 
-    private final UserClient userClient = new UserDbClient();
+    @Autowired
+    private UserDbClient userDbClient;
+
+    private UserClient userClient;
     private UserJson testUser;
 
     @BeforeEach
     @DisplayName("Setup test user data")
     void setUp() {
+        userClient = userDbClient;
+
         String id = RandomDataUtils.randomId();
         String username = RandomDataUtils.randomUsername();
         String firstname = RandomDataUtils.randomFirstName();

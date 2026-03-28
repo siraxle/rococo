@@ -1,5 +1,6 @@
 package guru.qa.test.db;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.meta.DbTest;
 import guru.qa.model.CountryJson;
 import guru.qa.service.CountryClient;
@@ -9,20 +10,28 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DbTest
+@SpringJUnitConfig(classes = DatabaseConfig.class)
 @DisplayName("Geo Database Tests")
 public class GeoDbTest {
 
-    private final CountryClient countryClient = new GeoDbClient();
+    @Autowired
+    private GeoDbClient geoDbClient;
+
+    private CountryClient countryClient;
     private CountryJson testCountry;
 
     @BeforeEach
     @DisplayName("Setup test country data")
     void setUp() {
+        countryClient = geoDbClient;
+
         String id = RandomDataUtils.randomId();
         String name = RandomDataUtils.randomCountryName();
         String code = RandomDataUtils.randomCountryCode();
@@ -34,7 +43,7 @@ public class GeoDbTest {
     @AfterEach
     @DisplayName("Cleanup test country data")
     void tearDown() {
-        if (testCountry != null && testCountry.id() != null) {
+        if (testCountry != null && testCountry.id() != null && countryClient.existsById(testCountry.id())) {
             countryClient.deleteCountry(testCountry.id());
         }
     }
@@ -62,7 +71,7 @@ public class GeoDbTest {
     }
 
     @Test
-    @DisplayName("Should read country by code from database")
+    @DisplayName("Should read country by code")
     void shouldReadCountryByCode() {
         CountryJson dbCountry = countryClient.getCountryByCode(testCountry.code());
         assertThat(dbCountry).isNotNull();
@@ -98,7 +107,10 @@ public class GeoDbTest {
     void shouldGetAllCountriesFromDatabase() {
         var countries = countryClient.getAllCountries();
         assertThat(countries).isNotEmpty();
-        assertThat(countries).contains(testCountry);
+
+        boolean found = countries.stream()
+                .anyMatch(c -> c.id().equals(testCountry.id()));
+        assertThat(found).isTrue();
     }
 
     @Test

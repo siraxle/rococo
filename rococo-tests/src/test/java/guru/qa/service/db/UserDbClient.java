@@ -1,33 +1,29 @@
 package guru.qa.service.db;
 
-import guru.qa.config.Config;
 import guru.qa.model.UserJson;
 import guru.qa.service.UserClient;
 import guru.qa.service.db.mapper.UserRowMapper;
 import io.qameta.allure.Step;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
+@Repository
 public class UserDbClient implements UserClient {
 
     private final JdbcTemplate jdbcTemplate;
     private final UserRowMapper rowMapper = UserRowMapper.INSTANCE;
 
-    public UserDbClient() {
-        Config config = Config.getInstance();
-        DataSource dataSource = new DriverManagerDataSource(
-                config.userdataJdbcUrl(),
-                config.jdbcUser(),
-                config.jdbcPassword()
-        );
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    @Autowired
+    public UserDbClient(@Qualifier("userdataJdbcTemplate") JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

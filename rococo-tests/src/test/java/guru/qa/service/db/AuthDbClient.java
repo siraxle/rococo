@@ -1,35 +1,30 @@
 package guru.qa.service.db;
 
-import guru.qa.config.Config;
 import guru.qa.service.AuthClient;
 import io.qameta.allure.Step;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.sql.DataSource;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.UUID;
 
 @ParametersAreNonnullByDefault
+@Repository
 public class AuthDbClient implements AuthClient {
 
     private final JdbcTemplate jdbcTemplate;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthDbClient() {
-        Config config = Config.getInstance();
-        DataSource dataSource = new DriverManagerDataSource(
-                config.authJdbcUrl(),
-                config.jdbcUser(),
-                config.jdbcPassword()
-        );
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    @Autowired
+    public AuthDbClient(@Qualifier("authJdbcTemplate") JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
         this.passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 

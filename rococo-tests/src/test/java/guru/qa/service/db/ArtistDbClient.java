@@ -1,30 +1,28 @@
 package guru.qa.service.db;
 
-import guru.qa.config.Config;
 import guru.qa.model.ArtistJson;
 import guru.qa.service.ArtistClient;
 import guru.qa.service.db.mapper.ArtistRowMapper;
 import io.qameta.allure.Step;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
+@Repository
 public class ArtistDbClient implements ArtistClient {
 
     private final JdbcTemplate jdbcTemplate;
     private final ArtistRowMapper rowMapper = ArtistRowMapper.INSTANCE;
 
-    public ArtistDbClient() {
-        Config config = Config.getInstance();
-        DataSource dataSource = new DriverManagerDataSource(
-                config.artistJdbcUrl(),
-                config.jdbcUser(),
-                config.jdbcPassword()
-        );
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    @Autowired
+    public ArtistDbClient(@Qualifier("artistJdbcTemplate") JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

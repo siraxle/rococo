@@ -1,5 +1,6 @@
 package guru.qa.test.db;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.meta.DbTest;
 import guru.qa.service.AuthClient;
 import guru.qa.service.db.AuthDbClient;
@@ -8,20 +9,27 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @DbTest
+@SpringJUnitConfig(classes = DatabaseConfig.class)
 @DisplayName("Auth Database Tests")
 public class AuthDbTest {
 
-    private final AuthClient authClient = new AuthDbClient();
+    @Autowired
+    private AuthDbClient authDbClient;
+
+    private AuthClient authClient;
     private String testUsername;
     private String testPassword;
 
     @BeforeEach
     @DisplayName("Setup test user data")
     void setUp() {
+        authClient = authDbClient;
         testUsername = RandomDataUtils.randomUsername();
         testPassword = "test123";
     }
@@ -105,4 +113,21 @@ public class AuthDbTest {
         assertThat(count).isEqualTo(0);
     }
 
+    @Test
+    @DisplayName("Should handle delete non-existent user without exception")
+    void shouldHandleDeleteNonExistentUser() {
+        String nonExistentUsername = "nonexistent_user_" + System.currentTimeMillis();
+
+        assertThatCode(() -> authClient.deleteUser(nonExistentUsername))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("Should not create duplicate user")
+    void shouldNotCreateDuplicateUser() {
+        authClient.createUser(testUsername, testPassword);
+
+        assertThatThrownBy(() -> authClient.createUser(testUsername, "differentPassword"))
+                .isInstanceOf(RuntimeException.class);
+    }
 }

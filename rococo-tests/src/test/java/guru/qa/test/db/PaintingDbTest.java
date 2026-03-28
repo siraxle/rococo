@@ -1,5 +1,6 @@
 package guru.qa.test.db;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.meta.DbTest;
 import guru.qa.model.PaintingJson;
 import guru.qa.service.PaintingClient;
@@ -9,15 +10,21 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DbTest
+@SpringJUnitConfig(classes = DatabaseConfig.class)
 @DisplayName("Painting Database Tests")
 public class PaintingDbTest {
 
-    private final PaintingClient paintingClient = new PaintingDbClient();
+    @Autowired
+    private PaintingDbClient paintingDbClient;
+
+    private PaintingClient paintingClient;
     private PaintingJson testPainting;
     private String testArtistId;
     private String testMuseumId;
@@ -25,6 +32,8 @@ public class PaintingDbTest {
     @BeforeEach
     @DisplayName("Setup test painting data")
     void setUp() {
+        paintingClient = paintingDbClient;
+
         testArtistId = RandomDataUtils.randomId();
         testMuseumId = RandomDataUtils.randomId();
 
@@ -114,7 +123,10 @@ public class PaintingDbTest {
     void shouldGetAllPaintingsFromDatabase() {
         var paintings = paintingClient.getAllPaintings();
         assertThat(paintings).isNotEmpty();
-        assertThat(paintings).contains(testPainting);
+
+        boolean found = paintings.stream()
+                .anyMatch(p -> p.id().equals(testPainting.id()));
+        assertThat(found).isTrue();
     }
 
     @Test

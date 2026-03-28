@@ -1,32 +1,28 @@
 package guru.qa.service.db;
 
-import guru.qa.config.Config;
 import guru.qa.model.CountryJson;
 import guru.qa.service.CountryClient;
 import guru.qa.service.db.mapper.CountryRowMapper;
 import io.qameta.allure.Step;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.stereotype.Repository;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
 @ParametersAreNonnullByDefault
+@Repository
 public class GeoDbClient implements CountryClient {
 
     private final JdbcTemplate jdbcTemplate;
     private final CountryRowMapper rowMapper = CountryRowMapper.INSTANCE;
 
-    public GeoDbClient() {
-        Config config = Config.getInstance();
-        DataSource dataSource = new DriverManagerDataSource(
-                config.geoJdbcUrl(),
-                config.jdbcUser(),
-                config.jdbcPassword()
-        );
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    @Autowired
+    public GeoDbClient(@Qualifier("geoJdbcTemplate") JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

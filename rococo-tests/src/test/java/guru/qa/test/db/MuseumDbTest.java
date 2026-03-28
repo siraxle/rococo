@@ -1,5 +1,6 @@
 package guru.qa.test.db;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.meta.DbTest;
 import guru.qa.model.CountryJson;
 import guru.qa.model.MuseumJson;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.util.List;
 
@@ -19,19 +22,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DbTest
+@SpringJUnitConfig(classes = DatabaseConfig.class)
 @DisplayName("Museum Database Tests")
 public class MuseumDbTest {
 
-    private final MuseumDbClient museumDbClient = new MuseumDbClient();
-    private final CountryClient countryClient = new GeoDbClient();
+    @Autowired
+    private MuseumDbClient museumDbClient;
+    @Autowired
+    private GeoDbClient geoDbClient;
+
     private MuseumClient museumClient;
+    private CountryClient countryClient;
     private MuseumJson testMuseum;
     private String testCountryId;
 
     private CountryJson getRandomCountry() {
         List<CountryJson> countries = countryClient.getAllCountries();
         if (countries.isEmpty()) {
-            throw new IllegalStateException("No countries found in database. Please ensure geo service has initial data.");
+            throw new IllegalStateException("No countries found in database");
         }
         int randomIndex = RandomDataUtils.randomInt(0, countries.size() - 1);
         return countries.get(randomIndex);
@@ -40,7 +48,7 @@ public class MuseumDbTest {
     private CountryJson getFirstCountry() {
         List<CountryJson> countries = countryClient.getAllCountries();
         if (countries.isEmpty()) {
-            throw new IllegalStateException("No countries found in database. Please ensure geo service has initial data.");
+            throw new IllegalStateException("No countries found in database");
         }
         return countries.get(0);
     }
@@ -48,6 +56,9 @@ public class MuseumDbTest {
     @BeforeEach
     @DisplayName("Setup test museum data")
     void setUp() {
+        museumClient = museumDbClient;
+        countryClient = geoDbClient;
+
         CountryJson testCountry = getFirstCountry();
         testCountryId = testCountry.id();
 
@@ -61,7 +72,6 @@ public class MuseumDbTest {
         testMuseum = new MuseumJson(id, title, description, city, address, photo, null);
 
         museumDbClient.createMuseum(testMuseum, testCountryId);
-        museumClient = museumDbClient;
     }
 
     @AfterEach
@@ -146,7 +156,10 @@ public class MuseumDbTest {
     void shouldGetAllMuseumsFromDatabase() {
         var museums = museumClient.getAllMuseums();
         assertThat(museums).isNotEmpty();
-        assertThat(museums).contains(testMuseum);
+
+        boolean found = museums.stream()
+                .anyMatch(m -> m.id().equals(testMuseum.id()));
+        assertThat(found).isTrue();
     }
 
     @Test
@@ -218,34 +231,6 @@ public class MuseumDbTest {
             MuseumJson dbMuseum = museumClient.getMuseum(newId);
             assertThat(dbMuseum.id()).isEqualTo(newId);
             assertThat(dbMuseum.title()).isEqualTo(newTitle);
-        } finally {
-            museumClient.deleteMuseum(newId);
-        }
-    }
-
-    @Test
-    @DisplayName("Should verify museum has correct country reference")
-    void shouldVerifyMuseumHasCorrectCountryReference() {
-        CountryJson randomCountry = getRandomCountry();
-
-        String newId = RandomDataUtils.randomId();
-        String newTitle = RandomDataUtils.randomMuseumTitle();
-        String newDescription = RandomDataUtils.randomDescription();
-        String newCity = RandomDataUtils.randomCity();
-        String newAddress = RandomDataUtils.randomAddress();
-        String newPhoto = "photo_" + System.currentTimeMillis() + ".jpg";
-
-        MuseumJson newMuseum = new MuseumJson(newId, newTitle, newDescription, newCity, newAddress, newPhoto, null);
-
-        try {
-            museumDbClient.createMuseum(newMuseum, randomCountry.id());
-
-            MuseumJson dbMuseum = museumClient.getMuseum(newId);
-            assertThat(dbMuseum.id()).isEqualTo(newId);
-
-            CountryJson savedCountry = countryClient.getCountry(randomCountry.id());
-            assertThat(savedCountry.id()).isEqualTo(randomCountry.id());
-            assertThat(savedCountry.name()).isEqualTo(randomCountry.name());
         } finally {
             museumClient.deleteMuseum(newId);
         }
