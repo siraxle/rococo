@@ -6,18 +6,21 @@ import guru.qa.model.UserJson;
 import guru.qa.service.UserClient;
 import guru.qa.service.api.UserApiClient;
 import guru.qa.utils.RandomDataUtils;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RestTest
+@DisplayName("User Integration Tests")
 public class UserIntegrationTest {
 
     private final UserClient userClient = new UserApiClient();
 
     @User
     @Test
+    @DisplayName("Should create user via extension")
     void shouldCreateUserViaExtension(UserJson user) {
         assertThat(user.id()).isNotNull();
         assertThat(user.username()).isNotNull();
@@ -27,6 +30,7 @@ public class UserIntegrationTest {
 
     @User
     @Test
+    @DisplayName("Should get user by id via API")
     void shouldGetUserById(UserJson user) {
         UserJson fetchedUser = userClient.getUserById(user.id());
 
@@ -39,6 +43,7 @@ public class UserIntegrationTest {
 
     @User
     @Test
+    @DisplayName("Should get user by username via API")
     void shouldGetUserByUsername(UserJson user) {
         UserJson fetchedUser = userClient.getUserByUsername(user.username());
 
@@ -46,10 +51,12 @@ public class UserIntegrationTest {
         assertThat(fetchedUser.username()).isEqualTo(user.username());
         assertThat(fetchedUser.firstname()).isEqualTo(user.firstname());
         assertThat(fetchedUser.lastname()).isEqualTo(user.lastname());
+        assertThat(fetchedUser.avatar()).isEqualTo(user.avatar());
     }
 
     @User
     @Test
+    @DisplayName("Should update user via API")
     void shouldUpdateUser(UserJson user) {
         String newFirstname = RandomDataUtils.randomFirstName();
         String newLastname = RandomDataUtils.randomLastName();
@@ -65,6 +72,7 @@ public class UserIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should return 404 for non-existent user")
     void shouldReturn404ForNonExistentUser() {
         String nonExistentId = "00000000-0000-0000-0000-000000000000";
 
@@ -77,6 +85,7 @@ public class UserIntegrationTest {
 
     @User
     @Test
+    @DisplayName("Should not create duplicate user")
     void shouldNotCreateDuplicateUser(UserJson user) {
         UserJson duplicateUser = new UserJson(
                 null,
@@ -97,6 +106,7 @@ public class UserIntegrationTest {
 
     @User
     @Test
+    @DisplayName("Should verify user exists by id and username")
     void shouldVerifyUserExists(UserJson user) {
         boolean exists = userClient.existsById(user.id());
         assertThat(exists).isTrue();
@@ -106,6 +116,7 @@ public class UserIntegrationTest {
     }
 
     @Test
+    @DisplayName("Should verify non-existent user does not exist")
     void shouldVerifyUserDoesNotExist() {
         String nonExistentId = "00000000-0000-0000-0000-000000000000";
         String nonExistentUsername = "nonexistent_user_" + System.currentTimeMillis();

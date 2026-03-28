@@ -61,12 +61,26 @@ public class PaintingApiClient extends RestClient implements PaintingClient {
     }
 
     @Override
-    @Step("Update painting via API: id={id}")
+    @Step("Update painting via API: id={id}, title={title}, description={description}, photo={photo}")
     @Nonnull
     public PaintingJson updatePainting(String id, String title, String description, String photo) {
-        PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(null, null);
-        PaintingJson.MuseumInfo museumInfo = new PaintingJson.MuseumInfo(null);
-        PaintingJson painting = new PaintingJson(id, title, description, photo, null, artistInfo, museumInfo);
+        PaintingJson currentPainting = getPainting(id);
+
+        PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(currentPainting.artistId(), null);
+        PaintingJson.MuseumInfo museumInfo = currentPainting.museumId() != null
+                ? new PaintingJson.MuseumInfo(currentPainting.museumId())
+                : null;
+
+        PaintingJson painting = new PaintingJson(
+                id,
+                title,
+                description,
+                null,
+                photo,
+                artistInfo,
+                museumInfo
+        );
+
         try {
             Response<PaintingJson> response = paintingApi.updatePainting(painting).execute();
             if (response.isSuccessful() && response.body() != null) {

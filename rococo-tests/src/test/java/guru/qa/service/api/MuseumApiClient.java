@@ -61,7 +61,7 @@ public class MuseumApiClient extends RestClient implements MuseumClient {
     }
 
     @Override
-    @Step("Update museum via API: id={id}")
+    @Step("Update museum via API: id={id}, title={title}, description={description}, city={city}, address={address}, photo={photo}")
     @Nonnull
     public MuseumJson updateMuseum(String id, String title, String description,
                                    String city, String address, String photo) {
