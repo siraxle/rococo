@@ -28,10 +28,13 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Par
 
     private static final ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DatabaseConfig.class);
     private final AuthDbClient authDbClient = applicationContext.getBean(AuthDbClient.class);
-    private final UserdataGrpcClient userdataGrpcClient = new UserdataGrpcClient();
+    private UserdataGrpcClient userdataGrpcClient;
 
     @Override
     public void beforeEach(ExtensionContext context) {
+        // Создаём новый клиент для каждого теста
+        userdataGrpcClient = new UserdataGrpcClient();
+
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
                 .ifPresent(userAnno -> {
                     String username = userAnno.username().isEmpty()
@@ -79,6 +82,11 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Par
                 authDbClient.deleteUser(user.username());
             } catch (Exception e) {
                 System.err.println("Failed to delete user: " + user.username() + ", error: " + e.getMessage());
+            } finally {
+                // Закрываем gRPC канал
+                if (userdataGrpcClient != null) {
+                    userdataGrpcClient.close();
+                }
             }
         });
         context.getStore(NAMESPACE).remove(context.getUniqueId());

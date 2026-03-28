@@ -9,13 +9,14 @@ import rococo.grpc.userdata.DeleteUserRequest;
 import rococo.grpc.userdata.UserResponse;
 import rococo.grpc.userdata.UserdataServiceGrpc;
 
-public class UserdataGrpcClient {
+public class UserdataGrpcClient implements AutoCloseable {
 
+    private final ManagedChannel channel;
     private final UserdataServiceGrpc.UserdataServiceBlockingStub userdataStub;
 
     public UserdataGrpcClient() {
         Config config = Config.getInstance();
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(
+        this.channel = ManagedChannelBuilder.forAddress(
                         config.userdataGrpcHost(),
                         config.userdataGrpcPort())
                 .usePlaintext()
@@ -48,5 +49,12 @@ public class UserdataGrpcClient {
                 .setId(id)
                 .build();
         userdataStub.deleteUser(request);
+    }
+
+    @Override
+    public void close() {
+        if (channel != null && !channel.isShutdown()) {
+            channel.shutdown();
+        }
     }
 }

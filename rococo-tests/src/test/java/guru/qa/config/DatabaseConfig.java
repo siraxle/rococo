@@ -1,5 +1,6 @@
 package guru.qa.config;
 
+import com.p6spy.engine.spy.P6DataSource;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
-
 import javax.sql.DataSource;
 
 @Configuration
@@ -16,7 +16,7 @@ public class DatabaseConfig {
 
     private final Config config = Config.getInstance();
 
-    private HikariDataSource createDataSource(String jdbcUrl, String poolName) {
+    private DataSource createDataSource(String jdbcUrl, String poolName) {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(jdbcUrl);
         hikariConfig.setUsername(config.jdbcUser());
@@ -28,7 +28,8 @@ public class DatabaseConfig {
         hikariConfig.setConnectionTimeout(30000);
         hikariConfig.setPoolName(poolName);
         hikariConfig.setConnectionTestQuery("SELECT 1");
-        return new HikariDataSource(hikariConfig);
+        HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
+        return new P6DataSource(hikariDataSource);
     }
 
     @Bean
