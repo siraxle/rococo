@@ -3,17 +3,21 @@ package guru.qa.service.db;
 import guru.qa.config.Config;
 import guru.qa.model.MuseumJson;
 import guru.qa.service.MuseumClient;
+import guru.qa.service.db.mapper.MuseumRowMapper;
 import io.qameta.allure.Step;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public class MuseumDbClient implements MuseumClient {
 
     private final JdbcTemplate jdbcTemplate;
+    private final MuseumRowMapper rowMapper = MuseumRowMapper.INSTANCE;
 
     public MuseumDbClient() {
         Config config = Config.getInstance();
@@ -47,32 +51,14 @@ public class MuseumDbClient implements MuseumClient {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, title, description, city, address, photo, country_id " +
                 "FROM museum WHERE HEX(id) = ?";
-
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new MuseumJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getString("city"),
-                rs.getString("address"),
-                rs.getString("photo"),
-                null
-        ), hexId);
+        return jdbcTemplate.queryForObject(sql, rowMapper, hexId);
     }
 
     @Override
     @Step("Get all museums from database")
     public List<MuseumJson> getAllMuseums() {
         String sql = "SELECT HEX(id) as id, title, description, city, address, photo, country_id FROM museum";
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new MuseumJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("title"),
-                rs.getString("description"),
-                rs.getString("city"),
-                rs.getString("address"),
-                rs.getString("photo"),
-                null
-        ));
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     @Override
@@ -131,18 +117,5 @@ public class MuseumDbClient implements MuseumClient {
         String sql = "SELECT COUNT(*) FROM museum WHERE HEX(id) = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
         return count != null && count > 0;
-    }
-
-    private String formatUuid(String hex) {
-        if (hex == null || hex.length() != 32) {
-            return hex;
-        }
-        return String.format("%s-%s-%s-%s-%s",
-                hex.substring(0, 8),
-                hex.substring(8, 12),
-                hex.substring(12, 16),
-                hex.substring(16, 20),
-                hex.substring(20)
-        ).toLowerCase();
     }
 }

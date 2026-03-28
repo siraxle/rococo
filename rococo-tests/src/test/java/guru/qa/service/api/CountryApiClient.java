@@ -9,9 +9,11 @@ import io.qameta.allure.Step;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public class CountryApiClient extends RestClient implements CountryClient {
 
     private final CountryApi countryApi;

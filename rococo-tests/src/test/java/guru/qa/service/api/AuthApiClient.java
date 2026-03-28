@@ -13,9 +13,11 @@ import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+@ParametersAreNonnullByDefault
 public class AuthApiClient extends RestClient implements AuthClient {
 
     private static final Config CFG = Config.getInstance();

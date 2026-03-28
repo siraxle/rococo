@@ -3,17 +3,21 @@ package guru.qa.service.db;
 import guru.qa.config.Config;
 import guru.qa.model.PaintingJson;
 import guru.qa.service.PaintingClient;
+import guru.qa.service.db.mapper.PaintingRowMapper;
 import io.qameta.allure.Step;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public class PaintingDbClient implements PaintingClient {
 
     private final JdbcTemplate jdbcTemplate;
+    private final PaintingRowMapper rowMapper = PaintingRowMapper.INSTANCE;
 
     public PaintingDbClient() {
         Config config = Config.getInstance();
@@ -46,24 +50,7 @@ public class PaintingDbClient implements PaintingClient {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, title, description, photo, HEX(artist_id) as artist_id, HEX(museum_id) as museum_id " +
                 "FROM painting WHERE HEX(id) = ?";
-
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            String artistId = formatUuid(rs.getString("artist_id"));
-            String museumId = formatUuid(rs.getString("museum_id"));
-
-            PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artistId, null);
-            PaintingJson.MuseumInfo museumInfo = museumId != null ? new PaintingJson.MuseumInfo(museumId) : null;
-
-            return new PaintingJson(
-                    formatUuid(rs.getString("id")),
-                    rs.getString("title"),
-                    rs.getString("description"),
-                    rs.getString("photo"),
-                    null,
-                    artistInfo,
-                    museumInfo
-            );
-        }, hexId);
+        return jdbcTemplate.queryForObject(sql, rowMapper, hexId);
     }
 
     @Override
@@ -71,24 +58,7 @@ public class PaintingDbClient implements PaintingClient {
     public List<PaintingJson> getAllPaintings() {
         String sql = "SELECT HEX(id) as id, title, description, photo, HEX(artist_id) as artist_id, HEX(museum_id) as museum_id " +
                 "FROM painting";
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            String artistId = formatUuid(rs.getString("artist_id"));
-            String museumId = formatUuid(rs.getString("museum_id"));
-
-            PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artistId, null);
-            PaintingJson.MuseumInfo museumInfo = museumId != null ? new PaintingJson.MuseumInfo(museumId) : null;
-
-            return new PaintingJson(
-                    formatUuid(rs.getString("id")),
-                    rs.getString("title"),
-                    rs.getString("description"),
-                    rs.getString("photo"),
-                    null,
-                    artistInfo,
-                    museumInfo
-            );
-        });
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     @Override
@@ -138,18 +108,5 @@ public class PaintingDbClient implements PaintingClient {
         String sql = "SELECT COUNT(*) FROM painting WHERE HEX(id) = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
         return count != null && count > 0;
-    }
-
-    private String formatUuid(String hex) {
-        if (hex == null || hex.length() != 32) {
-            return hex;
-        }
-        return String.format("%s-%s-%s-%s-%s",
-                hex.substring(0, 8),
-                hex.substring(8, 12),
-                hex.substring(12, 16),
-                hex.substring(16, 20),
-                hex.substring(20)
-        ).toLowerCase();
     }
 }

@@ -10,11 +10,13 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.UUID;
 
+@ParametersAreNonnullByDefault
 public class AuthDbClient implements AuthClient {
 
     private final JdbcTemplate jdbcTemplate;

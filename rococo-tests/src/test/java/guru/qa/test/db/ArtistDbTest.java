@@ -17,6 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ArtistDbTest {
 
     private final ArtistClient artistClient = new ArtistDbClient();
+
     private ArtistJson testArtist;
 
     @BeforeEach

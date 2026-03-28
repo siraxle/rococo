@@ -3,18 +3,21 @@ package guru.qa.service.db;
 import guru.qa.config.Config;
 import guru.qa.model.CountryJson;
 import guru.qa.service.CountryClient;
+import guru.qa.service.db.mapper.CountryRowMapper;
 import io.qameta.allure.Step;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public class GeoDbClient implements CountryClient {
 
     private final JdbcTemplate jdbcTemplate;
+    private final CountryRowMapper rowMapper = CountryRowMapper.INSTANCE;
 
     public GeoDbClient() {
         Config config = Config.getInstance();
@@ -30,11 +33,7 @@ public class GeoDbClient implements CountryClient {
     @Step("Get all countries from database")
     public List<CountryJson> getAllCountries() {
         String sql = "SELECT HEX(id) as id, name, code FROM country";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new CountryJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("name"),
-                rs.getString("code")
-        ));
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     @Override
@@ -42,22 +41,14 @@ public class GeoDbClient implements CountryClient {
     public CountryJson getCountry(String id) {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, name, code FROM country WHERE HEX(id) = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new CountryJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("name"),
-                rs.getString("code")
-        ), hexId);
+        return jdbcTemplate.queryForObject(sql, rowMapper, hexId);
     }
 
     @Override
     @Step("Get country from database by code: {code}")
     public CountryJson getCountryByCode(String code) {
         String sql = "SELECT HEX(id) as id, name, code FROM country WHERE code = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new CountryJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("name"),
-                rs.getString("code")
-        ), code);
+        return jdbcTemplate.queryForObject(sql, rowMapper, code);
     }
 
     @Override
@@ -132,18 +123,5 @@ public class GeoDbClient implements CountryClient {
     public int getCountriesCount() {
         String sql = "SELECT COUNT(*) FROM country";
         return jdbcTemplate.queryForObject(sql, Integer.class);
-    }
-
-    private String formatUuid(String hex) {
-        if (hex == null || hex.length() != 32) {
-            return hex;
-        }
-        return String.format("%s-%s-%s-%s-%s",
-                hex.substring(0, 8),
-                hex.substring(8, 12),
-                hex.substring(12, 16),
-                hex.substring(16, 20),
-                hex.substring(20)
-        ).toLowerCase();
     }
 }

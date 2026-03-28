@@ -3,6 +3,7 @@ package guru.qa.service.db;
 import guru.qa.config.Config;
 import guru.qa.model.ArtistJson;
 import guru.qa.service.ArtistClient;
+import guru.qa.service.db.mapper.ArtistRowMapper;
 import io.qameta.allure.Step;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -14,6 +15,7 @@ import java.util.List;
 public class ArtistDbClient implements ArtistClient {
 
     private final JdbcTemplate jdbcTemplate;
+    private final ArtistRowMapper rowMapper = ArtistRowMapper.INSTANCE;
 
     public ArtistDbClient() {
         Config config = Config.getInstance();
@@ -39,24 +41,14 @@ public class ArtistDbClient implements ArtistClient {
     public ArtistJson getArtist(String id) {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, name, biography, photo FROM artist WHERE HEX(id) = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new ArtistJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("name"),
-                rs.getString("biography"),
-                rs.getString("photo")
-        ), hexId);
+        return jdbcTemplate.queryForObject(sql, rowMapper, hexId);
     }
 
     @Override
     @Step("Get all artists from database")
     public List<ArtistJson> getAllArtists() {
         String sql = "SELECT HEX(id) as id, name, biography, photo FROM artist";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new ArtistJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("name"),
-                rs.getString("biography"),
-                rs.getString("photo")
-        ));
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     @Override
@@ -106,18 +98,5 @@ public class ArtistDbClient implements ArtistClient {
         String sql = "SELECT COUNT(*) FROM artist WHERE HEX(id) = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, hexId);
         return count != null && count > 0;
-    }
-
-    private String formatUuid(String hex) {
-        if (hex == null || hex.length() != 32) {
-            return hex;
-        }
-        return String.format("%s-%s-%s-%s-%s",
-                hex.substring(0, 8),
-                hex.substring(8, 12),
-                hex.substring(12, 16),
-                hex.substring(16, 20),
-                hex.substring(20)
-        ).toLowerCase();
     }
 }

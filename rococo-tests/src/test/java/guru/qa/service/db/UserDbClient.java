@@ -3,18 +3,22 @@ package guru.qa.service.db;
 import guru.qa.config.Config;
 import guru.qa.model.UserJson;
 import guru.qa.service.UserClient;
+import guru.qa.service.db.mapper.UserRowMapper;
 import io.qameta.allure.Step;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+@ParametersAreNonnullByDefault
 public class UserDbClient implements UserClient {
 
     private final JdbcTemplate jdbcTemplate;
+    private final UserRowMapper rowMapper = UserRowMapper.INSTANCE;
 
     public UserDbClient() {
         Config config = Config.getInstance();
@@ -43,15 +47,7 @@ public class UserDbClient implements UserClient {
         String hexId = id.replace("-", "").toUpperCase();
         String sql = "SELECT HEX(id) as id, username, firstname, lastname, avatar, created_at " +
                 "FROM userdata WHERE HEX(id) = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new UserJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("username"),
-                rs.getString("firstname"),
-                rs.getString("lastname"),
-                rs.getString("avatar"),
-                rs.getString("created_at"),
-                null
-        ), hexId);
+        return jdbcTemplate.queryForObject(sql, rowMapper, hexId);
     }
 
     @Override
@@ -59,30 +55,14 @@ public class UserDbClient implements UserClient {
     public UserJson getUserByUsername(String username) {
         String sql = "SELECT HEX(id) as id, username, firstname, lastname, avatar, created_at " +
                 "FROM userdata WHERE username = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new UserJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("username"),
-                rs.getString("firstname"),
-                rs.getString("lastname"),
-                rs.getString("avatar"),
-                rs.getString("created_at"),
-                null
-        ), username);
+        return jdbcTemplate.queryForObject(sql, rowMapper, username);
     }
 
     @Override
     @Step("Get all users from database")
     public List<UserJson> getAllUsers() {
         String sql = "SELECT HEX(id) as id, username, firstname, lastname, avatar, created_at FROM userdata";
-        return jdbcTemplate.query(sql, (rs, rowNum) -> new UserJson(
-                formatUuid(rs.getString("id")),
-                rs.getString("username"),
-                rs.getString("firstname"),
-                rs.getString("lastname"),
-                rs.getString("avatar"),
-                rs.getString("created_at"),
-                null
-        ));
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     @Override
@@ -148,18 +128,5 @@ public class UserDbClient implements UserClient {
         } catch (DataAccessException e) {
             return false;
         }
-    }
-
-    private String formatUuid(String hex) {
-        if (hex == null || hex.length() != 32) {
-            return hex;
-        }
-        return String.format("%s-%s-%s-%s-%s",
-                hex.substring(0, 8),
-                hex.substring(8, 12),
-                hex.substring(12, 16),
-                hex.substring(16, 20),
-                hex.substring(20)
-        ).toLowerCase();
     }
 }
