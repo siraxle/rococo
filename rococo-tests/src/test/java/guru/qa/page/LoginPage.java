@@ -10,7 +10,7 @@ import static com.codeborne.selenide.Selenide.$x;
 
 public class LoginPage extends BasePage<LoginPage> {
 
-    private static final Config CFG = Config.getInstance();
+//    private static final Config CFG = Config.getInstance();
 
     private final SelenideElement usernameInput = $("input[name='username']");
     private final SelenideElement passwordInput = $("input[name='password']");
@@ -22,19 +22,52 @@ public class LoginPage extends BasePage<LoginPage> {
     @Step("Login with username: {username}")
     public MainPage login(String username, String password) {
         loginButton.click();
-        usernameInput.setValue(username);
-        passwordInput.setValue(password);
-        submitButton.click();
+        setUsername(username);
+        setPassword(password);
+        clickSubmit();
         return new MainPage();
     }
 
     @Step("Attempt to login with invalid credentials: {username}")
     public LoginPage invalidLogin(String username, String password) {
         loginButton.click();
+        setUsername(username);
+        setPassword(password);
+        clickSubmit();
+        return this;
+    }
+
+    @Step("Set username: {username}")
+    public LoginPage setUsername(String username) {
         usernameInput.setValue(username);
+        return this;
+    }
+
+    @Step("Set password")
+    public LoginPage setPassword(String password) {
         passwordInput.setValue(password);
+        return this;
+    }
+
+    @Step("Click submit button")
+    public LoginPage clickSubmit() {
         submitButton.click();
         return this;
+    }
+
+    @Step("Get username field")
+    public SelenideElement getUsernameField() {
+        return usernameInput;
+    }
+
+    @Step("Get password field")
+    public SelenideElement getPasswordField() {
+        return passwordInput;
+    }
+
+    @Step("Get submit button")
+    public SelenideElement getSubmitButton() {
+        return submitButton;
     }
 
     @Step("Check error message: {expectedError}")

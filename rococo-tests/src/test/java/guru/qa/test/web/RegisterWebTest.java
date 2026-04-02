@@ -59,18 +59,6 @@ public class RegisterWebTest {
     }
 
     @Test
-    @DisplayName("Should show error when username is empty")
-    void userShouldSeeErrorWhenUsernameEmpty() {
-        String password = DEFAULT_PASSWORD;
-
-        RegisterPage registerPage = open(CFG.frontUrl() + "register", RegisterPage.class)
-                .register("", password, password);
-
-        registerPage.checkUsernamePlaceholder("Введите имя пользователя...");
-    }
-
-
-    @Test
     @DisplayName("Should show validation when username is empty")
     void userShouldSeeValidationWhenUsernameEmpty() {
         RegisterPage registerPage = open(CFG.frontUrl() + "register", RegisterPage.class)

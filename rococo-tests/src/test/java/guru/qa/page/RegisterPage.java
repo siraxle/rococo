@@ -24,7 +24,7 @@ public class RegisterPage extends BasePage<RegisterPage> {
 
     @Step("Register new user with username: {username}")
     public RegisterPage register(String username, String password, String confirmPassword) {
-        loginLink.click();
+        LoginPage loginPage = goToLogin();
         loginPage.goToRegister();
         usernameInput.setValue(username);
         passwordInput.setValue(password);
@@ -36,12 +36,6 @@ public class RegisterPage extends BasePage<RegisterPage> {
     @Step("Check username error message: {expectedError}")
     public RegisterPage checkUsernameError(String expectedError) {
         userNameError.shouldHave(text(expectedError));
-        return this;
-    }
-
-    @Step("Check that username input has placeholder: {expectedPlaceholder}")
-    public RegisterPage checkUsernamePlaceholder(String expectedPlaceholder) {
-        usernameInput.shouldHave(attribute("placeholder", expectedPlaceholder));
         return this;
     }
 
