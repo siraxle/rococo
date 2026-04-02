@@ -2,6 +2,7 @@ package guru.qa.page;
 
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.config.Config;
+import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -16,7 +17,9 @@ public class LoginPage extends BasePage<LoginPage> {
     private final SelenideElement submitButton = $("button[type='submit']");
     private final SelenideElement registerLink = $("a[href='/register']");
     private final SelenideElement errorMessage = $(".form__error");
-    private final SelenideElement loginButton = $x("//button[contains(text(), 'Войти')]");;
+    private final SelenideElement loginButton = $x("//button[contains(text(), 'Войти')]");
+
+    @Step("Login with username: {username}")
     public MainPage login(String username, String password) {
         loginButton.click();
         usernameInput.setValue(username);
@@ -25,6 +28,7 @@ public class LoginPage extends BasePage<LoginPage> {
         return new MainPage();
     }
 
+    @Step("Attempt to login with invalid credentials: {username}")
     public LoginPage invalidLogin(String username, String password) {
         loginButton.click();
         usernameInput.setValue(username);
@@ -33,13 +37,21 @@ public class LoginPage extends BasePage<LoginPage> {
         return this;
     }
 
+    @Step("Check error message: {expectedError}")
     public LoginPage checkError(String expectedError) {
         errorMessage.shouldHave(text(expectedError));
         return this;
     }
 
+    @Step("Navigate to registration page")
     public RegisterPage goToRegister() {
-//        loginButton.click();
+        registerLink.click();
+        return new RegisterPage();
+    }
+
+    @Step("Navigate to registration page from main page")
+    public RegisterPage goToRegisterFromMainPage() {
+        loginButton.click();
         registerLink.click();
         return new RegisterPage();
     }
