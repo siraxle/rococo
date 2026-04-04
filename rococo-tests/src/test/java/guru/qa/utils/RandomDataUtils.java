@@ -8,7 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomDataUtils {
 
-    private static final Faker FAKER = new Faker(new Locale("ru"));
+    private static final Faker FAKER = new Faker(new Locale("en"));
 
     public static String randomId() {
         return UUID.randomUUID().toString();

@@ -60,4 +60,5 @@ public class PaintingDetailsPage extends BasePage<PaintingDetailsPage> {
     public String getDescription() {
         return description.getText();
     }
+
 }

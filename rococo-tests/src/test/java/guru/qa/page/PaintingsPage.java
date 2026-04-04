@@ -14,7 +14,7 @@ public class PaintingsPage extends BasePage<PaintingsPage> {
     private final SelenideElement pageTitle = $("h2.text-3xl");
     private final SelenideElement addPaintingButton = $$("button.btn").filter(text("Добавить картину")).first();
     private final SelenideElement searchInput = $("input.input[type='search']");
-    private final SelenideElement searchButton = $("button.btn-icon");
+    private final SelenideElement searchButton = $$("button.btn-icon").get(1);
     private final ElementsCollection paintingItems = $$("ul.grid li");
 
     public PaintingsPage checkPageTitle() {

@@ -32,7 +32,6 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Par
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        // Создаём новый клиент для каждого теста
         userdataGrpcClient = new UserdataGrpcClient();
 
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)

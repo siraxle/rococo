@@ -10,4 +10,5 @@ import java.lang.annotation.Target;
 public @interface Painting {
     String title() default "";
     String description() default "";
+    String content() default "/images/test-painting.jpg";
 }

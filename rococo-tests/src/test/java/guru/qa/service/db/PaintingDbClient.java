@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 @Repository
@@ -25,10 +26,16 @@ public class PaintingDbClient implements PaintingClient {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
+
     @Override
     @Step("Create painting in database: {painting}")
     public PaintingJson createPainting(PaintingJson painting) {
-        String hexId = painting.id().replace("-", "").toUpperCase();
+        String id = painting.id();
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+        String hexId = id.replace("-", "").toUpperCase();
         String hexArtistId = painting.artistId().replace("-", "").toUpperCase();
         String hexMuseumId = painting.museumId().replace("-", "").toUpperCase();
 
@@ -37,7 +44,11 @@ public class PaintingDbClient implements PaintingClient {
 
         jdbcTemplate.update(sql, hexId, painting.title(), painting.description(),
                 painting.photo(), hexArtistId, hexMuseumId);
-        return painting;
+
+        return new PaintingJson(id, painting.title(), painting.description(),
+                painting.photo(), null,
+                new PaintingJson.ArtistInfo(painting.artistId(), null),
+                new PaintingJson.MuseumInfo(painting.museumId()));
     }
 
     @Override

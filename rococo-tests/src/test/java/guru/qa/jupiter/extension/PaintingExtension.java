@@ -1,10 +1,13 @@
 package guru.qa.jupiter.extension;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.Painting;
 import guru.qa.model.ArtistJson;
 import guru.qa.model.MuseumJson;
 import guru.qa.model.PaintingJson;
+import guru.qa.service.PaintingClient;
 import guru.qa.service.api.PaintingApiClient;
+import guru.qa.service.db.PaintingDbClient;
 import guru.qa.utils.RandomDataUtils;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -12,16 +15,26 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
 public class PaintingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(PaintingExtension.class);
+    private static final String DEFAULT_IMAGE_PATH = "/images/test-painting.jpg";
 
-    private final PaintingApiClient paintingApiClient = new PaintingApiClient();
+    private final PaintingClient paintingClient;
+
+    public PaintingExtension() {
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DatabaseConfig.class);
+        // this.paintingClient = new PaintingApiClient();                                    // API client
+        this.paintingClient = applicationContext.getBean(PaintingDbClient.class);          // DB client
+    }
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -46,12 +59,24 @@ public class PaintingExtension implements BeforeEachCallback, AfterEachCallback,
                         throw new IllegalStateException("Museum ID is null! Museum: " + museum);
                     }
 
-                    PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artist.id(), null);
+                    String paintingId = UUID.randomUUID().toString();
+                    String content = DEFAULT_IMAGE_PATH;
+
+                    PaintingJson.ArtistInfo artistInfo = new PaintingJson.ArtistInfo(artist.id(), artist.name());
                     PaintingJson.MuseumInfo museumInfo = new PaintingJson.MuseumInfo(museum.id());
-                    PaintingJson painting = new PaintingJson(null, title, description, null, null, artistInfo, museumInfo);
+
+                    PaintingJson painting = new PaintingJson(
+                            paintingId,
+                            title,
+                            description,
+                            content,
+                            null,
+                            artistInfo,
+                            museumInfo
+                    );
 
                     System.out.println("Painting to create: " + painting);
-                    PaintingJson created = paintingApiClient.createPainting(painting);
+                    PaintingJson created = paintingClient.createPainting(painting);
                     System.out.println("Created painting: " + created);
                     setPainting(created);
                 });
@@ -61,7 +86,7 @@ public class PaintingExtension implements BeforeEachCallback, AfterEachCallback,
     public void afterEach(ExtensionContext context) {
         getPainting().ifPresent(painting -> {
             try {
-                paintingApiClient.deletePainting(painting.id());
+                paintingClient.deletePainting(painting.id());
             } catch (Exception e) {
                 System.err.println("Failed to delete painting: " + painting.id() + ", error: " + e.getMessage());
             }

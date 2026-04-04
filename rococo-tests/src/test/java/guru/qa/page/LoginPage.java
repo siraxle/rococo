@@ -1,7 +1,6 @@
 package guru.qa.page;
 
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.config.Config;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;
@@ -87,5 +86,11 @@ public class LoginPage extends BasePage<LoginPage> {
         loginButton.click();
         registerLink.click();
         return new RegisterPage();
+    }
+
+    @Step("Navigate to login page from main page")
+    public LoginPage goToLogin() {
+        loginButton.click();
+        return this;
     }
 }

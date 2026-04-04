@@ -1,7 +1,9 @@
 package guru.qa.jupiter.extension;
 
+import guru.qa.config.DatabaseConfig;
 import guru.qa.jupiter.annotation.Artist;
 import guru.qa.model.ArtistJson;
+import guru.qa.service.ArtistClient;
 import guru.qa.service.api.ArtistApiClient;
 import guru.qa.service.db.ArtistDbClient;
 import guru.qa.utils.RandomDataUtils;
@@ -11,8 +13,11 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
@@ -20,8 +25,14 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ArtistExtension.class);
 
-    private final ArtistApiClient artistClient = new ArtistApiClient();
-//    private final ArtistDbClient artistClient = new ArtistDbClient();
+    private final ArtistClient artistClient;
+
+    public ArtistExtension() {
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DatabaseConfig.class);
+        // Переключение между API и DB клиентом
+        // this.artistClient = new ArtistApiClient();                                    // API client
+        this.artistClient = applicationContext.getBean(ArtistDbClient.class);          // DB client
+    }
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -34,8 +45,12 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
                             ? RandomDataUtils.randomBiography()
                             : artistAnno.biography();
 
-                    ArtistJson artist = new ArtistJson(null, name, biography, null);
+                    // Генерируем UUID для художника
+                    String artistId = UUID.randomUUID().toString();
+                    ArtistJson artist = new ArtistJson(artistId, name, biography, null);
+
                     ArtistJson created = artistClient.createArtist(artist);
+                    System.out.println("Created artist: " + created);
                     setArtist(created);
                 });
     }

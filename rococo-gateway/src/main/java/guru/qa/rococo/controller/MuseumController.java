@@ -28,15 +28,15 @@ public class MuseumController {
     @GetMapping
     public ResponseEntity<Page<Museum>> getAllMuseums(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "100") int size,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String city) {
 
         if (page < 0) page = 0;
-        if (size <= 0) size = 10;
-        if (size > 100) size = 100;
+        int actualSize = 100;
+        if (actualSize > 100) actualSize = 100;
 
-        List<Museum> museums = museumService.getAllMuseums(page, size, title, city);
+        List<Museum> museums = museumService.getAllMuseums(page, actualSize, title, city);
 
         Page<Museum> museumPage = new PageImpl<>(
                 museums,

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @ParametersAreNonnullByDefault
 @Repository
@@ -28,10 +29,16 @@ public class ArtistDbClient implements ArtistClient {
     @Override
     @Step("Create artist in database: {artist}")
     public ArtistJson createArtist(ArtistJson artist) {
-        String hexId = artist.id().replace("-", "").toUpperCase();
+        String id = artist.id();
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+        String hexId = id.replace("-", "").toUpperCase();
+
         String sql = "INSERT INTO artist (id, name, biography, photo) VALUES (UNHEX(?), ?, ?, ?)";
         jdbcTemplate.update(sql, hexId, artist.name(), artist.biography(), artist.photo());
-        return artist;
+
+        return new ArtistJson(id, artist.name(), artist.biography(), artist.photo());
     }
 
     @Override

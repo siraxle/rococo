@@ -1,12 +1,13 @@
 package guru.qa.page;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import java.io.File;
 
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AddPaintingPage extends BasePage<AddPaintingPage> {
 
@@ -25,12 +26,16 @@ public class AddPaintingPage extends BasePage<AddPaintingPage> {
     }
 
     public AddPaintingPage setImage(String imagePath) {
-        imageInput.uploadFile(new File(imagePath));
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("images/" + imagePath).getFile());
+        imageInput.uploadFile(file);
         return this;
     }
 
     public AddPaintingPage selectAuthor(String authorName) {
-        authorSelect.selectOptionContainingText(authorName);
+        authorSelect.click();
+        SelenideElement option = authorSelect.$$("option").findBy(text(authorName));
+        option.click();
         return this;
     }
 
@@ -40,13 +45,15 @@ public class AddPaintingPage extends BasePage<AddPaintingPage> {
     }
 
     public AddPaintingPage selectMuseum(String museumName) {
-        museumSelect.selectOptionContainingText(museumName);
+        museumSelect.click();
+        SelenideElement option = museumSelect.$$("option").findBy(text(museumName));
+        option.click();
         return this;
     }
 
-    public PaintingsPage submit() {
+    public AddPaintingPage submit() {
         submitButton.click();
-        return new PaintingsPage();
+        return this;
     }
 
     public AddPaintingPage close() {
@@ -58,4 +65,23 @@ public class AddPaintingPage extends BasePage<AddPaintingPage> {
         errorMessage.shouldHave(text(expectedError));
         return this;
     }
+
+    @Step("Check validation message on picture name field when it's empty")
+    public AddPaintingPage checkPictureNameValidationMessage(String expectedMessage) {
+        submitButton.click();
+
+        String message = executeJavaScript("return arguments[0].validationMessage;", titleInput);
+        assertThat(message).isEqualTo(expectedMessage);
+        return this;
+    }
+
+    @Step("Check validation message on image Input field when it's empty")
+    public AddPaintingPage checkImageInputValidationMessage(String expectedMessage) {
+        submitButton.click();
+
+        String message = executeJavaScript("return arguments[0].validationMessage;", imageInput);
+        assertThat(message).isEqualTo(expectedMessage);
+        return this;
+    }
+
 }

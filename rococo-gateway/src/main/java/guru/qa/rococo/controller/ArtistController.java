@@ -30,10 +30,10 @@ public class ArtistController {
             @RequestParam(defaultValue = "10") int size) {
 
         if (page < 0) page = 0;
-        if (size < 1) size = 10;
-        if (size > 100) size = 100;
+        int actualSize = 100;
+        if (actualSize > 100) actualSize = 100;
 
-        List<Artist> artists = artistService.getAllArtists(page, size);
+        List<Artist> artists = artistService.getAllArtists(page, actualSize);
         Page<Artist> artistPage = new PageImpl<>(
                 artists,
                 PageRequest.of(page, size),
