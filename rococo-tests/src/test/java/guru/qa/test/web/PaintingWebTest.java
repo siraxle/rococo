@@ -25,7 +25,6 @@ import static com.codeborne.selenide.Selenide.open;
 public class PaintingWebTest {
 
     private static final String TEST_IMAGE_PATH = "test-painting.jpg";
-    private static final String DEFAULT_PASSWORD = "123456";
     private final Config CFG = Config.getInstance();
 
     @Test

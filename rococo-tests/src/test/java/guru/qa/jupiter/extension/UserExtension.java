@@ -1,34 +1,36 @@
 package guru.qa.jupiter.extension;
 
-import guru.qa.config.DatabaseConfig;
+import guru.qa.config.ApplicationContextHolder;
 import guru.qa.jupiter.annotation.User;
 import guru.qa.model.TestData;
 import guru.qa.model.UserJson;
 import guru.qa.service.db.AuthDbClient;
 import guru.qa.service.grpc.UserdataGrpcClient;
 import guru.qa.utils.RandomDataUtils;
+import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import rococo.grpc.userdata.UserResponse;
 
 import java.util.Optional;
 
 import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 
-public class UserExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
+public class UserExtension implements BeforeEachCallback, AfterEachCallback, AfterAllCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
     private static final String DEFAULT_PASSWORD = "123456";
 
-    private static final ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DatabaseConfig.class);
-    private final AuthDbClient authDbClient = applicationContext.getBean(AuthDbClient.class);
+    private final AuthDbClient authDbClient;
     private UserdataGrpcClient userdataGrpcClient;
+
+    public UserExtension() {
+        this.authDbClient = ApplicationContextHolder.getContext().getBean(AuthDbClient.class);
+    }
 
     @Override
     public void beforeEach(ExtensionContext context) {
@@ -45,7 +47,6 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Par
                         authDbClient.createUser(username, password);
 
                         UserResponse grpcResponse = userdataGrpcClient.createUser(username);
-
                         String userId = grpcResponse.getId();
 
                         String firstname = RandomDataUtils.randomFirstName();
@@ -77,18 +78,24 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Par
     public void afterEach(ExtensionContext context) {
         getUser().ifPresent(user -> {
             try {
-                userdataGrpcClient.deleteUser(user.id());
+                if (userdataGrpcClient != null) {
+                    userdataGrpcClient.deleteUser(user.id());
+                }
                 authDbClient.deleteUser(user.username());
             } catch (Exception e) {
                 System.err.println("Failed to delete user: " + user.username() + ", error: " + e.getMessage());
             } finally {
-                // Закрываем gRPC канал
                 if (userdataGrpcClient != null) {
                     userdataGrpcClient.close();
                 }
             }
         });
         context.getStore(NAMESPACE).remove(context.getUniqueId());
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) {
+        ApplicationContextHolder.closeContext();
     }
 
     public static void setUser(UserJson user) {

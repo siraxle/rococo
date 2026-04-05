@@ -24,10 +24,10 @@ public class DatabaseConfig {
         hikariConfig.setDriverClassName("com.mysql.cj.jdbc.Driver");
         hikariConfig.setMaximumPoolSize(10);
         hikariConfig.setMinimumIdle(2);
-        hikariConfig.setIdleTimeout(300000);
+        hikariConfig.setIdleTimeout(30000);
         hikariConfig.setConnectionTimeout(30000);
         hikariConfig.setPoolName(poolName);
-        hikariConfig.setConnectionTestQuery("SELECT 1");
+//        hikariConfig.setConnectionTestQuery("SELECT 1");
         HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
         return new P6DataSource(hikariDataSource);
     }

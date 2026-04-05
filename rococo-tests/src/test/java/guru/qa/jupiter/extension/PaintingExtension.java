@@ -1,7 +1,8 @@
 package guru.qa.jupiter.extension;
 
-import guru.qa.config.DatabaseConfig;
+import guru.qa.config.ApplicationContextHolder;
 import guru.qa.jupiter.annotation.Painting;
+import guru.qa.jupiter.annotation.meta.RestTest;
 import guru.qa.model.ArtistJson;
 import guru.qa.model.MuseumJson;
 import guru.qa.model.PaintingJson;
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -31,9 +31,8 @@ public class PaintingExtension implements BeforeEachCallback, AfterEachCallback,
     private final PaintingClient paintingClient;
 
     public PaintingExtension() {
-        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DatabaseConfig.class);
-        // this.paintingClient = new PaintingApiClient();                                    // API client
-        this.paintingClient = applicationContext.getBean(PaintingDbClient.class);          // DB client
+        ApplicationContext applicationContext = ApplicationContextHolder.getContext();
+        this.paintingClient = applicationContext.getBean(PaintingDbClient.class);
     }
 
     @Override
@@ -76,7 +75,11 @@ public class PaintingExtension implements BeforeEachCallback, AfterEachCallback,
                     );
 
                     System.out.println("Painting to create: " + painting);
-                    PaintingJson created = paintingClient.createPainting(painting);
+
+                    PaintingClient client = isApiTest(context)
+                            ? new PaintingApiClient()
+                            : paintingClient;
+                    PaintingJson created = client.createPainting(painting);
                     System.out.println("Created painting: " + created);
                     setPainting(created);
                 });
@@ -86,12 +89,24 @@ public class PaintingExtension implements BeforeEachCallback, AfterEachCallback,
     public void afterEach(ExtensionContext context) {
         getPainting().ifPresent(painting -> {
             try {
-                paintingClient.deletePainting(painting.id());
+                PaintingClient client = isApiTest(context)
+                        ? new PaintingApiClient()
+                        : paintingClient;
+                client.deletePainting(painting.id());
             } catch (Exception e) {
                 System.err.println("Failed to delete painting: " + painting.id() + ", error: " + e.getMessage());
             }
         });
         context.getStore(NAMESPACE).remove(context.getUniqueId());
+    }
+
+    private boolean isApiTest(ExtensionContext context) {
+        return context.getTestMethod()
+                .map(method -> method.isAnnotationPresent(RestTest.class))
+                .orElse(false) ||
+                context.getTestClass()
+                        .map(clazz -> clazz.isAnnotationPresent(RestTest.class))
+                        .orElse(false);
     }
 
     public static void setPainting(PaintingJson painting) {

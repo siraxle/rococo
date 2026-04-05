@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RestTest
 @DisplayName("Auth Integration Tests")
-@Disabled("Причина отключения - например, XSRF-TOKEN issue")
+@Disabled("не работает получение XSRF-TOKEN")
 
 public class AuthIntegrationTest {
 

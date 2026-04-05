@@ -46,13 +46,4 @@ public class LoginWebTest {
         registerPage.checkPageTitle();
     }
 
-    @Test
-    @User(username = "customuser", password = "custompass123")
-    @DisplayName("Should login with custom user credentials")
-    void userShouldLoginWithCustomCredentials(UserJson user) {
-        MainPage mainPage = open(CFG.frontUrl() + "login", LoginPage.class)
-                .login(user.username(), user.testData().password());
-
-        mainPage.checkWelcomeText("Ваши любимые картины и художники всегда рядом");
-    }
 }

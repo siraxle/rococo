@@ -1,7 +1,8 @@
 package guru.qa.jupiter.extension;
 
-import guru.qa.config.DatabaseConfig;
+import guru.qa.config.ApplicationContextHolder;
 import guru.qa.jupiter.annotation.Artist;
+import guru.qa.jupiter.annotation.meta.RestTest;
 import guru.qa.model.ArtistJson;
 import guru.qa.service.ArtistClient;
 import guru.qa.service.api.ArtistApiClient;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -25,13 +25,26 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(ArtistExtension.class);
 
-    private final ArtistClient artistClient;
+    private final ArtistClient dbClient;
+    private final ArtistApiClient apiClient;
 
     public ArtistExtension() {
-        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(DatabaseConfig.class);
-        // Переключение между API и DB клиентом
-        // this.artistClient = new ArtistApiClient();                                    // API client
-        this.artistClient = applicationContext.getBean(ArtistDbClient.class);          // DB client
+        ApplicationContext applicationContext = ApplicationContextHolder.getContext();
+        this.dbClient = applicationContext.getBean(ArtistDbClient.class);
+        this.apiClient = new ArtistApiClient();
+    }
+
+    private boolean isApiTest(ExtensionContext context) {
+        return context.getTestMethod()
+                .map(method -> method.isAnnotationPresent(RestTest.class))
+                .orElse(false) ||
+                context.getTestClass()
+                        .map(clazz -> clazz.isAnnotationPresent(RestTest.class))
+                        .orElse(false);
+    }
+
+    private ArtistClient getClient(ExtensionContext context) {
+        return isApiTest(context) ? apiClient : dbClient;
     }
 
     @Override
@@ -45,12 +58,12 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
                             ? RandomDataUtils.randomBiography()
                             : artistAnno.biography();
 
-                    // Генерируем UUID для художника
                     String artistId = UUID.randomUUID().toString();
                     ArtistJson artist = new ArtistJson(artistId, name, biography, null);
 
-                    ArtistJson created = artistClient.createArtist(artist);
-                    System.out.println("Created artist: " + created);
+                    ArtistClient client = getClient(context);
+                    ArtistJson created = client.createArtist(artist);
+                    System.out.println("Created artist via " + (isApiTest(context) ? "API" : "DB") + ": " + created);
                     setArtist(created);
                 });
     }
@@ -59,7 +72,8 @@ public class ArtistExtension implements BeforeEachCallback, AfterEachCallback, P
     public void afterEach(ExtensionContext context) {
         getArtist().ifPresent(artist -> {
             try {
-                artistClient.deleteArtist(artist.id());
+                ArtistClient client = getClient(context);
+                client.deleteArtist(artist.id());
             } catch (Exception e) {
                 System.err.println("Failed to delete artist: " + artist.id() + ", error: " + e.getMessage());
             }
