@@ -12,6 +12,7 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.ByteArrayInputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BrowserExtension implements
         BeforeEachCallback,
@@ -19,22 +20,33 @@ public class BrowserExtension implements
         TestExecutionExceptionHandler,
         LifecycleMethodExecutionExceptionHandler {
 
+    private static final AtomicBoolean isConfigured = new AtomicBoolean(false);
+
     static {
-        Configuration.browser = "chrome";
-        Configuration.timeout = 8000;
-        Configuration.pageLoadStrategy = "eager";
-        if ("docker".equals(System.getProperty("test.env"))) {
-            Configuration.remote = "http://selenoid:4444/wd/hub";
-            Configuration.browserVersion = "127.0";
-            Configuration.browserCapabilities = new ChromeOptions().addArguments("--no-sandbox");
+        configureSelenide();
+    }
+
+    private static synchronized void configureSelenide() {
+        if (!isConfigured.get()) {
+            Configuration.browser = "chrome";
+            Configuration.timeout = 8000;
+            Configuration.pageLoadStrategy = "eager";
+
+            if ("docker".equals(System.getProperty("test.env"))) {
+                Configuration.remote = "http://selenoid:4444/wd/hub";
+                Configuration.browserVersion = "127.0";
+                Configuration.browserCapabilities = new ChromeOptions().addArguments("--no-sandbox");
+            }
+            isConfigured.set(true);
         }
     }
 
     @Override
     public void beforeEach(ExtensionContext context) {
         SelenideLogger.addListener("Allure-selenide", new AllureSelenide()
-                .savePageSource(false)
-                .screenshots(false));
+                .savePageSource(true)
+                .screenshots(true)
+                .includeSelenideSteps(true));
     }
 
     @Override
