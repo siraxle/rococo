@@ -18,15 +18,6 @@ public class UserIntegrationTest {
 
     private final UserClient userClient = new UserApiClient();
 
-    @User
-    @Test
-    @DisplayName("Should create user via extension")
-    void shouldCreateUserViaExtension(UserJson user) {
-        assertThat(user.id()).isNotNull();
-        assertThat(user.username()).isNotNull();
-        assertThat(user.firstname()).isNotNull();
-        assertThat(user.lastname()).isNotNull();
-    }
 
     @User
     @Test

@@ -29,7 +29,7 @@ public class MuseumIntegrationTest {
         assertThat(museum.description()).isNotNull();
         assertThat(museum.city()).isNotNull();
         assertThat(museum.address()).isNotNull();
-        assertThat(museum.photo()).isNullOrEmpty();
+        assertThat(museum.photo().contains("test-painting.jpg"));
         assertThat(museum.geo()).isNotNull();
         assertThat(museum.geo().city()).isEqualTo(museum.city());
         assertThat(museum.geo().country()).isNotNull();

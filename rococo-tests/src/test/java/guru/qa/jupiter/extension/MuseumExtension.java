@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.AnnotationSupport;
 import org.springframework.context.ApplicationContext;
 
+import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import static guru.qa.jupiter.extension.TestMethodContextExtension.context;
 public class MuseumExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(MuseumExtension.class);
+    private static final String DEFAULT_IMAGE_PATH = "images/test-painting.jpg";
 
     private final MuseumClient dbClient;
     private final MuseumApiClient apiClient;
@@ -75,6 +77,15 @@ public class MuseumExtension implements BeforeEachCallback, AfterEachCallback, P
         }
     }
 
+    private String getTestImagePath() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL resource = classLoader.getResource(DEFAULT_IMAGE_PATH);
+        if (resource == null) {
+            throw new IllegalArgumentException("Test image not found: " + DEFAULT_IMAGE_PATH);
+        }
+        return resource.getPath();
+    }
+
     @Override
     public void beforeEach(ExtensionContext context) {
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), Museum.class)
@@ -95,13 +106,16 @@ public class MuseumExtension implements BeforeEachCallback, AfterEachCallback, P
 
                     String museumId = UUID.randomUUID().toString();
                     GeoJson geo = new GeoJson(city, country);
+
+                    String testImagePath = getTestImagePath();
+
                     MuseumJson museum = new MuseumJson(
                             museumId,
                             title,
                             RandomDataUtils.randomDescription(),
                             city,
                             RandomDataUtils.randomAddress(),
-                            null,
+                            testImagePath,
                             geo
                     );
 

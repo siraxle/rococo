@@ -6,14 +6,13 @@ import io.qameta.allure.Step;
 import java.io.File;
 
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
 public class ArtistDetailsPage extends BasePage<ArtistDetailsPage> {
 
     // Заголовок модального окна (для добавления/редактирования)
-    private final SelenideElement modalTitle = $x("//div[contains(@class, 'card')]//header[contains(@class, 'text-2xl')]");
+    private final SelenideElement modalTitle = $x("(//header[contains(@class, card-header)])[2]");
 
     // Поля формы
     private final SelenideElement nameInput = $x("//input[@name='name']");
@@ -30,7 +29,7 @@ public class ArtistDetailsPage extends BasePage<ArtistDetailsPage> {
     private final SelenideElement biographyError = $x("//label//span[contains(@class, 'text-error-400') and preceding-sibling::span[text()='Биография']]");
 
     @Step("Проверить заголовок модального окна")
-    public ArtistDetailsPage checkModalTitle(String expectedTitle) {
+    public ArtistDetailsPage checkPageTitle(String expectedTitle) {
         modalTitle.shouldHave(text(expectedTitle));
         return this;
     }
