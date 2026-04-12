@@ -55,18 +55,19 @@ npm run dev
 
 Сервисы запускаются **вручную** из соответствующих модулей.  
 Каждый сервис содержит класс с аннотацией `@SpringBootApplication`:
+> 💡 ⚠️ Важно: При первом запуске соблюдайте указанный порядок.
+При повторных запусках (миграции уже применены) порядок не важен.
 
-| Сервис | Класс для запуска |
-|--------|-------------------|
-| `rococo-auth` | `RococoAuthApplication` |
-| `rococo-userdata` | `RococoUserdataApplication` |
-| `rococo-geo` | `RococoGeoApplication` |
-| `rococo-artist` | `RococoArtistApplication` |
-| `rococo-museum` | `RococoMuseumApplication` |
-| `rococo-painting` | `RococoPaintingApplication` |
-| `rococo-gateway` | `RococoGatewayApplication` |
+| № | Сервис             | Класс для запуска           |
+|---|--------------------|-----------------------------|
+| 1 | `rococo-geo`       | `RococoGeoApplication`      |
+| 2 | `rococo-artist`    | `RococoArtistApplication`   |
+| 3 | `rococo-museum`    | `RococoMuseumApplication`   |
+| 4 | `rococo-painting`  | `RococoPaintingApplication` |
+| 5 | `rococo-userdata`  | `RococoUserdataApplication` |
+| 6 | `rococo-auth`      | `RococoAuthApplication`     |
+| 7 | `rococo-gateway`   | `RococoGatewayApplication`  |
 
-> 💡 **Порядок запуска не принципиален**
 ---
 
 ## 🧪 Запуск тестов
