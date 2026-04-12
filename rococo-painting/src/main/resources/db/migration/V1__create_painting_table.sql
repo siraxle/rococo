@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS painting
     description TEXT,
     artist_id   BINARY(16) NOT NULL,
     museum_id   BINARY(16),
-    photo       TEXT,
+    photo       LONGTEXT,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_painting_title (title),

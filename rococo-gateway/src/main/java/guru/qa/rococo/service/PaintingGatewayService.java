@@ -27,13 +27,12 @@ public class PaintingGatewayService {
         return mapToPainting(response);
     }
 
-    public Painting createPainting(String title, String description, UUID artistId, UUID museumId, String photo) {
+    public Painting createPainting(String title, String description, String artistId, String museumId, String photo) {
+        if (artistId == null || artistId.isBlank()) {
+            throw new IllegalArgumentException("Artist ID is required");
+        }
         PaintingResponse response = paintingGrpcClient.createPainting(
-                title,
-                description,
-                artistId != null ? artistId.toString() : null,
-                museumId != null ? museumId.toString() : null,
-                photo
+                title, description, artistId, museumId, photo
         );
         return mapToPainting(response);
     }

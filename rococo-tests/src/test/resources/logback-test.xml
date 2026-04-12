@@ -1,0 +1,22 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Отключаем OkHttp -->
+    <logger name="okhttp3" level="OFF"/>
+    <logger name="okhttp3.internal.platform.Platform" level="OFF"/>
+    <logger name="okhttp3.logging.HttpLoggingInterceptor" level="OFF"/>
+    <logger name="retrofit2" level="OFF"/>
+
+    <!-- Перенаправляем JUL в Logback -->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

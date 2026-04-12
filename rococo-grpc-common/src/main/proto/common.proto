@@ -6,6 +6,8 @@ option java_multiple_files = true;
 option java_package = "rococo.grpc.common";
 option java_outer_classname = "RococoCommonProto";
 
+message Empty {}
+
 enum SortDirection {
   SORT_DIRECTION_UNSPECIFIED = 0;
   ASC = 1;

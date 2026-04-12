@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.grpc.server.service.GrpcService;
 import rococo.grpc.userdata.*;
+import rococo.grpc.common.Empty;
+import rococo.grpc.userdata.DeleteUserRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -178,6 +180,30 @@ public class UserdataGrpcService extends UserdataServiceGrpc.UserdataServiceImpl
             responseObserver.onError(
                     Status.NOT_FOUND
                             .withDescription("User not found with id: " + request.getId())
+                            .asRuntimeException()
+            );
+        }
+    }
+
+    @Override
+    public void deleteUser(DeleteUserRequest request, StreamObserver<Empty> responseObserver) {
+        try {
+            UUID id = UUID.fromString(request.getId());
+            if (!userRepository.existsById(id)) {
+                responseObserver.onError(
+                        Status.NOT_FOUND
+                                .withDescription("User not found with id: " + request.getId())
+                                .asRuntimeException()
+                );
+                return;
+            }
+            userRepository.deleteById(id);
+            responseObserver.onNext(Empty.newBuilder().build());
+            responseObserver.onCompleted();
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(
+                    Status.INVALID_ARGUMENT
+                            .withDescription("Invalid UUID format: " + request.getId())
                             .asRuntimeException()
             );
         }
