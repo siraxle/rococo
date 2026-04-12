@@ -35,7 +35,7 @@ public class MuseumWebTest {
 
         AddMuseumPage addMuseumPage = museumsPage.goToAddMuseum();
         addMuseumPage.setTitle(museumTitle)
-                .selectCountry("Болгария")
+                .selectCountry("Испания")
                 .setCity(museumCity)
                 .setPhoto(TEST_IMAGE_PATH)
                 .setDescription(museumDescription)
@@ -97,7 +97,7 @@ public class MuseumWebTest {
         AddMuseumPage addMuseumPage = loginAndGoToMuseums(user)
                 .goToAddMuseum();
 
-        addMuseumPage.selectCountry("Болгария")
+        addMuseumPage.selectCountry("Испания")
                 .setCity(museumCity)
                 .setPhoto(TEST_IMAGE_PATH)
                 .setDescription(museumDescription)
@@ -115,7 +115,7 @@ public class MuseumWebTest {
         AddMuseumPage addMuseumPage = loginAndGoToMuseums(user)
                 .goToAddMuseum();
 
-        addMuseumPage.setTitle(museumTitle).selectCountry("Болгария")
+        addMuseumPage.setTitle(museumTitle).selectCountry("Испания")
                 .setPhoto(TEST_IMAGE_PATH)
                 .setDescription(museumDescription)
                 .submit()
