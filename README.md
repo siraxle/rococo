@@ -34,6 +34,8 @@ cd rococo
 
 > **Важно:** Используйте **Git Bash**
 
+Перед запуском убедитесь, что **Docker Desktop** запущен
+
 ```bash
 bash localenv.sh
 ```
