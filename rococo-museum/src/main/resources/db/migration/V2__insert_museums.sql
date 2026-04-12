@@ -4,7 +4,7 @@
 
 INSERT INTO museum (id, title, description, city, address, photo, country_id, created_at, updated_at) VALUES
         (
-        UUID_TO_BIN(UUID(), true),
+            UUID_TO_BIN('11111111-1111-1111-1111-111111111111', true),
         'British Museum',
         'Один из крупнейших и наиболее значимых музеев мира, посвящённый истории человечества и культуре.',
         'London',
@@ -15,7 +15,7 @@ INSERT INTO museum (id, title, description, city, address, photo, country_id, cr
         NOW()
         ),
         (
-        UUID_TO_BIN(UUID(), true),
+            UUID_TO_BIN('22222222-2222-2222-2222-222222222222', true),
         'State Hermitage Museum',
         'Один из крупнейших художественных музеев мира, расположенный в Санкт-Петербурге.',
         'Saint Petersburg',
@@ -26,7 +26,7 @@ INSERT INTO museum (id, title, description, city, address, photo, country_id, cr
         NOW()
         ),
         (
-        UUID_TO_BIN(UUID(), true),
+            UUID_TO_BIN('33333333-3333-3333-3333-333333333333', true),
         'Louvre Museum',
         'Крупнейший в мире художественный музей, исторический памятник Парижа.',
         'Paris',
@@ -37,7 +37,7 @@ INSERT INTO museum (id, title, description, city, address, photo, country_id, cr
         NOW()
         ),
         (
-        UUID_TO_BIN(UUID(), true),
+            UUID_TO_BIN('44444444-4444-4444-4444-444444444444', true),
         'Prado Museum',
         'Главный художественный музей Испании, расположенный в Мадриде.',
         'Madrid',
