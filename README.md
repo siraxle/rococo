@@ -26,7 +26,7 @@ rococo/
 ### 1️⃣ Клонирование репозитория
 
 ```bash
-git clone <https://github.com/siraxle/rococo>
+git clone https://github.com/siraxle/rococo.git
 cd rococo
 ```
 
