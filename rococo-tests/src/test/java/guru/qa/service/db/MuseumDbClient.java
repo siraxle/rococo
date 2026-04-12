@@ -34,10 +34,15 @@ public class MuseumDbClient implements MuseumClient {
     public MuseumJson createMuseum(MuseumJson museum, String countryId) {
         String hexId = museum.id().replace("-", "").toUpperCase();
         String hexCountryId = countryId.replace("-", "").toUpperCase();
-        String sql = "INSERT INTO museum (id, title, description, city, address, photo, country_id) " +
-                "VALUES (UNHEX(?), ?, ?, ?, ?, ?, UNHEX(?))";
+
+        java.sql.Timestamp now = new java.sql.Timestamp(System.currentTimeMillis());
+
+        String sql = "INSERT INTO museum (id, title, description, city, address, photo, country_id, created_at, updated_at) " +
+                "VALUES (UNHEX(?), ?, ?, ?, ?, ?, UNHEX(?), ?, ?)";
+
         jdbcTemplate.update(sql, hexId, museum.title(), museum.description(),
-                museum.city(), museum.address(), museum.photo(), hexCountryId);
+                museum.city(), museum.address(), museum.photo(), hexCountryId, now, now);
+
         return museum;
     }
 

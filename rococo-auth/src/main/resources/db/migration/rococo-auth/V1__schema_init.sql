@@ -1,14 +1,13 @@
 create table if not exists `user`
 (
-    id                      binary(16) unique  not null default (UUID_TO_BIN(UUID(), true)),
-    username                varchar(50) unique not null,
-    password                varchar(255)       not null,
-    enabled                 boolean            not null,
-    account_non_expired     boolean            not null,
-    account_non_locked      boolean            not null,
-    credentials_non_expired boolean            not null,
-    primary key (id, username)
-);
+    id                      binary(16)   not null default (UUID_TO_BIN(UUID(), true)) primary key,
+    username                varchar(50)  not null unique,
+    password                varchar(255) not null,
+    enabled                 boolean      not null,
+    account_non_expired     boolean      not null,
+    account_non_locked      boolean      not null,
+    credentials_non_expired boolean      not null
+    );
 
 create table if not exists `authority`
 (

@@ -130,7 +130,7 @@ test {
     useJUnitPlatform()
 
     maxParallelForks = 4
-    forkEvery = 100
+    forkEvery = 1
 
     systemProperty("okhttp3.platform", "jdk9")
     systemProperty("java.util.logging.config.file", "src/test/resources/logging.properties")
