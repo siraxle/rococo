@@ -1,0 +1,91 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/${DB_NAME}
+    username: root
+    password: secret
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+grpc:
+  server:
+    port: ${GRPC_PORT}
+
+server:
+  port: ${SERVER_PORT}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: auth
+
+DB_NAME: rococo_auth
+SERVER_PORT: 9000
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: userdata
+
+DB_NAME: rococo_userdata
+GRPC_PORT: 8096
+SERVER_PORT: 8098
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: artist
+
+DB_NAME: rococo_artist
+GRPC_PORT: 8091
+SERVER_PORT: 8090
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: museum
+
+DB_NAME: rococo_museum
+GRPC_PORT: 8092
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: painting
+
+DB_NAME: rococo_painting
+GRPC_PORT: 8093
+SERVER_PORT: 8080
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: geo
+
+DB_NAME: rococo_geo
+GRPC_PORT: 8095
+SERVER_PORT: 8097
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: gateway
+
+SERVER_PORT: 8081

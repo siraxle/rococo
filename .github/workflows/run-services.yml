@@ -1,0 +1,89 @@
+name: Run Microservices
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  run-services:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h127.0.0.1 -uroot -psecret --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Create databases
+        run: |
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_artist;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_geo;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_museum;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_painting;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_auth;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_userdata;"
+
+      - name: Build JARs
+        run: |
+          ./gradlew :rococo-geo:bootJar
+          ./gradlew :rococo-artist:bootJar
+          ./gradlew :rococo-museum:bootJar
+
+      - name: Start Geo service
+        run: |
+          nohup java -jar rococo-geo/build/libs/rococo-geo-*.jar \
+            --server.port=8097 \
+            --grpc.server.port=8095 &
+          sleep 15
+
+      - name: Start Artist service
+        run: |
+          nohup java -jar rococo-artist/build/libs/rococo-artist-*.jar \
+            --server.port=8090 \
+            --grpc.server.port=8091 &
+          sleep 15
+
+      - name: Start Museum service
+        run: |
+          nohup java -jar rococo-museum/build/libs/rococo-museum-*.jar \
+            --grpc.server.port=8092 &
+          sleep 15
+
+      - name: Check services
+        run: |
+          echo "Checking Geo..."
+          curl -f http://localhost:8097/api/country || echo "Geo not ready"
+          echo "Checking Artist..."
+          curl -f http://localhost:8090/api/artist || echo "Artist not ready"
+
+      - name: Run simple test
+        run: ./gradlew :rococo-tests:test --tests "SmokeTest"
+
+      - name: Publish report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Service Test Report
+          path: rococo-tests/build/test-results/test/*.xml
+          reporter: java-junit

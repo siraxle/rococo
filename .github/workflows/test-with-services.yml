@@ -1,0 +1,83 @@
+name: Test with Microservices
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h127.0.0.1 -uroot -psecret --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Create databases
+        run: |
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_artist;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_geo;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_auth;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_userdata;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_museum;"
+          mysql -h127.0.0.1 -uroot -psecret -e "CREATE DATABASE IF NOT EXISTS rococo_painting;"
+
+      - name: Build JARs
+        run: |
+          ./gradlew :rococo-geo:bootJar
+          ./gradlew :rococo-artist:bootJar
+
+      - name: Start Geo service
+        run: |
+          java -jar rococo-geo/build/libs/rococo-geo-*.jar \
+            --spring.profiles.active=local \
+            --server.port=8097 \
+            --grpc.server.port=8095 &
+          sleep 15
+
+      - name: Start Artist service
+        run: |
+          java -jar rococo-artist/build/libs/rococo-artist-*.jar \
+            --spring.profiles.active=local \
+            --server.port=8090 \
+            --grpc.server.port=8091 &
+          sleep 15
+
+      - name: Check services
+        run: |
+          curl -f http://localhost:8097/api/country || echo "Geo not ready"
+          curl -f http://localhost:8090/api/artist || echo "Artist not ready"
+
+      - name: Run only DB tests
+        run: |
+          ./gradlew :rococo-tests:test --tests "GeoDbTest" -i
+
+      - name: Publish test report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Test Report
+          path: rococo-tests/build/test-results/test/*.xml
+          reporter: java-junit
