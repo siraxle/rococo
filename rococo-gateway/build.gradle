@@ -31,14 +31,20 @@ dependencies {
 
 jib {
     from {
-        image = 'openjdk:21-jdk-slim'
+        image = project.findProperty('dockerImage') ?: 'eclipse-temurin:21-jdk'
     }
     to {
-        image = "rococo/gateway:latest"
+        image = "${project.findProperty('dockerHubName') ?: 'siraxle'}/${project.name}-docker"
+        tags = ['latest', "${project.version}"]
     }
     container {
         ports = ['8081']
-        jvmFlags = ['-Xms256m', '-Xmx512m']
+        jvmFlags = ["-Dspring.profiles.active=${System.env.PROFILE ?: 'docker'}", "-Djava.net.preferIPv4Stack=true"]
+        environment = [
+                'TZ': 'Europe/Moscow'
+        ]
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        labels = ['maintainer': 'siraxle', 'version': "${project.version}"]
     }
 }
 

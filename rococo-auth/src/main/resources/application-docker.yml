@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://rococo-all-db:3306/rococo-auth?createDatabaseIfNotExist=true
+    username: root
+    password: secret
+
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: http://rococo-auth:9000

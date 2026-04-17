@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'com.google.protobuf' version '0.9.4'
+    id 'com.google.cloud.tools.jib' version '3.4.1'
 }
 
 group = 'guru.qa'
@@ -38,6 +39,7 @@ dependencies {
     implementation 'org.flywaydb:flyway-core:10.17.1'
     implementation 'org.flywaydb:flyway-mysql:10.17.1'
     testRuntimeOnly 'com.h2database:h2'
+
     // gRPC
     implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
     implementation 'io.grpc:grpc-services'
@@ -75,9 +77,33 @@ protobuf {
     }
 }
 
+jib {
+    container {
+        ports = ['9000']
+        jvmFlags = ["-Dspring.profiles.active=${System.env.PROFILE ?: 'docker'}", "-Djava.net.preferIPv4Stack=true"]
+        environment = [
+                'TZ': 'Europe/Moscow',
+                'SPRING_DATASOURCE_URL': 'jdbc:mysql://rococo-all-db:3306/rococo-auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true',
+                'SPRING_DATASOURCE_USERNAME': 'root',
+                'SPRING_DATASOURCE_PASSWORD': 'secret'
+        ]
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        labels = ['maintainer': 'siraxle', 'version': "${project.version}"]
+    }
+    from {
+        image = project.findProperty('dockerImage') ?: 'eclipse-temurin:21-jdk'
+    }
+    to {
+        image = "${project.findProperty('dockerHubName') ?: 'siraxle'}/${project.name}-docker"
+        tags = ['latest', "${project.version}"]
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.jibDockerBuild.dependsOn test
 
 // Убедитесь, что proto файлы генерируются до компиляции
 tasks.named('compileJava').configure {

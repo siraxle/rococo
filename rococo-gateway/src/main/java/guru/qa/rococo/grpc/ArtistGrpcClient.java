@@ -2,6 +2,9 @@ package guru.qa.rococo.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import rococo.grpc.artist.*;
 
@@ -11,17 +14,26 @@ import javax.annotation.PreDestroy;
 @Component
 public class ArtistGrpcClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ArtistGrpcClient.class);
+
     private ManagedChannel channel;
     private ArtistServiceGrpc.ArtistServiceBlockingStub artistStub;
 
+    @Value("${grpc.client.artist-service.address}")
+    private String artistServiceAddress;
+
     @PostConstruct
     public void init() {
+        String host = artistServiceAddress.replace("static://", "").split(":")[0];
+        int port = Integer.parseInt(artistServiceAddress.replace("static://", "").split(":")[1]);
+
+        LOG.info("Initializing Artist gRPC client with address: {}:{}", host, port);
         channel = ManagedChannelBuilder
-                .forAddress("127.0.0.1", 8091)
+                .forAddress(host, port)
                 .usePlaintext()
                 .build();
-
         artistStub = ArtistServiceGrpc.newBlockingStub(channel);
+        LOG.info("Artist gRPC client initialized successfully");
     }
 
     @PreDestroy
@@ -32,9 +44,7 @@ public class ArtistGrpcClient {
     }
 
     public ArtistResponse getArtist(String id) {
-        ArtistIdRequest request = ArtistIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        ArtistIdRequest request = ArtistIdRequest.newBuilder().setId(id).build();
         return artistStub.getArtist(request);
     }
 
@@ -58,9 +68,7 @@ public class ArtistGrpcClient {
     }
 
     public void deleteArtist(String id) {
-        ArtistIdRequest request = ArtistIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        ArtistIdRequest request = ArtistIdRequest.newBuilder().setId(id).build();
         artistStub.deleteArtist(request);
     }
 

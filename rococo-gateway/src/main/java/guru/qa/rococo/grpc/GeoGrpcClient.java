@@ -2,11 +2,11 @@ package guru.qa.rococo.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import rococo.grpc.geo.CountryResponse;
-import rococo.grpc.geo.GeoServiceGrpc;
-import rococo.grpc.geo.GetCountryByIdRequest;
-import rococo.grpc.geo.GetCountryRequest;
+import rococo.grpc.geo.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -16,19 +16,26 @@ import java.util.List;
 @Component
 public class GeoGrpcClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(GeoGrpcClient.class);
+
     private ManagedChannel channel;
     private GeoServiceGrpc.GeoServiceBlockingStub geoStub;
 
+    @Value("${grpc.client.geo-service.address}")
+    private String geoServiceAddress;
+
     @PostConstruct
     public void init() {
-        System.out.println("🔨 Initializing Geo gRPC client...");
+        String host = geoServiceAddress.replace("static://", "").split(":")[0];
+        int port = Integer.parseInt(geoServiceAddress.replace("static://", "").split(":")[1]);
+
+        LOG.info("Initializing Geo gRPC client with address: {}:{}", host, port);
         channel = ManagedChannelBuilder
-                .forAddress("127.0.0.1", 8095)
+                .forAddress(host, port)
                 .usePlaintext()
                 .build();
-
         geoStub = GeoServiceGrpc.newBlockingStub(channel);
-        System.out.println("✅ Geo gRPC client initialized successfully");
+        LOG.info("Geo gRPC client initialized successfully");
     }
 
     @PreDestroy
@@ -39,16 +46,12 @@ public class GeoGrpcClient {
     }
 
     public CountryResponse getCountryByCode(String code) {
-        GetCountryRequest request = GetCountryRequest.newBuilder()
-                .setCode(code)
-                .build();
+        GetCountryRequest request = GetCountryRequest.newBuilder().setCode(code).build();
         return geoStub.getCountry(request);
     }
 
     public CountryResponse getCountryByName(String name) {
-        GetCountryRequest request = GetCountryRequest.newBuilder()
-                .setName(name)
-                .build();
+        GetCountryRequest request = GetCountryRequest.newBuilder().setName(name).build();
         return geoStub.getCountry(request);
     }
 
@@ -60,9 +63,7 @@ public class GeoGrpcClient {
     }
 
     public CountryResponse getCountryById(String id) {
-        GetCountryByIdRequest request = GetCountryByIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        GetCountryByIdRequest request = GetCountryByIdRequest.newBuilder().setId(id).build();
         return geoStub.getCountryById(request);
     }
 }
