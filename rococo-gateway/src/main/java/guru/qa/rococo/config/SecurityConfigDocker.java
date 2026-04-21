@@ -13,6 +13,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @Profile("docker")
@@ -23,8 +25,24 @@ public class SecurityConfigDocker {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/index.html",
+                                "/images/**",
+                                "/**.html",
+                                "/**.css",
+                                "/**.js"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/api/session",
+                                "/api/artist/**",
+                                "/api/museum/**",
+                                "/api/painting/**",
+                                "/api/country/**"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();

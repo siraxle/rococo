@@ -1,21 +1,15 @@
 services:
   rococo-all-db:
     container_name: rococo-all-db
-    image: mysql:8.3
+    image: mysql:8.4.7
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: secret
     volumes:
       - mysql_data:/var/lib/mysql
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-u", "root", "-psecret"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
 
   auth:
     container_name: auth.rococo.dc
@@ -27,12 +21,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret
-    restart: always
-    depends_on:
-      rococo-all-db:
-        condition: service_healthy
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
 
   userdata:
     container_name: userdata.rococo.dc
@@ -45,12 +37,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-userdata?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret
-    restart: always
-    depends_on:
-      rococo-all-db:
-        condition: service_healthy
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
 
   artist:
     container_name: artist.rococo.dc
@@ -63,12 +53,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-artist?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret
-    restart: always
-    depends_on:
-      rococo-all-db:
-        condition: service_healthy
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
 
   museum:
     container_name: museum.rococo.dc
@@ -81,12 +69,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-museum?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret
-    restart: always
-    depends_on:
-      rococo-all-db:
-        condition: service_healthy
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
 
   painting:
     container_name: painting.rococo.dc
@@ -98,12 +84,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-painting?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret
-    restart: always
-    depends_on:
-      rococo-all-db:
-        condition: service_healthy
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
 
   geo:
     container_name: geo.rococo.dc
@@ -116,12 +100,10 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-geo?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret
-    restart: always
-    depends_on:
-      rococo-all-db:
-        condition: service_healthy
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
 
   gateway:
     container_name: gateway.rococo.dc
@@ -129,14 +111,9 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - PROFILE=docker
       - SPRING_PROFILES_ACTIVE=docker
-      - GRPC_CLIENT_ARTIST_SERVICE_ADDRESS=static://artist.rococo.dc:8091
-      - GRPC_CLIENT_MUSEUM_SERVICE_ADDRESS=static://museum.rococo.dc:8092
-      - GRPC_CLIENT_PAINTING_SERVICE_ADDRESS=static://painting.rococo.dc:8093
-      - GRPC_CLIENT_GEO_SERVICE_ADDRESS=static://geo.rococo.dc:8095
-      - GRPC_CLIENT_USERDATA_SERVICE_ADDRESS=static://userdata.rococo.dc:8096
-    restart: always
+    networks:
+      - rococo-master_rococo-network
     depends_on:
       - auth
       - userdata
@@ -144,8 +121,6 @@ services:
       - museum
       - painting
       - geo
-    networks:
-      - rococo-network
 
   frontend:
     container_name: frontend.rococo.dc
@@ -154,13 +129,14 @@ services:
       - "3000:80"
     environment:
       - API_BASE_URL=http://gateway.rococo.dc:8081
-    restart: always
     networks:
-      - rococo-network
+      - rococo-master_rococo-network
+    depends_on:
+      - gateway
 
 networks:
-  rococo-network:
-    driver: bridge
+  rococo-master_rococo-network:
+    external: true
 
 volumes:
   mysql_data:

@@ -1,12 +1,12 @@
-spring:
-  security:
-    enabled: false
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-
 server:
   port: 8081
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth.rococo.dc:9000/oauth2/jwks
 
 grpc:
   client:

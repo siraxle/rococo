@@ -8,3 +8,9 @@ spring:
     oauth2:
       authorizationserver:
         issuer: http://rococo-auth:9000
+
+grpc:
+  client:
+    userdata-service:
+      address: 'static://userdata.rococo.dc:8096'
+      negotiation-type: plaintext
