@@ -18,6 +18,7 @@ services:
       - "9000:9000"
     environment:
       - PROFILE=docker
+      - FRONTEND_URL=http://frontend.rococo.dc:3000
       - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=secret

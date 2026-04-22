@@ -1,13 +1,43 @@
+server:
+  port: 9000
+
 spring:
   datasource:
     url: jdbc:mysql://rococo-all-db:3306/rococo-auth?createDatabaseIfNotExist=true
     username: root
     password: secret
 
+  web:
+    cors:
+      allowed-origins: "http://localhost:3000,http://frontend.rococo.dc:3000"
+      allowed-methods: "GET,POST,PUT,DELETE,OPTIONS"
+      allowed-headers: "*"
+      allow-credentials: true
+
   security:
     oauth2:
       authorizationserver:
-        issuer: http://rococo-auth:9000
+        issuer: http://auth.rococo.dc:9000
+        client:
+          oidc-client:
+            registration:
+              client-id: "client"
+              client-authentication-methods: ["none"]
+              authorization-grant-types: ["authorization_code"]
+              redirect-uris: ["http://frontend.rococo.dc:3000/authorized"]
+              post-logout-redirect-uris: ["http://frontend.rococo.dc:3000/logout"]
+              scopes: ["openid", "profile"]
+            require-authorization-consent: true
+            require-proof-key: true
+            token-settings:
+              access-token-time-to-live: 30m
+              authorization-code-time-to-live: 30m
+
+rococo-front:
+  base-uri: http://frontend.rococo.dc:3000
+
+rococo-auth:
+  base-uri: http://auth.rococo.dc:9000
 
 grpc:
   client:
