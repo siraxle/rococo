@@ -1,0 +1,26 @@
+<div>POST to http://gateway.rococo.dc:8081/api/artist</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;1092dfcd-403d-4547-b554-ffac1919dadb&quot;,&quot;name&quot;:&quot;Edward Hopper&quot;,&quot;biography&quot;:&quot;Eos quia beatae. Vel nihil itaque itaque dicta atque est. Debitis esse sint molestias.&quot;,&quot;photo&quot;:null}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>content-length: 182</div>
+            <div>cookie: JSESSIONID=ADD17A369E7436465CD4A64C5A0AB632; JSESSIONID=BE9CA7672BA8CCF7AE77F99CE08CDF74; JSESSIONID=A86B5A797F537CCDCB073385D92029BA; JSESSIONID=E8618ECE33744C86B700104B2C604739</div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/artist&#39; -H &#39;content-length: 182&#39; -H &#39;cookie: JSESSIONID=ADD17A369E7436465CD4A64C5A0AB632; JSESSIONID=BE9CA7672BA8CCF7AE77F99CE08CDF74; JSESSIONID=A86B5A797F537CCDCB073385D92029BA; JSESSIONID=E8618ECE33744C86B700104B2C604739&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;1092dfcd-403d-4547-b554-ffac1919dadb&quot;,&quot;name&quot;:&quot;Edward Hopper&quot;,&quot;biography&quot;:&quot;Eos quia beatae. Vel nihil itaque itaque dicta atque est. Debitis esse sint molestias.&quot;,&quot;photo&quot;:null}&#39;
+    </div>
+
