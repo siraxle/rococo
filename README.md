@@ -21,7 +21,69 @@ rococo/
 
 ---
 
-## ⚙️ Запуск проекта
+## 🐳 Запуск в Docker
+
+### 1️⃣ Предварительные требования
+
+- Установлен и запущен **Docker Desktop**
+- Используется **Git Bash** (Windows)
+
+### 2️⃣ Создание сети Docker
+
+```bash
+docker network create rococo-master_rococo-network
+```
+
+### 3️⃣ Сборка gateway-сервиса
+
+Gateway копирует локально собранный JAR, поэтому перед запуском выполните:
+
+```bash
+./gradlew :rococo-gateway:bootJar -x test --no-daemon
+```
+
+### 4️⃣ Запуск всех сервисов
+
+```bash
+docker compose -f docker-compose-services.yml up -d --build
+```
+
+Дождитесь старта всех контейнеров. Фронтенд будет доступен по адресу:  
+👉 [http://localhost:3000/](http://localhost:3000/)
+
+> Сервисы `userdata`, `artist`, `museum`, `painting`, `painting`, `geo` скачиваются с Docker Hub (`siraxle/rococo-*-docker:latest`).  
+> Сервисы `auth`, `gateway`, `frontend` собираются локально.
+
+### 5️⃣ Запуск тестов
+
+```bash
+docker compose -f docker-compose-tests.yml up --build
+```
+
+Тесты запускаются в отдельном контейнере. Selenoid UI для наблюдения за браузерами доступен по адресу:  
+👉 [http://localhost:8080/](http://localhost:8080/)
+
+### 6️⃣ Просмотр Allure-отчёта
+
+После завершения тестов отчёт доступен по адресу:  
+👉 [http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html](http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html)
+
+Также можно сгенерировать отчёт вручную:
+
+```bash
+curl http://localhost:5050/allure-docker-service/generate-report?project_id=default
+```
+
+### 7️⃣ Остановка
+
+```bash
+docker compose -f docker-compose-services.yml down
+docker compose -f docker-compose-tests.yml down
+```
+
+---
+
+## ⚙️ Запуск проекта локально
 
 ### 1️⃣ Клонирование репозитория
 
