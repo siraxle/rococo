@@ -1,0 +1,26 @@
+<div>POST to http://gateway.rococo.dc:8081/api/artist</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;d1541cda-88d7-4e74-8058-dffbf009828f&quot;,&quot;name&quot;:&quot;Warhol&quot;,&quot;biography&quot;:&quot;Dolores doloremque accusamus inventore. Qui alias et fugiat. At pariatur quis quasi ut. Mollitia quo aut enim.&quot;,&quot;photo&quot;:null}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>content-length: 199</div>
+            <div>cookie: JSESSIONID=C865751C2637D86FAF4C0FA46395F3B7; JSESSIONID=552DCBBDDAA885DA8912DCA3BA26E276; JSESSIONID=2E031087647009FE7E22763267CAADEF; JSESSIONID=EE8CD0E3CBD6475531D80E7DA59CB356</div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/artist&#39; -H &#39;content-length: 199&#39; -H &#39;cookie: JSESSIONID=C865751C2637D86FAF4C0FA46395F3B7; JSESSIONID=552DCBBDDAA885DA8912DCA3BA26E276; JSESSIONID=2E031087647009FE7E22763267CAADEF; JSESSIONID=EE8CD0E3CBD6475531D80E7DA59CB356&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;d1541cda-88d7-4e74-8058-dffbf009828f&quot;,&quot;name&quot;:&quot;Warhol&quot;,&quot;biography&quot;:&quot;Dolores doloremque accusamus inventore. Qui alias et fugiat. At pariatur quis quasi ut. Mollitia quo aut enim.&quot;,&quot;photo&quot;:null}&#39;
+    </div>
+
