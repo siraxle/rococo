@@ -13,6 +13,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -40,6 +42,8 @@ public class SecurityConfigDocker {
                                 "/api/painting/**",
                                 "/api/country/**"
                         ).permitAll()
+                        .requestMatchers(GET, "/api/user/**").permitAll()
+                        .requestMatchers(PATCH, "/api/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))
@@ -51,7 +55,7 @@ public class SecurityConfigDocker {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://frontend.rococo.dc:80"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://frontend.rococo.dc:80", "http://frontend.rococo.dc:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

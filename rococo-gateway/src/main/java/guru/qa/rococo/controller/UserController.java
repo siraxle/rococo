@@ -67,6 +67,18 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<User> updateUserById(
+            @PathVariable String id,
+            @RequestBody User user) {
+        try {
+            User updated = userService.updateUserById(id, user.firstname(), user.lastname(), user.avatar());
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PatchMapping
     public ResponseEntity<User> updateCurrentUser(
             @RequestBody User user,

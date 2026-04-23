@@ -7,7 +7,6 @@ COPY gradle gradle
 COPY build.gradle .
 COPY gradle.properties .
 
-# Не копируем оригинальный settings.gradle, создаём свой
 RUN echo "rootProject.name = 'rococo'" > settings.gradle && \
     echo "include 'rococo-grpc-common'" >> settings.gradle && \
     echo "include 'rococo-tests'" >> settings.gradle
@@ -17,7 +16,11 @@ COPY rococo-tests rococo-tests
 
 RUN chmod +x gradlew
 
-RUN ./gradlew :rococo-tests:compileTestJava -x test --no-daemon
+RUN --mount=type=cache,target=/tmp/gradle-home \
+    bash -c 'GRADLE_USER_HOME=/tmp/gradle-home ./gradlew :rococo-tests:test --no-daemon; exit 0' && \
+    mkdir -p /root/.gradle && \
+    cp -r /tmp/gradle-home/wrapper /root/.gradle/wrapper && \
+    cp -r /tmp/gradle-home/caches /root/.gradle/caches
 
 RUN rm -rf /app/rococo-tests/build/reports
 

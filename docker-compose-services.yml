@@ -13,7 +13,9 @@ services:
 
   auth:
     container_name: auth.rococo.dc
-    image: siraxle/rococo-auth-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-auth/Dockerfile
     ports:
       - "9000:9000"
     environment:
@@ -108,7 +110,9 @@ services:
 
   gateway:
     container_name: gateway.rococo.dc
-    image: siraxle/rococo-gateway-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-gateway/Dockerfile
     ports:
       - "8081:8081"
     environment:
@@ -125,11 +129,17 @@ services:
 
   frontend:
     container_name: frontend.rococo.dc
-    image: siraxle/rococo-frontend-docker:latest
+    build:
+      context: ./rococo-client
+      dockerfile: Dockerfile
+      args:
+        VITE_AUTH_URL: http://auth.rococo.dc:9000
+        VITE_API_URL: http://gateway.rococo.dc:8081
+        VITE_FRONT_HOST: frontend.rococo.dc:3000
+        VITE_FRONT_URL: http://frontend.rococo.dc:3000
+        VITE_CLIENT_ID: client
     ports:
-      - "3000:80"
-    environment:
-      - API_BASE_URL=http://gateway.rococo.dc:8081
+      - "3000:3000"
     networks:
       - rococo-master_rococo-network
     depends_on:
