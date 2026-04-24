@@ -30,3 +30,5 @@ out/
 
 
 **/allure-results
+allure-reports/
+.claude/
