@@ -1,10 +1,33 @@
-# Rococo
+# 🎨 Rococo
 
 Дипломный проект: микросервисное приложение с REST/gRPC API, OAuth2-аутентификацией и автотестами.
 
 ---
 
-## Структура проекта
+## 🛠️ Используемые инструменты и технологии
+
+<p align="center">
+  <a href="https://www.java.com/" rel="nofollow"><img width="5%" title="Java 21" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/Java.svg" style="max-width: 100%;"></a>
+  <a href="https://gradle.org/" rel="nofollow"><img width="5%" title="Gradle" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/gradle.svg" style="max-width: 100%;"></a>
+  <a href="https://spring.io/" rel="nofollow"><img width="5%" title="Spring" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/spring.svg" style="max-width: 100%;"></a>
+  <a href="https://spring.io/projects/spring-boot" rel="nofollow"><img width="5%" title="Spring Boot" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/spring_boot.svg" style="max-width: 100%;"></a>
+  <a href="https://grpc.io/" rel="nofollow"><img width="6%" title="gRPC" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/grpc.svg" style="max-width: 100%;"></a>
+  <a href="https://www.docker.com/" rel="nofollow"><img width="6%" title="Docker" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/docker.svg" style="max-width: 100%;"></a>
+  <a href="https://www.mysql.com/" rel="nofollow"><img width="5%" title="MySQL" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/mysql.svg" style="max-width: 100%;"></a>
+  <a href="https://svelte.dev/" rel="nofollow"><img width="5%" title="Svelte" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/svelte.svg" style="max-width: 100%;"></a>
+  <a href="https://junit.org/junit5/" rel="nofollow"><img width="5%" title="JUnit 5" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/junit5.svg" style="max-width: 100%;"></a>
+  <a href="https://selenide.org/" rel="nofollow"><img width="5%" title="Selenide" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/selenide.svg" style="max-width: 100%;"></a>
+  <a href="https://qameta.io/allure/" rel="nofollow"><img width="5%" title="Allure" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/allure.svg" style="max-width: 100%;"></a>
+  <a href="https://aerokube.com/selenoid/" rel="nofollow"><img width="5%" title="Selenoid" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/selenoid.svg" style="max-width: 100%;"></a>
+  <a href="https://github.com/fescobar/allure-docker-service"><img width="5%" title="Allure Docker Service" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/allure_docker.svg" style="max-width: 100%;"></a>
+  <a href="https://github.com/features/actions"><img width="5%" title="GitHub Actions" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/github_action.svg" style="max-width: 100%;"></a>
+  <a href="https://github.com/"><img width="5%" title="GitHub" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/github.svg" style="max-width: 100%;"></a>
+  <a href="https://www.jetbrains.com/idea/" rel="nofollow"><img width="5%" title="IntelliJ IDEA" src="https://raw.githubusercontent.com/ArturAkopov/rococo/main/media/logo/Intelij_IDEA.svg" style="max-width: 100%;"></a>
+</p>
+
+---
+
+## 📁 Структура проекта
 
 ```
 rococo/
@@ -22,7 +45,52 @@ rococo/
 
 ---
 
-## Режим 1 — Локально без Docker
+## 🏗️ Архитектура
+
+```mermaid
+graph TB
+    subgraph Client["Клиент"]
+        Frontend["🌐 rococo-client\nSvelteKit · :3000"]
+    end
+
+    subgraph Auth["Аутентификация"]
+        AuthSvc["🔐 rococo-auth\nOAuth2 / JWT · :9000"]
+    end
+
+    subgraph Gateway["API Gateway"]
+        GW["🚪 rococo-gateway\nREST · :8081"]
+    end
+
+    subgraph Services["Микросервисы (gRPC)"]
+        Artist["🎨 rococo-artist · :8091"]
+        Museum["🏛️ rococo-museum · :8092"]
+        Painting["🖼️ rococo-painting · :8093"]
+        Geo["🌍 rococo-geo · :8095"]
+        Userdata["👤 rococo-userdata · :8096"]
+    end
+
+    subgraph DB["База данных"]
+        MySQL[("MySQL · :3306")]
+    end
+
+    Frontend -->|OAuth2 PKCE| AuthSvc
+    Frontend -->|REST| GW
+    GW -->|gRPC| Artist
+    GW -->|gRPC| Museum
+    GW -->|gRPC| Painting
+    GW -->|gRPC| Geo
+    GW -->|gRPC| Userdata
+    AuthSvc --- MySQL
+    Artist --- MySQL
+    Museum --- MySQL
+    Painting --- MySQL
+    Geo --- MySQL
+    Userdata --- MySQL
+```
+
+---
+
+## 🖥️ Режим 1 — Локально без Docker
 
 ### Требования
 - Java 21, Node.js, Docker Desktop (только для MySQL)
@@ -83,7 +151,7 @@ allure serve rococo-tests/build/allure-results
 
 ---
 
-## Режим 2 — Локально в Docker
+## 🐳 Режим 2 — Локально в Docker
 
 ### Требования
 - Docker Desktop
@@ -139,7 +207,7 @@ docker compose -f docker-compose-tests.yml down -v
 
 ---
 
-## Режим 3 — GitHub Actions
+## ⚙️ Режим 3 — GitHub Actions
 
 Пайплайн запускается автоматически при `push` и `pull_request` в ветку `main`, а также вручную через `workflow_dispatch`.
 
@@ -151,12 +219,12 @@ docker compose -f docker-compose-tests.yml down -v
 5. Генерация Allure-отчёта
 
 Allure-отчёт доступен:
-- Как артефакт в разделе **Actions → выбрать запуск → Artifacts → allure-report**
-- На GitHub Pages: `https://siraxle.github.io/rococo/` (нужно включить Pages в настройках репозитория: Settings → Pages → Branch: `gh-pages`)
+- 📦 Как артефакт в разделе **Actions → выбрать запуск → Artifacts → allure-report**
+- 🌐 На GitHub Pages: `https://siraxle.github.io/rococo/` (нужно включить Pages в настройках репозитория: Settings → Pages → Branch: `gh-pages`)
 
 ---
 
-## Примечания
+## 📝 Примечания
 
 - Все микросервисы общаются через **gRPC**
 - Фронтенд общается только с **API Gateway** (порт `8081`)
