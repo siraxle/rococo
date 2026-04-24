@@ -1,0 +1,25 @@
+<div>POST to http://gateway.rococo.dc:8081/api/museum</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;d69c6ecb-fb6d-4eaa-9b32-910d5b3a1927&quot;,&quot;title&quot;:&quot;Schulist and Sons Museum&quot;,&quot;description&quot;:&quot;Voluptas omnis rem beatae cupiditate.&quot;,&quot;city&quot;:&quot;Schusterport&quot;,&quot;address&quot;:&quot;9337 Connelly Pine&quot;,&quot;photo&quot;:&quot;/app/rococo-tests/build/resources/test/images/test-painting.jpg&quot;,&quot;geo&quot;:{&quot;city&quot;:&quot;Schusterport&quot;,&quot;country&quot;:{&quot;id&quot;:&quot;d858c042-3fec-11f1-a0ff-c6ea4f46fe98&quot;,&quot;name&quot;:&quot;Франция&quot;,&quot;code&quot;:&quot;FR&quot;}}}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 383</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/museum&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 383&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;d69c6ecb-fb6d-4eaa-9b32-910d5b3a1927&quot;,&quot;title&quot;:&quot;Schulist and Sons Museum&quot;,&quot;description&quot;:&quot;Voluptas omnis rem beatae cupiditate.&quot;,&quot;city&quot;:&quot;Schusterport&quot;,&quot;address&quot;:&quot;9337 Connelly Pine&quot;,&quot;photo&quot;:&quot;/app/rococo-tests/build/resources/test/images/test-painting.jpg&quot;,&quot;geo&quot;:{&quot;city&quot;:&quot;Schusterport&quot;,&quot;country&quot;:{&quot;id&quot;:&quot;d858c042-3fec-11f1-a0ff-c6ea4f46fe98&quot;,&quot;name&quot;:&quot;Франция&quot;,&quot;code&quot;:&quot;FR&quot;}}}&#39;
+    </div>
+
