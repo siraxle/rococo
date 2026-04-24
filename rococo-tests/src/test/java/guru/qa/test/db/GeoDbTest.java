@@ -7,11 +7,9 @@ import guru.qa.service.CountryClient;
 import guru.qa.service.db.GeoDbClient;
 import guru.qa.utils.RandomDataUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -21,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DbTest
 @SpringJUnitConfig(classes = DatabaseConfig.class)
 @DisplayName("Geo Database Tests")
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class GeoDbTest {
 
     @Autowired
@@ -29,13 +26,6 @@ public class GeoDbTest {
 
     private CountryClient countryClient;
     private CountryJson testCountry;
-
-    @BeforeAll
-    void cleanLeftoverTestCountries() {
-        geoDbClient.getAllCountries().stream()
-                .filter(c -> c.code().matches("\\d{3}"))
-                .forEach(c -> geoDbClient.deleteCountry(c.id()));
-    }
 
     @BeforeEach
     @DisplayName("Setup test country data")
@@ -187,11 +177,9 @@ public class GeoDbTest {
 
         countryClient.createCountry(extraCountry);
 
-        try {
-            int countAfter = countryClient.getCountriesCount();
-            assertThat(countAfter).isEqualTo(countBefore + 1);
-        } finally {
-            countryClient.deleteCountry(extraId);
-        }
+        int countAfter = countryClient.getCountriesCount();
+        assertThat(countAfter).isEqualTo(countBefore + 1);
+
+        countryClient.deleteCountry(extraId);
     }
 }
