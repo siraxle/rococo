@@ -1,0 +1,25 @@
+<div>POST to http://gateway.rococo.dc:8081/api/painting</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;03939413-b4a9-4da4-98a0-4cdbdb5f18b1&quot;,&quot;title&quot;:&quot;Jesting Pilate&quot;,&quot;description&quot;:&quot;Est dicta non.&quot;,&quot;photo&quot;:&quot;/images/test-painting.jpg&quot;,&quot;content&quot;:null,&quot;artist&quot;:{&quot;id&quot;:&quot;9d0ca5de-356d-47e8-a225-625adc467e49&quot;,&quot;name&quot;:&quot;Escher&quot;},&quot;museum&quot;:{&quot;id&quot;:&quot;a8fa8546-0ec4-4ecc-8d50-0a3a3c41df2f&quot;}}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 278</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/painting&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 278&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;03939413-b4a9-4da4-98a0-4cdbdb5f18b1&quot;,&quot;title&quot;:&quot;Jesting Pilate&quot;,&quot;description&quot;:&quot;Est dicta non.&quot;,&quot;photo&quot;:&quot;/images/test-painting.jpg&quot;,&quot;content&quot;:null,&quot;artist&quot;:{&quot;id&quot;:&quot;9d0ca5de-356d-47e8-a225-625adc467e49&quot;,&quot;name&quot;:&quot;Escher&quot;},&quot;museum&quot;:{&quot;id&quot;:&quot;a8fa8546-0ec4-4ecc-8d50-0a3a3c41df2f&quot;}}&#39;
+    </div>
+
