@@ -1,0 +1,25 @@
+<div>POST to http://gateway.rococo.dc:8081/api/painting</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;3b4f0251-7691-4e9e-b012-aeb48de970a7&quot;,&quot;title&quot;:&quot;The Curious Incident of the Dog in the Night-Time&quot;,&quot;description&quot;:&quot;Voluptatum sint et recusandae recusandae.&quot;,&quot;photo&quot;:&quot;/images/test-painting.jpg&quot;,&quot;content&quot;:null,&quot;artist&quot;:{&quot;id&quot;:&quot;3a4b0412-1e84-43fb-8ac9-5fb7397fce10&quot;,&quot;name&quot;:&quot;Chagall&quot;},&quot;museum&quot;:{&quot;id&quot;:&quot;20059c10-457d-433f-a7c6-894bc88bdf08&quot;}}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 341</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/painting&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 341&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;3b4f0251-7691-4e9e-b012-aeb48de970a7&quot;,&quot;title&quot;:&quot;The Curious Incident of the Dog in the Night-Time&quot;,&quot;description&quot;:&quot;Voluptatum sint et recusandae recusandae.&quot;,&quot;photo&quot;:&quot;/images/test-painting.jpg&quot;,&quot;content&quot;:null,&quot;artist&quot;:{&quot;id&quot;:&quot;3a4b0412-1e84-43fb-8ac9-5fb7397fce10&quot;,&quot;name&quot;:&quot;Chagall&quot;},&quot;museum&quot;:{&quot;id&quot;:&quot;20059c10-457d-433f-a7c6-894bc88bdf08&quot;}}&#39;
+    </div>
+
