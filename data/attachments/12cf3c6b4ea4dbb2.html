@@ -1,0 +1,25 @@
+<div>POST to http://gateway.rococo.dc:8081/api/painting</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;502b86de-d5ac-4475-8bd9-d3d7f6d9e0d9&quot;,&quot;title&quot;:&quot;Françoise Sagan&quot;,&quot;description&quot;:&quot;Ut omnis unde.&quot;,&quot;photo&quot;:&quot;/images/test-painting.jpg&quot;,&quot;content&quot;:null,&quot;artist&quot;:{&quot;id&quot;:&quot;7baf5efc-b058-4af0-b3ff-b41d41fb7e54&quot;,&quot;name&quot;:&quot;Bernini&quot;},&quot;museum&quot;:{&quot;id&quot;:&quot;82e0bf0d-e2e5-4c2a-99ef-81883b1c0944&quot;}}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 281</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/painting&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 281&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;502b86de-d5ac-4475-8bd9-d3d7f6d9e0d9&quot;,&quot;title&quot;:&quot;Françoise Sagan&quot;,&quot;description&quot;:&quot;Ut omnis unde.&quot;,&quot;photo&quot;:&quot;/images/test-painting.jpg&quot;,&quot;content&quot;:null,&quot;artist&quot;:{&quot;id&quot;:&quot;7baf5efc-b058-4af0-b3ff-b41d41fb7e54&quot;,&quot;name&quot;:&quot;Bernini&quot;},&quot;museum&quot;:{&quot;id&quot;:&quot;82e0bf0d-e2e5-4c2a-99ef-81883b1c0944&quot;}}&#39;
+    </div>
+
