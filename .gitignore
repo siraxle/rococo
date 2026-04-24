@@ -30,5 +30,7 @@ out/
 
 
 **/allure-results
+*.log
+logs/
 allure-reports/
 .claude/
