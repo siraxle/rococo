@@ -16,47 +16,47 @@ public class PaintingDetailsPage extends BasePage<PaintingDetailsPage> {
     private final SelenideElement description = $x("//article[contains(@class, 'card')]//div[contains(@class, 'm-4')]");
     private final SelenideElement editButton = $x("//button[@data-testid='edit-painting']");
 
-    @Step("Проверить название картины")
+    @Step("Check painting title: {expectedTitle}")
     public PaintingDetailsPage checkTitle(String expectedTitle) {
         paintingTitle.shouldHave(text(expectedTitle));
         return this;
     }
 
-    @Step("Проверить имя художника")
+    @Step("Check artist name: {expectedArtist}")
     public PaintingDetailsPage checkArtist(String expectedArtist) {
         artistName.shouldHave(text(expectedArtist));
         return this;
     }
 
-    @Step("Проверить описание картины")
+    @Step("Check painting description: {expectedDescription}")
     public PaintingDetailsPage checkDescription(String expectedDescription) {
         description.shouldHave(text(expectedDescription));
         return this;
     }
 
-    @Step("Проверить, что изображение загружено")
+    @Step("Check that painting image is loaded")
     public PaintingDetailsPage checkImageLoaded() {
         paintingImage.shouldBe(visible);
         return this;
     }
 
-    @Step("Нажать кнопку 'Редактировать'")
+    @Step("Click edit button")
     public EditPaintingPage clickEdit() {
         editButton.click();
         return new EditPaintingPage();
     }
 
-    @Step("Получить название картины")
+    @Step("Get painting title")
     public String getTitle() {
         return paintingTitle.getText();
     }
 
-    @Step("Получить имя художника")
+    @Step("Get artist name")
     public String getArtist() {
         return artistName.getText();
     }
 
-    @Step("Получить описание")
+    @Step("Get description")
     public String getDescription() {
         return description.getText();
     }

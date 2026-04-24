@@ -35,13 +35,13 @@ public class EditPaintingPage extends BasePage<EditPaintingPage> {
     private final SelenideElement museumError = $x("//label//span[contains(@class, 'text-error-400') and preceding-sibling::span[text()='Укажите, где хранится оригинал']]");
     private final SelenideElement imageError = $x("//label//span[contains(@class, 'text-error-400') and preceding-sibling::span[text()='Обновить изображение картины']]");
 
-    @Step("Проверить заголовок модального окна")
+    @Step("Check modal title")
     public EditPaintingPage checkModalTitle() {
         modalTitle.shouldBe(visible);
         return this;
     }
 
-    @Step("Проверить текущее изображение")
+    @Step("Check current image is visible")
     public EditPaintingPage checkCurrentImageVisible() {
         currentImage.shouldBe(visible);
         return this;
@@ -59,39 +59,39 @@ public class EditPaintingPage extends BasePage<EditPaintingPage> {
 //        return this;
 //    }
 
-    @Step("Обновить изображение: {imagePath}")
+    @Step("Upload new image: {imagePath}")
     public EditPaintingPage setImage(String imagePath) {
         imageInput.uploadFile(new File(imagePath));
         return this;
     }
 
-    @Step("Установить название картины: {title}")
+    @Step("Set painting title: {title}")
     public EditPaintingPage setTitle(String title) {
         titleInput.clear();
         titleInput.setValue(title);
         return this;
     }
 
-    @Step("Выбрать автора: {authorName}")
+    @Step("Select author: {authorName}")
     public EditPaintingPage selectAuthor(String authorName) {
         authorSelect.selectOptionContainingText(authorName);
         return this;
     }
 
-    @Step("Установить описание: {description}")
+    @Step("Set description: {description}")
     public EditPaintingPage setDescription(String description) {
         descriptionTextarea.clear();
         descriptionTextarea.setValue(description);
         return this;
     }
 
-    @Step("Выбрать музей: {museumName}")
+    @Step("Select museum: {museumName}")
     public EditPaintingPage selectMuseum(String museumName) {
         museumSelect.selectOptionContainingText(museumName);
         return this;
     }
 
-    @Step("Заполнить форму редактирования картины")
+    @Step("Fill edit painting form")
     public EditPaintingPage fillEditForm(String title, String authorName, String description, String museumName) {
         setTitle(title);
         selectAuthor(authorName);
@@ -100,7 +100,7 @@ public class EditPaintingPage extends BasePage<EditPaintingPage> {
         return this;
     }
 
-    @Step("Заполнить форму редактирования картины с обновлением изображения")
+    @Step("Fill edit painting form with new image")
     public EditPaintingPage fillEditFormWithImage(String title, String imagePath, String authorName, String description, String museumName) {
         setTitle(title);
         setImage(imagePath);
@@ -110,43 +110,43 @@ public class EditPaintingPage extends BasePage<EditPaintingPage> {
         return this;
     }
 
-    @Step("Нажать кнопку 'Сохранить'")
+    @Step("Click save button")
     public PaintingDetailsPage save() {
         saveButton.click();
         return new PaintingDetailsPage();
     }
 
-    @Step("Нажать кнопку 'Закрыть'")
+    @Step("Click close button")
     public PaintingDetailsPage close() {
         closeButton.click();
         return new PaintingDetailsPage();
     }
 
-    @Step("Проверить ошибку поля 'Название картины'")
+    @Step("Check title field error: {expectedError}")
     public EditPaintingPage checkTitleError(String expectedError) {
         titleError.shouldHave(text(expectedError));
         return this;
     }
 
-    @Step("Проверить ошибку поля 'Автор'")
+    @Step("Check author field error: {expectedError}")
     public EditPaintingPage checkAuthorError(String expectedError) {
         authorError.shouldHave(text(expectedError));
         return this;
     }
 
-    @Step("Проверить ошибку поля 'Описание'")
+    @Step("Check description field error: {expectedError}")
     public EditPaintingPage checkDescriptionError(String expectedError) {
         descriptionError.shouldHave(text(expectedError));
         return this;
     }
 
-    @Step("Проверить ошибку поля 'Музей'")
+    @Step("Check museum field error: {expectedError}")
     public EditPaintingPage checkMuseumError(String expectedError) {
         museumError.shouldHave(text(expectedError));
         return this;
     }
 
-    @Step("Проверить ошибку поля 'Изображение'")
+    @Step("Check image field error: {expectedError}")
     public EditPaintingPage checkImageError(String expectedError) {
         imageError.shouldHave(text(expectedError));
         return this;

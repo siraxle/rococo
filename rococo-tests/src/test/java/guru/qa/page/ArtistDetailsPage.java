@@ -28,31 +28,31 @@ public class ArtistDetailsPage extends BasePage<ArtistDetailsPage> {
     private final SelenideElement photoError = $x("//label//span[contains(@class, 'text-error-400') and preceding-sibling::span[text()='Изображение художника']]");
     private final SelenideElement biographyError = $x("//label//span[contains(@class, 'text-error-400') and preceding-sibling::span[text()='Биография']]");
 
-    @Step("Проверить заголовок модального окна")
+    @Step("Check modal title: {expectedTitle}")
     public ArtistDetailsPage checkPageTitle(String expectedTitle) {
         modalTitle.shouldHave(text(expectedTitle));
         return this;
     }
 
-    @Step("Установить имя художника: {name}")
+    @Step("Set artist name: {name}")
     public ArtistDetailsPage setName(String name) {
         nameInput.setValue(name);
         return this;
     }
 
-    @Step("Загрузить изображение: {imagePath}")
+    @Step("Upload artist image: {imagePath}")
     public ArtistDetailsPage setPhoto(String imagePath) {
         photoInput.uploadFile(new File(imagePath));
         return this;
     }
 
-    @Step("Установить биографию: {biography}")
+    @Step("Set artist biography: {biography}")
     public ArtistDetailsPage setBiography(String biography) {
         biographyTextarea.setValue(biography);
         return this;
     }
 
-    @Step("Заполнить форму художника")
+    @Step("Fill artist form")
     public ArtistDetailsPage fillArtistForm(String name, String imagePath, String biography) {
         setName(name);
         setPhoto(imagePath);
@@ -60,31 +60,31 @@ public class ArtistDetailsPage extends BasePage<ArtistDetailsPage> {
         return this;
     }
 
-    @Step("Нажать кнопку 'Добавить'")
+    @Step("Click add button")
     public ArtistsPage submit() {
         submitButton.click();
         return new ArtistsPage();
     }
 
-    @Step("Нажать кнопку 'Закрыть'")
+    @Step("Click close button")
     public ArtistsPage close() {
         closeButton.click();
         return new ArtistsPage();
     }
 
-    @Step("Проверить ошибку поля 'Имя'")
+    @Step("Check name field error: {expectedError}")
     public ArtistDetailsPage checkNameError(String expectedError) {
         nameError.shouldHave(text(expectedError));
         return this;
     }
 
-    @Step("Проверить ошибку поля 'Изображение'")
+    @Step("Check photo field error: {expectedError}")
     public ArtistDetailsPage checkPhotoError(String expectedError) {
         photoError.shouldHave(text(expectedError));
         return this;
     }
 
-    @Step("Проверить ошибку поля 'Биография'")
+    @Step("Check biography field error: {expectedError}")
     public ArtistDetailsPage checkBiographyError(String expectedError) {
         biographyError.shouldHave(text(expectedError));
         return this;
