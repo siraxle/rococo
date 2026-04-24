@@ -1,0 +1,86 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Create Docker network
+        run: docker network create rococo-master_rococo-network
+
+      - name: Pull Selenoid Chrome image
+        run: docker pull selenoid/vnc_chrome:127.0
+
+      - name: Build gateway JAR
+        run: ./gradlew :rococo-gateway:bootJar -x test --no-daemon
+
+      - name: Start microservices
+        run: docker compose -f docker-compose-services.yml up -d --build
+
+      - name: Wait for gateway
+        run: |
+          for i in $(seq 1 40); do
+            if curl -sf http://localhost:8081/api/session > /dev/null 2>&1; then
+              echo "Gateway is ready"
+              exit 0
+            fi
+            echo "Waiting for gateway... ($i/40)"
+            sleep 5
+          done
+          echo "Gateway did not start in time, dumping logs:"
+          docker compose -f docker-compose-services.yml logs
+          exit 1
+
+      - name: Run tests
+        run: docker compose -f docker-compose-tests.yml up --build --exit-code-from rococo-tests
+
+      - name: Generate Allure report
+        uses: simple-elf/allure-report-action@v1.9
+        if: always()
+        with:
+          allure_results: allure-results
+          allure_report: allure-report
+          gh_pages: gh-pages
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Upload Allure report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          retention-days: 7
+
+      - name: Deploy Allure report to GitHub Pages
+        if: always()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+
+      - name: Stop services
+        if: always()
+        run: |
+          docker compose -f docker-compose-services.yml down -v
+          docker compose -f docker-compose-tests.yml down -v
