@@ -10,6 +10,12 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - rococo-master_rococo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   auth:
     container_name: auth.rococo.dc
@@ -27,7 +33,8 @@ services:
     networks:
       - rococo-master_rococo-network
     depends_on:
-      - rococo-all-db
+      rococo-all-db:
+        condition: service_healthy
 
   userdata:
     container_name: userdata.rococo.dc
@@ -40,7 +47,8 @@ services:
     networks:
       - rococo-master_rococo-network
     depends_on:
-      - rococo-all-db
+      rococo-all-db:
+        condition: service_healthy
 
   artist:
     container_name: artist.rococo.dc
@@ -53,7 +61,8 @@ services:
     networks:
       - rococo-master_rococo-network
     depends_on:
-      - rococo-all-db
+      rococo-all-db:
+        condition: service_healthy
 
   museum:
     container_name: museum.rococo.dc
@@ -66,7 +75,8 @@ services:
     networks:
       - rococo-master_rococo-network
     depends_on:
-      - rococo-all-db
+      rococo-all-db:
+        condition: service_healthy
 
   painting:
     container_name: painting.rococo.dc
@@ -78,7 +88,8 @@ services:
     networks:
       - rococo-master_rococo-network
     depends_on:
-      - rococo-all-db
+      rococo-all-db:
+        condition: service_healthy
 
   geo:
     container_name: geo.rococo.dc
@@ -91,7 +102,8 @@ services:
     networks:
       - rococo-master_rococo-network
     depends_on:
-      - rococo-all-db
+      rococo-all-db:
+        condition: service_healthy
 
   gateway:
     container_name: gateway.rococo.dc
