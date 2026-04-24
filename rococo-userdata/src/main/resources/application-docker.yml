@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://rococo-all-db:3306/rococo-artist?createDatabaseIfNotExist=true
+    username: root
+    password: secret
+
+grpc:
+  server:
+    port: 8091
+    address: 0.0.0.0

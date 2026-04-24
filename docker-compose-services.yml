@@ -1,0 +1,154 @@
+services:
+  rococo-all-db:
+    container_name: rococo-all-db
+    image: mysql:8.4.7
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - rococo-master_rococo-network
+
+  auth:
+    container_name: auth.rococo.dc
+    build:
+      context: ./
+      dockerfile: rococo-auth/Dockerfile
+    ports:
+      - "9000:9000"
+    environment:
+      - PROFILE=docker
+      - FRONTEND_URL=http://frontend.rococo.dc:3000
+      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-auth?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
+
+  userdata:
+    container_name: userdata.rococo.dc
+    image: siraxle/rococo-userdata-docker:latest
+    ports:
+      - "8098:8098"
+      - "8096:8096"
+    environment:
+      - PROFILE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-userdata?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
+
+  artist:
+    container_name: artist.rococo.dc
+    image: siraxle/rococo-artist-docker:latest
+    ports:
+      - "8090:8090"
+      - "8091:8091"
+    environment:
+      - PROFILE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-artist?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
+
+  museum:
+    container_name: museum.rococo.dc
+    image: siraxle/rococo-museum-docker:latest
+    ports:
+      - "8094:8094"
+      - "8092:8092"
+    environment:
+      - PROFILE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-museum?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
+
+  painting:
+    container_name: painting.rococo.dc
+    image: siraxle/rococo-painting-docker:latest
+    ports:
+      - "8093:8093"
+    environment:
+      - PROFILE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-painting?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
+
+  geo:
+    container_name: geo.rococo.dc
+    image: siraxle/rococo-geo-docker:latest
+    ports:
+      - "8097:8097"
+      - "8095:8095"
+    environment:
+      - PROFILE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-geo?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=secret
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - rococo-all-db
+
+  gateway:
+    container_name: gateway.rococo.dc
+    build:
+      context: ./
+      dockerfile: rococo-gateway/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - auth
+      - userdata
+      - artist
+      - museum
+      - painting
+      - geo
+
+  frontend:
+    container_name: frontend.rococo.dc
+    build:
+      context: ./rococo-client
+      dockerfile: Dockerfile
+      args:
+        VITE_AUTH_URL: http://auth.rococo.dc:9000
+        VITE_API_URL: http://gateway.rococo.dc:8081
+        VITE_FRONT_HOST: frontend.rococo.dc:3000
+        VITE_FRONT_URL: http://frontend.rococo.dc:3000
+        VITE_CLIENT_ID: client
+    ports:
+      - "3000:3000"
+    networks:
+      - rococo-master_rococo-network
+    depends_on:
+      - gateway
+
+networks:
+  rococo-master_rococo-network:
+    external: true
+
+volumes:
+  mysql_data:
+    name: mysql_data

@@ -63,7 +63,8 @@ public class RandomDataUtils {
     }
 
     public static String randomCountryCode() {
-        return FAKER.address().countryCode();
+        // Numeric codes never conflict with ISO 3166-1 alpha-2 codes (which are purely alphabetic)
+        return String.format("%03d", ThreadLocalRandom.current().nextInt(0, 1000));
     }
 
     public static int randomInt(int min, int max) {

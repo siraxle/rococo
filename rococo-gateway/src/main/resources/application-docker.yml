@@ -1,0 +1,27 @@
+server:
+  port: 8081
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth.rococo.dc:9000/oauth2/jwks
+
+grpc:
+  client:
+    artist-service:
+      address: 'static://artist.rococo.dc:8091'
+      negotiation-type: plaintext
+    museum-service:
+      address: 'static://museum.rococo.dc:8092'
+      negotiation-type: plaintext
+    painting-service:
+      address: 'static://painting.rococo.dc:8093'
+      negotiation-type: plaintext
+    geo-service:
+      address: 'static://geo.rococo.dc:8095'
+      negotiation-type: plaintext
+    userdata-service:
+      address: 'static://userdata.rococo.dc:8096'
+      negotiation-type: plaintext

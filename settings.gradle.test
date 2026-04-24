@@ -1,0 +1,3 @@
+echo 'rootProject.name = "rococo"
+include "rococo-grpc-common"
+include "rococo-tests"' > settings.gradle.test

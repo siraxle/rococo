@@ -12,6 +12,8 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.chrome.ChromeOptions;
 
 import java.io.ByteArrayInputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BrowserExtension implements
@@ -35,7 +37,16 @@ public class BrowserExtension implements
             if ("docker".equals(System.getProperty("test.env"))) {
                 Configuration.remote = "http://selenoid:4444/wd/hub";
                 Configuration.browserVersion = "127.0";
-                Configuration.browserCapabilities = new ChromeOptions().addArguments("--no-sandbox");
+                Map<String, Object> prefs = new HashMap<>();
+                prefs.put("intl.accept_languages", "ru-RU,ru");
+                Map<String, Object> selenoidOptions = new HashMap<>();
+                selenoidOptions.put("env", new String[]{"LANG=ru_RU.UTF-8", "LANGUAGE=ru_RU:ru", "LC_ALL=ru_RU.UTF-8"});
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.addArguments("--no-sandbox");
+                chromeOptions.addArguments("--lang=ru-RU");
+                chromeOptions.setExperimentalOption("prefs", prefs);
+                chromeOptions.setCapability("selenoid:options", selenoidOptions);
+                Configuration.browserCapabilities = chromeOptions;
             }
             isConfigured.set(true);
         }

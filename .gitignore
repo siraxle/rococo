@@ -27,3 +27,8 @@ bin/
 out/
 !**/src/main/**/out/
 !**/src/test/**/out/
+
+
+**/allure-results
+allure-reports/
+.claude/

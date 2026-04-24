@@ -23,12 +23,17 @@ public class LoginController {
     this.frontUri = frontUri;
   }
 
-  @GetMapping("/login")
-  public String login(HttpSession session) {
-    return isOauthSessionContainsRedirectUri(session, frontUri)
-        ? LOGIN_VIEW_NAME
-        : "redirect:" + frontUri;
-  }
+//  @GetMapping("/login")
+//  public String login(HttpSession session) {
+//    return isOauthSessionContainsRedirectUri(session, frontUri)
+//        ? LOGIN_VIEW_NAME
+//        : "redirect:" + frontUri;
+//  }
+
+    @GetMapping("/login")
+    public String login(HttpSession session) {
+        return LOGIN_VIEW_NAME;  // всегда показываем страницу логина
+    }
 
   @GetMapping("/")
   public String root(Authentication authentication) {

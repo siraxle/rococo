@@ -24,9 +24,9 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Aft
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(UserExtension.class);
     private static final String DEFAULT_PASSWORD = "123456";
+    private static final String GRPC_CLIENT_KEY = "grpcClient";
 
     private final AuthDbClient authDbClient;
-    private UserdataGrpcClient userdataGrpcClient;
 
     public UserExtension() {
         this.authDbClient = ApplicationContextHolder.getContext().getBean(AuthDbClient.class);
@@ -34,8 +34,6 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Aft
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        userdataGrpcClient = new UserdataGrpcClient();
-
         AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), User.class)
                 .ifPresent(userAnno -> {
                     String username = userAnno.username().isEmpty()
@@ -43,17 +41,20 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Aft
                             : userAnno.username();
                     String password = DEFAULT_PASSWORD;
 
+                    UserdataGrpcClient grpcClient = new UserdataGrpcClient();
+                    context.getStore(NAMESPACE).put(context.getUniqueId() + GRPC_CLIENT_KEY, grpcClient);
+
                     try {
                         authDbClient.createUser(username, password);
 
-                        UserResponse grpcResponse = userdataGrpcClient.createUser(username);
+                        UserResponse grpcResponse = grpcClient.createUser(username);
                         String userId = grpcResponse.getId();
 
                         String firstname = RandomDataUtils.randomFirstName();
                         String lastname = RandomDataUtils.randomLastName();
                         String avatar = "avatar_" + System.currentTimeMillis() + ".jpg";
 
-                        userdataGrpcClient.updateUser(userId, firstname, lastname, avatar);
+                        grpcClient.updateUser(userId, firstname, lastname, avatar);
 
                         Thread.sleep(500);
 
@@ -69,6 +70,8 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Aft
                         setUser(user);
 
                     } catch (Exception e) {
+                        grpcClient.close();
+                        context.getStore(NAMESPACE).remove(context.getUniqueId() + GRPC_CLIENT_KEY);
                         throw new RuntimeException("Failed to create user: " + username, e);
                     }
                 });
@@ -76,20 +79,24 @@ public class UserExtension implements BeforeEachCallback, AfterEachCallback, Aft
 
     @Override
     public void afterEach(ExtensionContext context) {
-        getUser().ifPresent(user -> {
-            try {
-                if (userdataGrpcClient != null) {
-                    userdataGrpcClient.deleteUser(user.id());
+        UserdataGrpcClient grpcClient = context.getStore(NAMESPACE)
+                .remove(context.getUniqueId() + GRPC_CLIENT_KEY, UserdataGrpcClient.class);
+        try {
+            getUser().ifPresent(user -> {
+                try {
+                    if (grpcClient != null) {
+                        grpcClient.deleteUser(user.id());
+                    }
+                    authDbClient.deleteUser(user.username());
+                } catch (Exception e) {
+                    System.err.println("Failed to delete user: " + user.username() + ", error: " + e.getMessage());
                 }
-                authDbClient.deleteUser(user.username());
-            } catch (Exception e) {
-                System.err.println("Failed to delete user: " + user.username() + ", error: " + e.getMessage());
-            } finally {
-                if (userdataGrpcClient != null) {
-                    userdataGrpcClient.close();
-                }
+            });
+        } finally {
+            if (grpcClient != null) {
+                grpcClient.close();
             }
-        });
+        }
         context.getStore(NAMESPACE).remove(context.getUniqueId());
     }
 

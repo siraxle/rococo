@@ -2,6 +2,9 @@ package guru.qa.rococo.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import rococo.grpc.painting.*;
 
@@ -11,33 +14,38 @@ import javax.annotation.PreDestroy;
 @Component
 public class PaintingGrpcClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(PaintingGrpcClient.class);
+
     private ManagedChannel channel;
     private PaintingServiceGrpc.PaintingServiceBlockingStub paintingStub;
 
+    @Value("${grpc.client.painting-service.address}")
+    private String paintingServiceAddress;
+
     @PostConstruct
     public void init() {
-        System.out.println("Initializing Painting gRPC client...");
+        String host = paintingServiceAddress.replace("static://", "").split(":")[0];
+        int port = Integer.parseInt(paintingServiceAddress.replace("static://", "").split(":")[1]);
+
+        LOG.info("Initializing Painting gRPC client with address: {}:{}", host, port);
         channel = ManagedChannelBuilder
-                .forAddress("127.0.0.1", 8093)
+                .forAddress(host, port)
                 .usePlaintext()
                 .build();
-
         paintingStub = PaintingServiceGrpc.newBlockingStub(channel);
-        System.out.println("Painting gRPC client initialized successfully");
+        LOG.info("Painting gRPC client initialized successfully");
     }
 
     @PreDestroy
     public void shutdown() {
-        System.out.println("Shutting down Painting gRPC client...");
+        LOG.info("Shutting down Painting gRPC client...");
         if (channel != null && !channel.isShutdown()) {
             channel.shutdown();
         }
     }
 
     public PaintingResponse getPainting(String id) {
-        PaintingIdRequest request = PaintingIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        PaintingIdRequest request = PaintingIdRequest.newBuilder().setId(id).build();
         return paintingStub.getPainting(request);
     }
 
@@ -45,11 +53,10 @@ public class PaintingGrpcClient {
         CreatePaintingRequest.Builder builder = CreatePaintingRequest.newBuilder()
                 .setTitle(title != null ? title : "");
 
-        if (artistId != null && !artistId.isBlank()) {
-            builder.setArtistId(artistId);
-        } else {
+        if (artistId == null || artistId.isBlank()) {
             throw new IllegalArgumentException("Artist ID is required");
         }
+        builder.setArtistId(artistId);
         if (description != null) {
             builder.setDescription(description);
         }
@@ -63,8 +70,7 @@ public class PaintingGrpcClient {
     }
 
     public PaintingResponse updatePainting(String id, String title, String description, String artistId, String museumId, String photo) {
-        UpdatePaintingRequest.Builder builder = UpdatePaintingRequest.newBuilder()
-                .setId(id);
+        UpdatePaintingRequest.Builder builder = UpdatePaintingRequest.newBuilder().setId(id);
 
         if (title != null && !title.isBlank()) {
             builder.setTitle(title);
@@ -86,9 +92,7 @@ public class PaintingGrpcClient {
     }
 
     public void deletePainting(String id) {
-        PaintingIdRequest request = PaintingIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        PaintingIdRequest request = PaintingIdRequest.newBuilder().setId(id).build();
         paintingStub.deletePainting(request);
     }
 

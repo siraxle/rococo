@@ -18,7 +18,7 @@ public class UserApiClient extends RestClient implements UserClient {
     private final UserApi userApi;
 
     public UserApiClient() {
-        super(Config.getInstance().userdataUrl());
+        super(Config.getInstance().gatewayUrl());
         this.userApi = create(UserApi.class);
     }
 

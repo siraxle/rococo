@@ -4,6 +4,7 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$x;
 
@@ -18,12 +19,15 @@ public class LoginPage extends BasePage<LoginPage> {
     private final SelenideElement errorMessage = $(".form__error");
     private final SelenideElement loginButton = $x("//button[contains(text(), 'Войти')]");
 
+    private final SelenideElement userAvatar = $x("//button[contains(@class, 'btn-icon') and contains(@class, 'variant-filled-surface')]");
+
     @Step("Login with username: {username}")
     public MainPage login(String username, String password) {
         loginButton.click();
         setUsername(username);
         setPassword(password);
         clickSubmit();
+        userAvatar.shouldBe(visible);
         return new MainPage();
     }
 

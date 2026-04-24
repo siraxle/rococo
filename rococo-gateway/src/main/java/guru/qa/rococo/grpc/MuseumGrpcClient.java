@@ -2,6 +2,9 @@ package guru.qa.rococo.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import rococo.grpc.museum.*;
 
@@ -11,33 +14,38 @@ import javax.annotation.PreDestroy;
 @Component
 public class MuseumGrpcClient {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MuseumGrpcClient.class);
+
     private ManagedChannel channel;
     private MuseumServiceGrpc.MuseumServiceBlockingStub museumStub;
 
+    @Value("${grpc.client.museum-service.address}")
+    private String museumServiceAddress;
+
     @PostConstruct
     public void init() {
-        System.out.println("🔨 Initializing Museum gRPC client...");
+        String host = museumServiceAddress.replace("static://", "").split(":")[0];
+        int port = Integer.parseInt(museumServiceAddress.replace("static://", "").split(":")[1]);
+
+        LOG.info("Initializing Museum gRPC client with address: {}:{}", host, port);
         channel = ManagedChannelBuilder
-                .forAddress("127.0.0.1", 8092)
+                .forAddress(host, port)
                 .usePlaintext()
                 .build();
-
         museumStub = MuseumServiceGrpc.newBlockingStub(channel);
-        System.out.println("✅ Museum gRPC client initialized successfully");
+        LOG.info("Museum gRPC client initialized successfully");
     }
 
     @PreDestroy
     public void shutdown() {
-        System.out.println("📕 Shutting down Museum gRPC client...");
+        LOG.info("Shutting down Museum gRPC client...");
         if (channel != null && !channel.isShutdown()) {
             channel.shutdown();
         }
     }
 
     public MuseumResponse getMuseum(String id) {
-        MuseumIdRequest request = MuseumIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        MuseumIdRequest request = MuseumIdRequest.newBuilder().setId(id).build();
         return museumStub.getMuseum(request);
     }
 
@@ -63,8 +71,7 @@ public class MuseumGrpcClient {
 
     public MuseumResponse updateMuseum(String id, String title, String description,
                                        String city, String address, String photo, String countryId) {
-        UpdateMuseumRequest.Builder builder = UpdateMuseumRequest.newBuilder()
-                .setId(id);
+        UpdateMuseumRequest.Builder builder = UpdateMuseumRequest.newBuilder().setId(id);
 
         if (title != null && !title.isBlank()) {
             builder.setTitle(title);
@@ -89,9 +96,7 @@ public class MuseumGrpcClient {
     }
 
     public void deleteMuseum(String id) {
-        MuseumIdRequest request = MuseumIdRequest.newBuilder()
-                .setId(id)
-                .build();
+        MuseumIdRequest request = MuseumIdRequest.newBuilder().setId(id).build();
         museumStub.deleteMuseum(request);
     }
 
