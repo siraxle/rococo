@@ -1,171 +1,165 @@
-# 🚀 Руководство по запуску проекта Rococo
+# Rococo
 
-## 📁 Структура проекта
+Дипломный проект: микросервисное приложение с REST/gRPC API, OAuth2-аутентификацией и автотестами.
+
+---
+
+## Структура проекта
 
 ```
 rococo/
-├── rococo-grpc-common/          # 🔧 Общий модуль с proto-файлами (gRPC-контракты)
-├── rococo-gateway/              # 🚪 API Gateway — единая точка входа для фронта
-│                                #    Проксирует REST → gRPC, НЕ имеет своей БД
-├── rococo-auth/                 # 🔐 Сервис аутентификации (OAuth2 / JWT)
-│                                #    Регистрация, выдача токенов | БД: rococo-auth
-├── rococo-userdata/             # 👤 Сервис профилей пользователей
-│                                #    Хранение информации о пользователях | БД: rococo-userdata
-├── rococo-artist/               # 🎨 Сервис художников (CRUD) | БД: rococo-artist
-├── rococo-museum/               # 🏛️ Сервис музеев (CRUD) | БД: rococo-museum
-├── rococo-painting/             # 🖼️ Сервис картин (CRUD) | БД: rococo-painting
-├── rococo-geo/                  # 🌍 Сервис геоданных (список стран) | БД: rococo-geo
-├── rococo-client/               # 💻 Фронтенд (UI-приложение)
-└── rococo-tests/                # 🧪 Модуль автотестов (API, интеграционные, UI)
+├── rococo-grpc-common/   # Общий модуль с proto-файлами (gRPC-контракты)
+├── rococo-gateway/       # API Gateway — единая точка входа для фронта (REST → gRPC)
+├── rococo-auth/          # Сервис аутентификации (OAuth2 / JWT) | БД: rococo-auth
+├── rococo-userdata/      # Сервис профилей пользователей | БД: rococo-userdata
+├── rococo-artist/        # Сервис художников (CRUD) | БД: rococo-artist
+├── rococo-museum/        # Сервис музеев (CRUD) | БД: rococo-museum
+├── rococo-painting/      # Сервис картин (CRUD) | БД: rococo-painting
+├── rococo-geo/           # Сервис геоданных (страны) | БД: rococo-geo
+├── rococo-client/        # Фронтенд (SvelteKit)
+└── rococo-tests/         # Автотесты (JUnit 5, Selenide, Allure)
 ```
 
 ---
 
-## 🐳 Запуск в Docker
+## Режим 1 — Локально без Docker
 
-### 1️⃣ Предварительные требования
+### Требования
+- Java 21, Node.js, Docker Desktop (только для MySQL)
 
-- Установлен и запущен **Docker Desktop**
-- Используется **Git Bash** (Windows)
-
-### 2️⃣ Создание сети Docker
-
-```bash
-docker network create rococo-master_rococo-network
-```
-
-### 3️⃣ Сборка gateway-сервиса
-
-Gateway копирует локально собранный JAR, поэтому перед запуском выполните:
-
-```bash
-./gradlew :rococo-gateway:bootJar -x test --no-daemon
-```
-
-### 4️⃣ Запуск всех сервисов
-
-```bash
-docker compose -f docker-compose-services.yml up -d --build
-```
-
-Дождитесь старта всех контейнеров. Фронтенд будет доступен по адресу:  
-👉 [http://localhost:3000/](http://localhost:3000/)
-
-> Сервисы `userdata`, `artist`, `museum`, `painting`, `painting`, `geo` скачиваются с Docker Hub (`siraxle/rococo-*-docker:latest`).  
-> Сервисы `auth`, `gateway`, `frontend` собираются локально.
-
-### 5️⃣ Запуск тестов
-
-```bash
-docker compose -f docker-compose-tests.yml up --build
-```
-
-Тесты запускаются в отдельном контейнере. Selenoid UI для наблюдения за браузерами доступен по адресу:  
-👉 [http://localhost:8080/](http://localhost:8080/)
-
-### 6️⃣ Просмотр Allure-отчёта
-
-После завершения тестов отчёт доступен по адресу:  
-👉 [http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html](http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html)
-
-Также можно сгенерировать отчёт вручную:
-
-```bash
-curl http://localhost:5050/allure-docker-service/generate-report?project_id=default
-```
-
-### 7️⃣ Остановка
-
-```bash
-docker compose -f docker-compose-services.yml down
-docker compose -f docker-compose-tests.yml down
-```
-
----
-
-## ⚙️ Запуск проекта локально
-
-### 1️⃣ Клонирование репозитория
-
-```bash
-git clone https://github.com/siraxle/rococo.git
-cd rococo
-```
-
-### 2️⃣ Запуск окружения (Windows)
-
-> **Важно:** Используйте **Git Bash**
-
-Перед запуском убедитесь, что **Docker Desktop** запущен
+### 1. Запуск MySQL
 
 ```bash
 bash localenv.sh
 ```
 
-### 3️⃣ Запуск фронтенда
+### 2. Запуск микросервисов
+
+Запустить каждый сервис из IntelliJ IDEA (класс `@SpringBootApplication`) или через Gradle:
+
+```bash
+./gradlew :rococo-auth:bootRun --no-daemon &
+./gradlew :rococo-geo:bootRun --no-daemon &
+./gradlew :rococo-artist:bootRun --no-daemon &
+./gradlew :rococo-museum:bootRun --no-daemon &
+./gradlew :rococo-painting:bootRun --no-daemon &
+./gradlew :rococo-userdata:bootRun --no-daemon &
+./gradlew :rococo-gateway:bootRun --no-daemon &
+```
+
+| Сервис | Класс |
+|---|---|
+| `rococo-auth` | `RococoAuthApplication` |
+| `rococo-geo` | `RococoGeoApplication` |
+| `rococo-artist` | `RococoArtistApplication` |
+| `rococo-museum` | `RococoMuseumApplication` |
+| `rococo-painting` | `RococoPaintingApplication` |
+| `rococo-userdata` | `RococoUserdataApplication` |
+| `rococo-gateway` | `RococoGatewayApplication` |
+
+### 3. Запуск фронтенда
 
 ```bash
 cd rococo-client
-npm i
+npm install
 npm run dev
 ```
 
-✅ Фронтенд будет доступен по адресу:  
-👉 [http://localhost:3000/](http://localhost:3000/)
+Фронтенд: [http://localhost:3000](http://localhost:3000)
 
-### 4️⃣ Запуск микросервисов
+### 4. Запуск тестов
 
-Сервисы запускаются **вручную** из соответствующих модулей.  
-Каждый сервис содержит класс с аннотацией `@SpringBootApplication`:
-> 💡 ⚠️ Порядок запуска не принципиален
-
-| № | Сервис             | Класс для запуска           |
-|---|--------------------|-----------------------------|
-| 1 | `rococo-geo`       | `RococoGeoApplication`      |
-| 2 | `rococo-artist`    | `RococoArtistApplication`   |
-| 3 | `rococo-museum`    | `RococoMuseumApplication`   |
-| 4 | `rococo-painting`  | `RococoPaintingApplication` |
-| 5 | `rococo-userdata`  | `RococoUserdataApplication` |
-| 6 | `rococo-auth`      | `RococoAuthApplication`     |
-| 7 | `rococo-gateway`   | `RococoGatewayApplication`  |
-
----
-
-## 🧪 Запуск тестов
-
-### Выполнение всех тестов
+Chrome откроется локально (Selenoid не нужен).
 
 ```bash
-gradle clean test
+./gradlew :rococo-tests:test --no-daemon
 ```
 
-### Просмотр Allure-отчёта
-
-После выполнения тестов откройте отчёт:
+Отчёт после завершения:
 
 ```bash
-allure serve build/allure-results
+allure serve rococo-tests/build/allure-results
 ```
 
 ---
 
-## 📌 Примечания
+## Режим 2 — Локально в Docker
 
-- 🔁 Все микросервисы общаются между собой через **gRPC**
-- 🌐 Фронтенд общается только с **API Gateway** (порт `8081`)
-- 🗄️ Каждый сервис, кроме Gateway, имеет **собственную базу данных MySQL**
-- 🧪 Тесты используют **JUnit 5**, **Retrofit**, **gRPC**, **Selenide** и **Allure**
+### Требования
+- Docker Desktop
+
+### 1. Сборка JAR-файлов сервисов
+
+```bash
+./gradlew :rococo-userdata:bootJar :rococo-artist:bootJar :rococo-museum:bootJar \
+          :rococo-painting:bootJar :rococo-geo:bootJar :rococo-gateway:bootJar \
+          -x test --no-daemon
+```
+
+> `rococo-auth` собирается внутри Docker (многоэтапный Dockerfile).
+
+### 2. Запуск микросервисов
+
+```bash
+docker compose -f docker-compose-services.yml up -d --build
+```
+
+Фронтенд: [http://localhost:3000](http://localhost:3000)
+
+### 3. Запуск тестов
+
+Без Allure UI (только тесты):
+
+```bash
+docker compose -f docker-compose-tests.yml up --build
+```
+
+С Allure UI и Selenoid UI:
+
+```bash
+docker compose --profile local -f docker-compose-tests.yml up --build
+```
+
+### 4. Просмотр Allure-отчёта
+
+После завершения тестов с `--profile local`:
+
+👉 [http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html](http://localhost:5050/allure-docker-service/projects/default/reports/latest/index.html)
+
+Selenoid UI (наблюдение за браузерами в реальном времени):
+
+👉 [http://localhost:8080](http://localhost:8080)
+
+### 5. Остановка
+
+```bash
+docker compose -f docker-compose-services.yml down -v
+docker compose -f docker-compose-tests.yml down -v
+```
 
 ---
 
-## ❗ Возможные проблемы
+## Режим 3 — GitHub Actions
 
-| Проблема | Решение |
-|----------|---------|
-| Порты заняты | Проверьте, что предыдущие экземпляры сервисов остановлены |
-| Базы данных не созданы | Сервисы создают БД автоматически через Flyway |
-| Фронт не запускается | Убедитесь, что Node.js установлен, выполните `npm i` заново |
+Пайплайн запускается автоматически при `push` и `pull_request` в ветку `main`, а также вручную через `workflow_dispatch`.
+
+Шаги пайплайна:
+1. Сборка JAR-файлов сервисов
+2. Запуск всех микросервисов в Docker
+3. Ожидание готовности всех API (`/oauth2/jwks`, `/api/country`, `/api/artist`, `/api/museum`, `/api/painting`)
+4. Запуск тестов
+5. Генерация Allure-отчёта
+
+Allure-отчёт доступен:
+- Как артефакт в разделе **Actions → выбрать запуск → Artifacts → allure-report**
+- На GitHub Pages: `https://siraxle.github.io/rococo/` (нужно включить Pages в настройках репозитория: Settings → Pages → Branch: `gh-pages`)
 
 ---
 
-✅ **Готово! Проект запущен и готов к работе.**
+## Примечания
+
+- Все микросервисы общаются через **gRPC**
+- Фронтенд общается только с **API Gateway** (порт `8081`)
+- Каждый сервис (кроме Gateway) имеет собственную БД **MySQL**
+- Тесты используют **JUnit 5**, **Retrofit**, **gRPC**, **Selenide**, **Allure**
+- БД создаются автоматически через **Flyway** при первом запуске
