@@ -13,8 +13,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
@@ -35,15 +33,7 @@ public class SecurityConfigDocker {
                                 "/**.css",
                                 "/**.js"
                         ).permitAll()
-                        .requestMatchers(
-                                "/api/session",
-                                "/api/artist/**",
-                                "/api/museum/**",
-                                "/api/painting/**",
-                                "/api/country/**"
-                        ).permitAll()
-                        .requestMatchers(GET, "/api/user/**").permitAll()
-                        .requestMatchers(PATCH, "/api/user/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))

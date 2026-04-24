@@ -33,13 +33,7 @@ public class SecurityConfigLocal {
                                 "/**.css",
                                 "/**.js"
                         ).permitAll()
-                        .requestMatchers(
-                                "/api/session",
-                                "/api/artist/**",
-                                "/api/museum/**",
-                                "/api/painting/**",
-                                "/api/country/**"
-                        ).permitAll()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()))

@@ -6,3 +6,5 @@ spring:
   grpc:
     server:
       port: 8093
+      servlet:
+        enabled: false

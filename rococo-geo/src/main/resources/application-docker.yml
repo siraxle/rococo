@@ -9,3 +9,5 @@ spring:
   grpc:
     server:
       port: 8095
+      servlet:
+        enabled: false
