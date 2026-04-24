@@ -1,0 +1,25 @@
+<div>POST to http://gateway.rococo.dc:8081/api/museum</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;df8bd0cd-922a-45a8-bf29-6fca5e90460d&quot;,&quot;title&quot;:&quot;Padberg, Borer and Predovic Museum&quot;,&quot;description&quot;:&quot;Et saepe sit amet velit reprehenderit quia.&quot;,&quot;city&quot;:&quot;Lindgrenburgh&quot;,&quot;address&quot;:&quot;5716 Leannon Branch&quot;,&quot;photo&quot;:&quot;/app/rococo-tests/build/resources/test/images/test-painting.jpg&quot;,&quot;geo&quot;:{&quot;city&quot;:&quot;Lindgrenburgh&quot;,&quot;country&quot;:{&quot;id&quot;:&quot;7acc0ab4-b6c3-4460-a8fe-612552410083&quot;,&quot;name&quot;:&quot;Poland&quot;,&quot;code&quot;:&quot;359&quot;}}}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 395</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X POST &#39;http://gateway.rococo.dc:8081/api/museum&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 395&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;df8bd0cd-922a-45a8-bf29-6fca5e90460d&quot;,&quot;title&quot;:&quot;Padberg, Borer and Predovic Museum&quot;,&quot;description&quot;:&quot;Et saepe sit amet velit reprehenderit quia.&quot;,&quot;city&quot;:&quot;Lindgrenburgh&quot;,&quot;address&quot;:&quot;5716 Leannon Branch&quot;,&quot;photo&quot;:&quot;/app/rococo-tests/build/resources/test/images/test-painting.jpg&quot;,&quot;geo&quot;:{&quot;city&quot;:&quot;Lindgrenburgh&quot;,&quot;country&quot;:{&quot;id&quot;:&quot;7acc0ab4-b6c3-4460-a8fe-612552410083&quot;,&quot;name&quot;:&quot;Poland&quot;,&quot;code&quot;:&quot;359&quot;}}}&#39;
+    </div>
+
