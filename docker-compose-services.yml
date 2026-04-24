@@ -144,7 +144,8 @@ services:
 
 networks:
   rococo-master_rococo-network:
-    external: true
+    name: rococo-master_rococo-network
+    driver: bridge
 
 volumes:
   mysql_data:

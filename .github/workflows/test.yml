@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -21,11 +22,18 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle', 'gradle.properties', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Make gradlew executable
         run: chmod +x gradlew
-
-      - name: Create Docker network
-        run: docker network create rococo-master_rococo-network
 
       - name: Pull Selenoid Chrome image
         run: docker pull selenoid/vnc_chrome:127.0
@@ -44,17 +52,21 @@ jobs:
       - name: Start microservices
         run: docker compose -f docker-compose-services.yml up -d --build
 
-      - name: Wait for gateway
+      - name: Wait for all services to be ready
         run: |
-          for i in $(seq 1 40); do
-            if curl -sf http://localhost:8081/api/session > /dev/null 2>&1; then
-              echo "Gateway is ready"
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:9000/oauth2/jwks  > /dev/null 2>&1 && \
+               curl -sf http://localhost:8081/api/country  > /dev/null 2>&1 && \
+               curl -sf http://localhost:8081/api/artist   > /dev/null 2>&1 && \
+               curl -sf http://localhost:8081/api/museum   > /dev/null 2>&1 && \
+               curl -sf http://localhost:8081/api/painting > /dev/null 2>&1; then
+              echo "All services are ready"
               exit 0
             fi
-            echo "Waiting for gateway... ($i/40)"
+            echo "Waiting for services... ($i/60)"
             sleep 5
           done
-          echo "Gateway did not start in time, dumping logs:"
+          echo "Services did not start in time, dumping logs:"
           docker compose -f docker-compose-services.yml logs
           exit 1
 
