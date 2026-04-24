@@ -71,7 +71,9 @@ jobs:
           exit 1
 
       - name: Run tests
-        run: docker compose -f docker-compose-tests.yml up --build --exit-code-from rococo-tests
+        run: |
+          mkdir -p allure-results
+          docker compose -f docker-compose-tests.yml up --build --exit-code-from rococo-tests
 
       - name: Install Allure CLI
         if: always()
