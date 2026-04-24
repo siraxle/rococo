@@ -30,8 +30,16 @@ jobs:
       - name: Pull Selenoid Chrome image
         run: docker pull selenoid/vnc_chrome:127.0
 
-      - name: Build gateway JAR
-        run: ./gradlew :rococo-gateway:bootJar -x test --no-daemon
+      - name: Build service JARs
+        run: |
+          ./gradlew \
+            :rococo-userdata:bootJar \
+            :rococo-artist:bootJar \
+            :rococo-museum:bootJar \
+            :rococo-painting:bootJar \
+            :rococo-geo:bootJar \
+            :rococo-gateway:bootJar \
+            -x test --no-daemon
 
       - name: Start microservices
         run: docker compose -f docker-compose-services.yml up -d --build

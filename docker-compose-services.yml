@@ -31,15 +31,12 @@ services:
 
   userdata:
     container_name: userdata.rococo.dc
-    image: siraxle/rococo-userdata-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-userdata/Dockerfile
     ports:
       - "8098:8098"
       - "8096:8096"
-    environment:
-      - PROFILE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-userdata?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=secret
     networks:
       - rococo-master_rococo-network
     depends_on:
@@ -47,15 +44,12 @@ services:
 
   artist:
     container_name: artist.rococo.dc
-    image: siraxle/rococo-artist-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-artist/Dockerfile
     ports:
       - "8090:8090"
       - "8091:8091"
-    environment:
-      - PROFILE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-artist?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=secret
     networks:
       - rococo-master_rococo-network
     depends_on:
@@ -63,15 +57,12 @@ services:
 
   museum:
     container_name: museum.rococo.dc
-    image: siraxle/rococo-museum-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-museum/Dockerfile
     ports:
       - "8094:8094"
       - "8092:8092"
-    environment:
-      - PROFILE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-museum?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=secret
     networks:
       - rococo-master_rococo-network
     depends_on:
@@ -79,14 +70,11 @@ services:
 
   painting:
     container_name: painting.rococo.dc
-    image: siraxle/rococo-painting-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-painting/Dockerfile
     ports:
       - "8093:8093"
-    environment:
-      - PROFILE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-painting?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=secret
     networks:
       - rococo-master_rococo-network
     depends_on:
@@ -94,15 +82,12 @@ services:
 
   geo:
     container_name: geo.rococo.dc
-    image: siraxle/rococo-geo-docker:latest
+    build:
+      context: ./
+      dockerfile: rococo-geo/Dockerfile
     ports:
       - "8097:8097"
       - "8095:8095"
-    environment:
-      - PROFILE=docker
-      - SPRING_DATASOURCE_URL=jdbc:mysql://rococo-all-db:3306/rococo-geo?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=secret
     networks:
       - rococo-master_rococo-network
     depends_on:
