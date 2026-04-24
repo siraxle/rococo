@@ -53,15 +53,16 @@ jobs:
       - name: Run tests
         run: docker compose -f docker-compose-tests.yml up --build --exit-code-from rococo-tests
 
-      - name: Generate Allure report
-        uses: simple-elf/allure-report-action@v1.9
+      - name: Install Allure CLI
         if: always()
-        with:
-          allure_results: allure-results
-          allure_report: allure-report
-          gh_pages: gh-pages
-          allure_history: allure-history
-          keep_reports: 20
+        run: |
+          curl -sLo allure.tgz https://github.com/allure-framework/allure2/releases/download/2.29.0/allure-2.29.0.tgz
+          sudo tar -zxf allure.tgz -C /opt/
+          sudo ln -s /opt/allure-2.29.0/bin/allure /usr/local/bin/allure
+
+      - name: Generate Allure report
+        if: always()
+        run: allure generate allure-results -o allure-report --clean
 
       - name: Upload Allure report as artifact
         if: always()
@@ -77,7 +78,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: allure-history
+          publish_dir: allure-report
 
       - name: Stop services
         if: always()
