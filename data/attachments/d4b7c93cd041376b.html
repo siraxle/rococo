@@ -1,0 +1,25 @@
+<div>PATCH to http://gateway.rococo.dc:8081/api/artist</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;3de789bf-6dfe-4bd5-811a-3e59fd13abfb&quot;,&quot;name&quot;:&quot;Kandinsky&quot;,&quot;biography&quot;:&quot;Qui corporis labore error rem. Sapiente vel quo. Doloremque reiciendis dolor dicta.&quot;,&quot;photo&quot;:&quot;new_photo_1777020702907.jpg&quot;}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 200</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PATCH &#39;http://gateway.rococo.dc:8081/api/artist&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 200&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;3de789bf-6dfe-4bd5-811a-3e59fd13abfb&quot;,&quot;name&quot;:&quot;Kandinsky&quot;,&quot;biography&quot;:&quot;Qui corporis labore error rem. Sapiente vel quo. Doloremque reiciendis dolor dicta.&quot;,&quot;photo&quot;:&quot;new_photo_1777020702907.jpg&quot;}&#39;
+    </div>
+
