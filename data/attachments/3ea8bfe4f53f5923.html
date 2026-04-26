@@ -1,0 +1,25 @@
+<div>PATCH to http://gateway.rococo.dc:8081/api/painting</div>
+
+    <h4>Body</h4>
+    <div>
+    <pre class="preformated-text">
+{&quot;id&quot;:&quot;c351c64c-d337-4715-879f-56a8256526a0&quot;,&quot;title&quot;:&quot;No Country for Old Men&quot;,&quot;description&quot;:&quot;Qui porro ut ut veritatis.&quot;,&quot;photo&quot;:null,&quot;content&quot;:&quot;new_photo_1777221187544.jpg&quot;,&quot;artist&quot;:{&quot;id&quot;:&quot;cf1c3e45-788b-4122-8afb-6c8462c48913&quot;,&quot;name&quot;:null},&quot;museum&quot;:{&quot;id&quot;:&quot;cee74f9a-5240-4db5-a765-4343b70264a1&quot;}}    </pre>
+    </div>
+
+    <h4>Headers</h4>
+    <div>
+            <div>host: gateway.rococo.dc:8081</div>
+            <div>content-length: 296</div>
+            <div>connection: Keep-Alive</div>
+            <div>content-type: application/json; charset=UTF-8</div>
+            <div>accept-encoding: gzip</div>
+            <div>user-agent: okhttp/5.1.0</div>
+    </div>
+
+
+
+    <h4>Curl</h4>
+    <div>
+        curl -v -X PATCH &#39;http://gateway.rococo.dc:8081/api/painting&#39; -H &#39;host: gateway.rococo.dc:8081&#39; -H &#39;content-length: 296&#39; -H &#39;connection: Keep-Alive&#39; -H &#39;content-type: application/json; charset=UTF-8&#39; -H &#39;accept-encoding: gzip&#39; -H &#39;user-agent: okhttp/5.1.0&#39; -d &#39;{&quot;id&quot;:&quot;c351c64c-d337-4715-879f-56a8256526a0&quot;,&quot;title&quot;:&quot;No Country for Old Men&quot;,&quot;description&quot;:&quot;Qui porro ut ut veritatis.&quot;,&quot;photo&quot;:null,&quot;content&quot;:&quot;new_photo_1777221187544.jpg&quot;,&quot;artist&quot;:{&quot;id&quot;:&quot;cf1c3e45-788b-4122-8afb-6c8462c48913&quot;,&quot;name&quot;:null},&quot;museum&quot;:{&quot;id&quot;:&quot;cee74f9a-5240-4db5-a765-4343b70264a1&quot;}}&#39;
+    </div>
+
